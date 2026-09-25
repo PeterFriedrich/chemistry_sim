@@ -36,6 +36,14 @@ export const sims = [
     summary: 'Drop a hot metal block into water in a foam cup. The heat the metal loses is the heat the water gains.',
     concepts: ['Q = mcΔt', 'heat lost = heat gained', 'specific heat capacity'],
   },
+  {
+    id: 'hess',
+    course: 'c30',
+    unit: 'A',
+    title: 'Enthalpy of Reaction from ΔfH°',
+    summary: 'Pick a balanced reaction and get ΔrH from the Data Booklet’s formation enthalpies, drawn as an enthalpy diagram with the Hess route through the elements.',
+    concepts: ['ΔrH = ΣnΔfH°(products) − ΣnΔfH°(reactants)', 'Hess’s law', 'ΔH = nΔrH'],
+  },
 ];
 
 export function findSim(id) {

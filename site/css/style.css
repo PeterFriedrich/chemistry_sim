@@ -13,16 +13,14 @@
   --c-accent-ink: #ffffff;
   --c-accent-soft: #e7eefc;
 
-  /* Vector colours are shared by every sim: a velocity is always this blue. */
-  --c-velocity: #2563eb;
-  --c-accel: #d9480f;
-  --c-force: #b5179e;
-  --c-gravity: #6d28d9;
-  --c-normal: #0f8a7e;
-  --c-friction: #c81e1e;
-  --c-kinetic: #2563eb;
-  --c-potential: #15803d;
-  --c-total: #4b5563;
+  /* Colour code shared by every sim: reactants, products, elements (the zero of
+     enthalpy), exothermic (heat out, warm) and endothermic (heat in, cool). */
+  --c-reactant: #6d28d9;
+  --c-product: #0f8a7e;
+  --c-element: #4b5563;
+  --c-exo: #d9480f;
+  --c-endo: #2563eb;
+  --c-danger: #c81e1e;
   --c-series-a: #2563eb;
   --c-series-b: #d9480f;
 }
@@ -38,15 +36,12 @@
     --c-accent: #7aa7ff;
     --c-accent-ink: #0e1116;
     --c-accent-soft: #1d2940;
-    --c-velocity: #6aa8ff;
-    --c-accel: #ff9a57;
-    --c-force: #ee7ef5;
-    --c-gravity: #b095ff;
-    --c-normal: #3fd6c5;
-    --c-friction: #ff7b7b;
-    --c-kinetic: #6aa8ff;
-    --c-potential: #5ee08a;
-    --c-total: #c5ccd6;
+    --c-reactant: #b095ff;
+    --c-product: #3fd6c5;
+    --c-element: #c5ccd6;
+    --c-exo: #ff9a57;
+    --c-endo: #6aa8ff;
+    --c-danger: #ff7b7b;
     --c-series-a: #6aa8ff;
     --c-series-b: #ff9a57;
   }
@@ -62,15 +57,12 @@
   --c-accent: #7aa7ff;
   --c-accent-ink: #0e1116;
   --c-accent-soft: #1d2940;
-  --c-velocity: #6aa8ff;
-  --c-accel: #ff9a57;
-  --c-force: #ee7ef5;
-  --c-gravity: #b095ff;
-  --c-normal: #3fd6c5;
-  --c-friction: #ff7b7b;
-  --c-kinetic: #6aa8ff;
-  --c-potential: #5ee08a;
-  --c-total: #c5ccd6;
+  --c-reactant: #b095ff;
+  --c-product: #3fd6c5;
+  --c-element: #c5ccd6;
+  --c-exo: #ff9a57;
+  --c-endo: #6aa8ff;
+  --c-danger: #ff7b7b;
   --c-series-a: #6aa8ff;
   --c-series-b: #ff9a57;
 }
@@ -215,7 +207,7 @@ select {
 
 .site-footer { border-top: 1px solid var(--c-border); color: var(--c-muted); font-size: 13px; padding: 18px 0 28px; }
 
-.error { padding: 24px; background: var(--c-surface); border: 1px solid var(--c-friction); border-radius: var(--radius); }
+.error { padding: 24px; background: var(--c-surface); border: 1px solid var(--c-danger); border-radius: var(--radius); }
 
 /* Nuclide notation: mass number over atomic number, left of the symbol. */
 .nuc { white-space: nowrap; }

@@ -8,3 +8,6 @@ Items are verbatim as they were closed, newest-moved first in the order they app
 
 ---
 
+- [x] Chemistry 30 A: `hess` — built 2026-09-25 with the full Δ<sub>f</sub>H° table (DATA_SHEET.md §1.6).
+
+- [x] Replace the physics colour tokens inherited in `site/css/style.css` / `lib/canvas.js` `theme()` (`--c-velocity` … `--c-total`) with a chemistry colour code once the second sim needs one (ARCHITECTURE.md §5).

@@ -47,8 +47,8 @@ media?.addEventListener?.('change', () => (cached = null));
 
 const TOKENS = [
   'bg', 'surface', 'ink', 'muted', 'grid', 'accent',
-  'velocity', 'accel', 'force', 'gravity', 'normal', 'friction',
-  'kinetic', 'potential', 'total', 'series-a', 'series-b',
+  'reactant', 'product', 'element', 'exo', 'endo', 'danger',
+  'series-a', 'series-b',
 ];
 
 // Canvas colours come from the same tokens as the page, so both themes work.

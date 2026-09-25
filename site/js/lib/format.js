@@ -22,6 +22,18 @@ export function fmt(x, sig = 3) {
   return minus(s.includes('e') ? String(Number(s)) : s);
 }
 
+// Fixed decimal places, for sums and differences (the addition rule: ΔrH from
+// ΔfH° values to 0.1 kJ/mol) and for pH. Digits are grouped in threes with a
+// narrow space from 1 000 up, as the Data Booklet prints "−1 675.7".
+export function fixed(x, dp) {
+  if (x === null || x === undefined || Number.isNaN(x)) return '—';
+  let s = Math.abs(x).toFixed(dp);
+  if (Number(s) === 0) return s; // no "−0.0"
+  const [int, frac] = s.split('.');
+  s = (int.length > 3 ? int.replace(/\B(?=(\d{3})+$)/g, '\u202f') : int) + (frac ? `.${frac}` : '');
+  return x < 0 ? `−${s}` : s;
+}
+
 export function withUnit(x, unit, sig = 3) {
   const s = fmt(x, sig);
   return unit ? `${s} ${unit}` : s;

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fmt, snap, superscript } from '../site/js/lib/format.js';
+import { fmt, fixed, snap, superscript } from '../site/js/lib/format.js';
 
 test('test_format_significant_figures', () => {
   assert.equal(fmt(9.81), '9.81');
@@ -27,4 +27,15 @@ test('test_format_non_finite', () => {
 test('test_format_snap_is_relative_not_absolute', () => {
   assert.equal(snap(1e-17, 0.3), 0);
   assert.equal(snap(1.6e-19, 1.6e-19), 1.6e-19); // a real charge is not residue
+});
+
+test('test_format_fixed_decimal_places_like_the_booklet', () => {
+  assert.equal(fixed(-890.5, 1), '−890.5');
+  assert.equal(fixed(-1675.7, 1), '−1\u202f675.7');
+  assert.equal(fixed(-10940.2, 1), '−10\u202f940.2');
+  assert.equal(fixed(179.2, 1), '179.2');
+  assert.equal(fixed(-890.4999999999999, 1), '−890.5'); // float residue from the sums
+  assert.equal(fixed(-0.04, 1), '0.0');
+  assert.equal(fixed(2.3, 2), '2.30');
+  assert.equal(fixed(NaN, 1), '—');
 });

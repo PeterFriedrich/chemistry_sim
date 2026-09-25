@@ -66,9 +66,11 @@ drawn from the computed values, and no readout reads the particles back.
 
 Colours are CSS custom properties on `:root`, redefined for dark mode.
 `lib/canvas.js` `theme()` reads them so canvas drawing follows the page theme.
-Colour meanings are shared across sims so students learn one code. The
-`--c-velocity`…`--c-total` tokens are inherited from physics_sim and unused so
-far; repurpose or delete them when the first chemistry colour code is chosen.
+Colour meanings are shared across sims so students learn one code:
+`--c-reactant`, `--c-product`, `--c-element` (the zero of the formation
+scale), `--c-exo` (warm: heat out) and `--c-endo` (cool: heat in), chosen with
+`hess`; `--c-series-a`/`-b` are plain data series (calorimetry's water and
+metal); `--c-danger` is the error box. The physics_sim vector tokens are gone.
 
 ## 6. Verification and deployment
 
@@ -107,3 +109,10 @@ could mislead.
   cup absorbs no heat and none escapes. The approach to equilibrium on screen
   is an exponential with an arbitrary rate, for animation only; readouts use
   t<sub>f</sub> from heat lost = heat gained.
+- **Enthalpy of reaction** (`chem/hess.js`): fixed, balanced preset equations
+  only — no free equation entry, which would need a parser and a balancer (a
+  general chemistry engine). Standard conditions throughout: Δ<sub>r</sub>H° from
+  the booklet's Δ<sub>f</sub>H° at 298.15 K, elements in their standard states
+  at 0. Sums and differences print to 0.1 kJ (the addition rule, since the
+  table is to 0.1 kJ/mol); ΔH = nΔ<sub>r</sub>H prints to 3 significant figures.
+  The Hess-route animation is drawing only.
