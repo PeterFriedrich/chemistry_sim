@@ -8,6 +8,8 @@ Items are verbatim as they were closed, newest-moved first in the order they app
 
 ---
 
+- [x] Chemistry 30 B: `electrolysis` — built 2026-09-25, with the periodic table's molar masses (DATA_SHEET.md §1.8).
+
 - [x] Chemistry 30 B: `voltaic` — built 2026-09-25 with the full electrode potential table (DATA_SHEET.md §1.7).
 
 - [x] Chemistry 30 A: `hess` — built 2026-09-25 with the full Δ<sub>f</sub>H° table (DATA_SHEET.md §1.6).
