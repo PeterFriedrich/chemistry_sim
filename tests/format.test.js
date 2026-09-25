@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fmt, fixed, snap, superscript } from '../site/js/lib/format.js';
+import { fmt, fixed, snap, species, superscript } from '../site/js/lib/format.js';
 
 test('test_format_significant_figures', () => {
   assert.equal(fmt(9.81), '9.81');
@@ -38,4 +38,12 @@ test('test_format_fixed_decimal_places_like_the_booklet', () => {
   assert.equal(fixed(-0.04, 1), '0.0');
   assert.equal(fixed(2.3, 2), '2.30');
   assert.equal(fixed(NaN, 1), '—');
+});
+
+test('test_format_species_subscripts_and_charges', () => {
+  assert.equal(species('C6H12O6(s)'), 'C₆H₁₂O₆(s)');
+  assert.equal(species('SO4^2-(aq)'), 'SO₄²⁻(aq)');
+  assert.equal(species('Ag^+(aq)'), 'Ag⁺(aq)');
+  assert.equal(species('Al^3+(aq)'), 'Al³⁺(aq)');
+  assert.equal(species('Cl^-(aq)'), 'Cl⁻(aq)');
 });

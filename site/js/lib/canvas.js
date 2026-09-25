@@ -47,7 +47,7 @@ media?.addEventListener?.('change', () => (cached = null));
 
 const TOKENS = [
   'bg', 'surface', 'ink', 'muted', 'grid', 'accent',
-  'reactant', 'product', 'element', 'exo', 'endo', 'danger',
+  'reactant', 'product', 'element', 'exo', 'endo', 'danger', 'electron', 'cation', 'anion',
   'series-a', 'series-b',
 ];
 

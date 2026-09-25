@@ -44,6 +44,14 @@ export const sims = [
     summary: 'Pick a balanced reaction and get ΔrH from the Data Booklet’s formation enthalpies, drawn as an enthalpy diagram with the Hess route through the elements.',
     concepts: ['ΔrH = ΣnΔfH°(products) − ΣnΔfH°(reactants)', 'Hess’s law', 'ΔH = nΔrH'],
   },
+  {
+    id: 'voltaic',
+    course: 'c30',
+    unit: 'B',
+    title: 'Voltaic Cell Builder',
+    summary: 'Pick two half-cells from the Data Booklet’s redox table. See which is the cathode, the cell potential, the balanced net equation and which way electrons and ions move.',
+    concepts: ['E°cell = E°cathode − E°anode', 'SOA and SRA', 'electron balance'],
+  },
 ];
 
 export function findSim(id) {

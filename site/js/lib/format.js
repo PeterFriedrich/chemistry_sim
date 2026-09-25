@@ -34,6 +34,16 @@ export function fixed(x, dp) {
   return x < 0 ? `−${s}` : s;
 }
 
+// A species as the chem modules write it, 'SO4^2-(aq)', as students write it,
+// SO₄²⁻(aq): formula digits subscript, the charge after the caret superscript.
+const SUB = '₀₁₂₃₄₅₆₇₈₉';
+export function species(s) {
+  const [formula, rest = ''] = s.split('^');
+  const sub = formula.replace(/\d/g, (d) => SUB[d]);
+  const m = /^(\d*[+-])(.*)$/.exec(rest);
+  return m ? sub + superscript(m[1]).replace('-', '⁻').replace('+', '⁺') + m[2] : sub;
+}
+
 export function withUnit(x, unit, sig = 3) {
   const s = fmt(x, sig);
   return unit ? `${s} ${unit}` : s;

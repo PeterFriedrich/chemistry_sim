@@ -21,6 +21,9 @@
   --c-exo: #d9480f;
   --c-endo: #2563eb;
   --c-danger: #c81e1e;
+  --c-electron: #a16207;
+  --c-cation: #be185d;
+  --c-anion: #0369a1;
   --c-series-a: #2563eb;
   --c-series-b: #d9480f;
 }
@@ -42,6 +45,9 @@
     --c-exo: #ff9a57;
     --c-endo: #6aa8ff;
     --c-danger: #ff7b7b;
+    --c-electron: #facc15;
+    --c-cation: #f472b6;
+    --c-anion: #38bdf8;
     --c-series-a: #6aa8ff;
     --c-series-b: #ff9a57;
   }
@@ -63,6 +69,9 @@
   --c-exo: #ff9a57;
   --c-endo: #6aa8ff;
   --c-danger: #ff7b7b;
+  --c-electron: #facc15;
+  --c-cation: #f472b6;
+  --c-anion: #38bdf8;
   --c-series-a: #6aa8ff;
   --c-series-b: #ff9a57;
 }
