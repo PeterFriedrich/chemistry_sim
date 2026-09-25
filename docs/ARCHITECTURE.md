@@ -124,3 +124,10 @@ could mislead.
   E° values print to 0.01 V, as the table does. Electrode wear, the electron
   stream and the ion drift in the salt bridge are decoration and stop when
   E°<sub>cell</sub> ≤ 0.
+- **Electrolysis** (`chem/electrolysis.js`): products are predicted strictly
+  from the table (SOA and SRA among every species present, water included), so
+  chloride electrolytes are left out: the table predicts O₂ but Cl₂ forms
+  (overvoltage). E°<sub>cell</sub> at standard conditions; the minimum
+  voltage is −E°<sub>cell</sub>, with no overvoltage. Gas products are reported
+  in mol only, since the booklet prints no molar volume. Bubbles, the plating
+  coat and the dissolving anode are decoration.

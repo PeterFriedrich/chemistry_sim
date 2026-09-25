@@ -52,6 +52,14 @@ export const sims = [
     summary: 'Pick two half-cells from the Data Booklet’s redox table. See which is the cathode, the cell potential, the balanced net equation and which way electrons and ions move.',
     concepts: ['E°cell = E°cathode − E°anode', 'SOA and SRA', 'electron balance'],
   },
+  {
+    id: 'electrolysis',
+    course: 'c30',
+    unit: 'B',
+    title: 'Electrolysis and Faraday’s Law',
+    summary: 'Run a current through an aqueous electrolyte. Find the SOA and SRA from the redox table, then how much product forms: Q = It, n = Q/F, m = nM.',
+    concepts: ['SOA and SRA with water', 'minimum voltage', 'Q = It, n = Q/F'],
+  },
 ];
 
 export function findSim(id) {
