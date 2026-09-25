@@ -61,6 +61,14 @@ export const sims = [
     concepts: ['SOA and SRA with water', 'minimum voltage', 'Q = It, n = Q/F'],
   },
   {
+    id: 'lechatelier',
+    course: 'c30',
+    unit: 'D',
+    title: 'Le Châtelier’s Principle',
+    summary: 'Stress a system at equilibrium: add or remove a species, change the volume or the temperature, add a catalyst. Compare Q with Kc to predict the shift, then watch the concentrations settle.',
+    concepts: ['Kc expression', 'Q vs Kc', 'only temperature changes Kc'],
+  },
+  {
     id: 'titration',
     course: 'c30',
     unit: 'D',

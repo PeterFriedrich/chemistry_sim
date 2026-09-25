@@ -143,3 +143,15 @@ could mislead.
   half-equivalence for the stronger weak acids (HF). An indicator "fits" when a
   printed range contains the equivalence pH. The flask colour blends linearly
   across the printed range, and the flow slows near V<sub>eq</sub>: both picture only.
+- **Le Châtelier** (`chem/equilibrium.js`): four presets whose starting
+  equilibrium concentrations are illustrative round numbers; K<sub>c</sub> is
+  calculated from them (the booklet prints no K<sub>c</sub>). Δ<sub>r</sub>H comes
+  from the booklet's Δ<sub>f</sub>H° via `hess.js`; the chromate ⇌ dichromate
+  system has no Δ<sub>f</sub>H° for its ions, so it has no temperature stress, and
+  its colours come from the booklet's p. 11 table. A temperature change multiplies
+  or divides K<sub>c</sub> by 3 — illustrative, since the course has no formula for
+  the new K<sub>c</sub>. Q and K<sub>c</sub> right after a stress are the student
+  method; the new equilibrium is solved exactly at constant K<sub>c</sub>
+  (bisection on the extent) and shown with "≈". The relaxation's time course,
+  the particle positions and the NO₂ tint are picture only; particle counts
+  follow c × V.
