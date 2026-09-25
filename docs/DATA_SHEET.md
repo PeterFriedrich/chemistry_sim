@@ -49,8 +49,8 @@ V in **L**; c (amount concentration) in mol/L; [ ] = amount concentration.
 | 4–5 | Standard molar enthalpies of formation at 298.15 K (kJ/mol) | **yes — §1.6** |
 | 6 | Solubility of some common ionic compounds in water at 298.15 K; flame colours | not yet |
 | 7 | Selected standard electrode potentials (1.0 mol/L, 298.15 K, 101.325 kPa) | **yes — §1.7** |
-| 8–9 | Relative strengths of acids and bases at 298.15 K, with K<sub>a</sub> | not yet |
-| 10 | Acid–base indicators at 298.15 K (pH ranges and colours) | not yet |
+| 8–9 | Relative strengths of acids and bases at 298.15 K, with K<sub>a</sub> | **yes — §1.9** |
+| 10 | Acid–base indicators at 298.15 K (pH ranges and colours) | **yes — §1.10** |
 | 11 | Colours of common aqueous ions | not yet |
 
 ### 1.4 Rules printed in the booklet that a sim must honour
@@ -363,6 +363,78 @@ are **not** transcribed yet.
 | 109 | Mt | meitnerium | (268) |
 | 110 | Ds | darmstadtium | (271) |
 | 111 | Rg | roentgenium | (272) |
+
+### 1.9 Relative strengths of acids and bases at 298.15 K (pp. 8–9)
+
+Strongest acid first. Transcribed from the PDF with `pypdf` (35 rows; charges
+the extraction split onto the next line were rejoined), then read row by row
+against the rendered pages. Only the common name is kept; the booklet also
+prints an IUPAC/systematic name and says either is acceptable. Code:
+`site/js/chem/acid-data.js` ("very large" is `Infinity`).
+
+| Acid | Acid formula | Conjugate base | K<sub>a</sub> |
+|---|---|---|---|
+| perchloric acid | HClO₄(aq) | ClO₄⁻(aq) | very large |
+| hydroiodic acid | HI(aq) | I⁻(aq) | very large |
+| hydrobromic acid | HBr(aq) | Br⁻(aq) | very large |
+| hydrochloric acid | HCl(aq) | Cl⁻(aq) | very large |
+| sulfuric acid | H₂SO₄(aq) | HSO₄⁻(aq) | very large |
+| nitric acid | HNO₃(aq) | NO₃⁻(aq) | very large |
+| hydronium ion | H₃O⁺(aq) | H₂O(l) | 1 |
+| oxalic acid | HOOCCOOH(aq) | HOOCCOO⁻(aq) | 5.6 × 10<sup>−2</sup> |
+| sulfurous acid | H₂SO₃(aq) | HSO₃⁻(aq) | 1.4 × 10<sup>−2</sup> |
+| hydrogen sulfate ion | HSO₄⁻(aq) | SO₄²⁻(aq) | 1.0 × 10<sup>−2</sup> |
+| phosphoric acid | H₃PO₄(aq) | H₂PO₄⁻(aq) | 6.9 × 10<sup>−3</sup> |
+| citric acid | C₃H₅O(COOH)₃(aq) | C₃H₅O(COOH)₂COO⁻(aq) | 7.4 × 10<sup>−4</sup> |
+| hydrofluoric acid | HF(aq) | F⁻(aq) | 6.3 × 10<sup>−4</sup> |
+| nitrous acid | HNO₂(aq) | NO₂⁻(aq) | 5.6 × 10<sup>−4</sup> |
+| formic acid | HCOOH(aq) | HCOO⁻(aq) | 1.8 × 10<sup>−4</sup> |
+| hydrogen oxalate ion | HOOCCOO⁻(aq) | OOCCOO²⁻(aq) | 1.5 × 10<sup>−4</sup> |
+| lactic acid | C₂H₅OCOOH(aq) | C₂H₅OCOO⁻(aq) | 1.4 × 10<sup>−4</sup> |
+| ascorbic acid | H₂C₆H₆O₆(aq) | HC₆H₆O₆⁻(aq) | 9.1 × 10<sup>−5</sup> |
+| benzoic acid | C₆H₅COOH(aq) | C₆H₅COO⁻(aq) | 6.3 × 10<sup>−5</sup> |
+| acetic acid | CH₃COOH(aq) | CH₃COO⁻(aq) | 1.8 × 10<sup>−5</sup> |
+| dihydrogen citrate ion | C₃H₅O(COOH)₂COO⁻(aq) | C₃H₅OCOOH(COO)₂²⁻(aq) | 1.7 × 10<sup>−5</sup> |
+| butanoic acid | C₃H₇COOH(aq) | C₃H₇COO⁻(aq) | 1.5 × 10<sup>−5</sup> |
+| propanoic acid | C₂H₅COOH(aq) | C₂H₅COO⁻(aq) | 1.3 × 10<sup>−5</sup> |
+| carbonic acid | H₂CO₃(aq) | HCO₃⁻(aq) | 4.5 × 10<sup>−7</sup> |
+| hydrogen citrate ion | C₃H₅OCOOH(COO)₂²⁻(aq) | C₃H₅O(COO)₃³⁻(aq) | 4.0 × 10<sup>−7</sup> |
+| hydrosulfuric acid | H₂S(aq) | HS⁻(aq) | 8.9 × 10<sup>−8</sup> |
+| hydrogen sulfite ion | HSO₃⁻(aq) | SO₃²⁻(aq) | 6.3 × 10<sup>−8</sup> |
+| dihydrogen phosphate ion | H₂PO₄⁻(aq) | HPO₄²⁻(aq) | 6.2 × 10<sup>−8</sup> |
+| hypochlorous acid | HOCl(aq) | OCl⁻(aq) | 4.0 × 10<sup>−8</sup> |
+| hydrocyanic acid | HCN(aq) | CN⁻(aq) | 6.2 × 10<sup>−10</sup> |
+| ammonium ion | NH₄⁺(aq) | NH₃(aq) | 5.6 × 10<sup>−10</sup> |
+| hydrogen carbonate ion | HCO₃⁻(aq) | CO₃²⁻(aq) | 4.7 × 10<sup>−11</sup> |
+| hydrogen ascorbate ion | HC₆H₆O₆⁻(aq) | C₆H₆O₆²⁻(aq) | 2.0 × 10<sup>−12</sup> |
+| hydrogen phosphate ion | HPO₄²⁻(aq) | PO₄³⁻(aq) | 4.8 × 10<sup>−13</sup> |
+| water | H₂O(l) | OH⁻(aq) | 1.0 × 10<sup>−14</sup> |
+
+### 1.10 Acid–base indicators at 298.15 K (p. 10)
+
+Transcribed from the PDF with `pypdf` (15 indicators; cresol red and thymol
+blue change colour twice), then read against the rendered page. A "~" K<sub>a</sub>
+is printed that way. Code: `site/js/chem/indicator-data.js`.
+
+| Indicator | Abbreviations | pH range | Colour change as pH increases | K<sub>a</sub> |
+|---|---|---|---|---|
+| methyl violet | HMv(aq) / Mv⁻(aq) | 0.0 – 1.6 | yellow to blue | ~2 × 10<sup>−1</sup> |
+| cresol red | H₂Cr(aq) / HCr⁻(aq) | 0.0 – 1.0 | red to yellow | ~3 × 10<sup>−1</sup> |
+| cresol red | HCr⁻(aq) / Cr²⁻(aq) | 7.0 – 8.8 | yellow to red | 3.5 × 10<sup>−9</sup> |
+| thymol blue | H₂Tb(aq) / HTb⁻(aq) | 1.2 – 2.8 | red to yellow | 2.2 × 10<sup>−2</sup> |
+| thymol blue | HTb⁻(aq) / Tb²⁻(aq) | 8.0 – 9.6 | yellow to blue | 6.3 × 10<sup>−10</sup> |
+| orange IV | HOr(aq) / Or⁻(aq) | 1.4 – 2.8 | red to yellow | ~1 × 10<sup>−2</sup> |
+| methyl orange | HMo(aq) / Mo⁻(aq) | 3.2 – 4.4 | red to yellow | 3.5 × 10<sup>−4</sup> |
+| bromocresol green | HBg(aq) / Bg⁻(aq) | 3.8 – 5.4 | yellow to blue | 1.3 × 10<sup>−5</sup> |
+| methyl red | HMr(aq) / Mr⁻(aq) | 4.8 – 6.0 | red to yellow | 1.0 × 10<sup>−5</sup> |
+| chlorophenol red | HCh(aq) / Ch⁻(aq) | 5.2 – 6.8 | yellow to red | 5.6 × 10<sup>−7</sup> |
+| bromothymol blue | HBb(aq) / Bb⁻(aq) | 6.0 – 7.6 | yellow to blue | 5.0 × 10<sup>−8</sup> |
+| phenol red | HPr(aq) / Pr⁻(aq) | 6.6 – 8.0 | yellow to red | 1.0 × 10<sup>−8</sup> |
+| phenolphthalein | HPh(aq) / Ph⁻(aq) | 8.2 – 10.0 | colourless to pink | 3.2 × 10<sup>−10</sup> |
+| thymolphthalein | HTh(aq) / Th⁻(aq) | 9.4 – 10.6 | colourless to blue | 1.0 × 10<sup>−10</sup> |
+| alizarin yellow R | HAy(aq) / Ay⁻(aq) | 10.1 – 12.0 | yellow to red | 6.9 × 10<sup>−12</sup> |
+| indigo carmine | HIc(aq) / Ic⁻(aq) | 11.4 – 13.0 | blue to yellow | ~6 × 10<sup>−12</sup> |
+| 1,3,5-trinitrobenzene | HNb(aq) / Nb⁻(aq) | 12.0 – 14.0 | colourless to orange | ~1 × 10<sup>−13</sup> |
 
 ## 2. Chemistry 20: values not in the booklet
 
