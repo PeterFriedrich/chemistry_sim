@@ -51,7 +51,7 @@ V in **L**; c (amount concentration) in mol/L; [ ] = amount concentration.
 | 7 | Selected standard electrode potentials (1.0 mol/L, 298.15 K, 101.325 kPa) | **yes — §1.7** |
 | 8–9 | Relative strengths of acids and bases at 298.15 K, with K<sub>a</sub> | **yes — §1.9** |
 | 10 | Acid–base indicators at 298.15 K (pH ranges and colours) | **yes — §1.10** |
-| 11 | Colours of common aqueous ions | not yet |
+| 11 | Colours of common aqueous ions | **yes — §1.11** |
 
 ### 1.4 Rules printed in the booklet that a sim must honour
 
@@ -435,6 +435,27 @@ is printed that way. Code: `site/js/chem/indicator-data.js`.
 | alizarin yellow R | HAy(aq) / Ay⁻(aq) | 10.1 – 12.0 | yellow to red | 6.9 × 10<sup>−12</sup> |
 | indigo carmine | HIc(aq) / Ic⁻(aq) | 11.4 – 13.0 | blue to yellow | ~6 × 10<sup>−12</sup> |
 | 1,3,5-trinitrobenzene | HNb(aq) / Nb⁻(aq) | 12.0 – 14.0 | colourless to orange | ~1 × 10<sup>−13</sup> |
+
+### 1.11 Colours of common aqueous ions (p. 11)
+
+Transcribed from the PDF with `pypdf` (12 ions), then read against the rendered
+page. The booklet prints names only; the formulas in the code are added as keys.
+Code: `site/js/chem/ion-colour-data.js`.
+
+| Ion | 1.0 mol/L | 0.010 mol/L |
+|---|---|---|
+| chromate, CrO₄²⁻ | yellow | pale yellow |
+| chromium(III), Cr³⁺ | blue-green | green |
+| chromium(II), Cr²⁺ | dark blue | pale blue |
+| cobalt(II), Co²⁺ | red | pink |
+| copper(I), Cu⁺ | blue-green | pale blue-green |
+| copper(II), Cu²⁺ | blue | pale blue |
+| dichromate, Cr₂O₇²⁻ | orange | pale orange |
+| iron(II), Fe²⁺ | lime green | colourless |
+| iron(III), Fe³⁺ | orange-yellow | pale yellow |
+| manganese(II), Mn²⁺ | pale pink | colourless |
+| nickel(II), Ni²⁺ | blue-green | pale blue-green |
+| permanganate, MnO₄⁻ | deep purple | purple-pink |
 
 ## 2. Chemistry 20: values not in the booklet
 
