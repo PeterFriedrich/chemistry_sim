@@ -8,6 +8,8 @@ Items are verbatim as they were closed, newest-moved first in the order they app
 
 ---
 
+- [x] Chemistry 30 D: `titration` — built 2026-09-25, monoprotic only (owner), with the K<sub>a</sub> and indicator tables (DATA_SHEET.md §1.9, §1.10).
+
 - [x] Chemistry 30 B: `electrolysis` — built 2026-09-25, with the periodic table's molar masses (DATA_SHEET.md §1.8).
 
 - [x] Chemistry 30 B: `voltaic` — built 2026-09-25 with the full electrode potential table (DATA_SHEET.md §1.7).

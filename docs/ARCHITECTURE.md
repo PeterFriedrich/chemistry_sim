@@ -131,3 +131,15 @@ could mislead.
   voltage is −E°<sub>cell</sub>, with no overvoltage. Gas products are reported
   in mol only, since the booklet prints no molar volume. Bubbles, the plating
   coat and the dissolving anode are decoration.
+- **Titration** (`chem/titration.js`): monoprotic analytes only, 1 : 1 with
+  NaOH(aq) or HCl(aq). Readouts use the student method: V<sub>eq</sub> from
+  n = cV; initial and equivalence pH from K<sub>a</sub> or K<sub>b</sub> =
+  K<sub>w</sub>/K<sub>a</sub>, by the approximation when c > 1000 K and the
+  quadratic otherwise (the booklet's rule); half-equivalence pH = pK<sub>a</sub>.
+  The curve is the exact charge balance (dilution and water included), drawn
+  only; between the marked points no Chemistry 30 hand method exists, so the
+  flask's pH is labelled "read from graph" and shown to 0.1. The exact curve and
+  the readouts agree to about 0.01 at the marked points, less closely at
+  half-equivalence for the stronger weak acids (HF). An indicator "fits" when a
+  printed range contains the equivalence pH. The flask colour blends linearly
+  across the printed range, and the flow slows near V<sub>eq</sub>: both picture only.

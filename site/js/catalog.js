@@ -60,6 +60,14 @@ export const sims = [
     summary: 'Run a current through an aqueous electrolyte. Find the SOA and SRA from the redox table, then how much product forms: Q = It, n = Q/F, m = nM.',
     concepts: ['SOA and SRA with water', 'minimum voltage', 'Q = It, n = Q/F'],
   },
+  {
+    id: 'titration',
+    course: 'c30',
+    unit: 'D',
+    title: 'Acid–Base Titration Curves',
+    summary: 'Titrate a strong or weak acid or base and watch the pH curve. Find the equivalence volume, the initial and equivalence pH, pKa at half-equivalence, and which indicator from the booklet fits.',
+    concepts: ['n = cV, Veq', 'Ka, Kb = Kw/Ka', 'indicator choice'],
+  },
 ];
 
 export function findSim(id) {
