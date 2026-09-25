@@ -14,7 +14,6 @@ symptom before acting on it.
 
 - [ ] **Approve or edit the phase 1 sim list** (SPEC_phase1.md §3). Record the approval as a DECISIONS row; until then only `calorimetry` exists.
 - [ ] **Supply the Chemistry 20 gas values** (R, STP/SATP definitions and molar volumes) and their source — the Data Booklet prints none of them (DATA_SHEET.md §1.5). Blocks `gaslaws`.
-- [ ] **Enable GitHub Pages**: repository Settings → Pages → Source: *GitHub Actions*. Until then `deploy.yml` fails (the merge gate is unaffected).
 
 ### Before tutoring with it
 
@@ -42,3 +41,4 @@ symptom before acting on it.
 Closed items moved out of `## Open work` live in **`docs/TODO_archive.md`** — one line each below, reasoning there.
 
 - [x] **Repo set up from physics_sim's apparatus, with the seed sim `calorimetry` (2026-09-25).**
+- [x] **GitHub repo created and Pages enabled (source: GitHub Actions), 2026-09-25.**
