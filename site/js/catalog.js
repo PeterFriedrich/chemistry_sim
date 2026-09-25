@@ -61,6 +61,14 @@ export const sims = [
     concepts: ['SOA and SRA with water', 'minimum voltage', 'Q = It, n = Q/F'],
   },
   {
+    id: 'organic',
+    course: 'c30',
+    unit: 'C',
+    title: 'Naming Organic Compounds',
+    summary: 'Build a chain with branches, a double or triple bond, halogens or an –OH, and get its IUPAC name, formulas and line diagram — including when the longest chain is not the one you drew.',
+    concepts: ['parent chain and numbering', 'alkanes, alkenes, alkynes', 'alcohols and organic halides'],
+  },
+  {
     id: 'lechatelier',
     course: 'c30',
     unit: 'D',

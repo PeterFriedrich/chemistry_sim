@@ -155,3 +155,12 @@ could mislead.
   (bisection on the extent) and shown with "≈". The relaxation's time course,
   the particle positions and the NO₂ tint are picture only; particle counts
   follow c × V.
+- **Organic naming** (`chem/organic.js`): acyclic molecules only — a drawn
+  chain of up to 10 carbons, one double or triple bond, up to four substituents
+  (methyl, ethyl, propyl, halogens, one –OH). The parent chain is re-chosen by
+  the textbook rules (–OH carbon, multiple bond, longest, most substituents), so
+  it can differ from the chain drawn; anything the rules would name with a
+  complex substituent (isopropyl, chloromethyl) or a parent over 10 carbons is
+  refused with a message rather than misnamed. Names follow IUPAC 1993
+  (but-2-ene, propan-2-ol), omitting locants only where no other position exists
+  (ethene, propene, ethanol, chloroethane). The line diagram's geometry is picture only.

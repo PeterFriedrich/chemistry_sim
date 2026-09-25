@@ -8,6 +8,8 @@ Items are verbatim as they were closed, newest-moved first in the order they app
 
 ---
 
+- [x] Chemistry 30 C: `organic` — built 2026-09-25: acyclic alkanes, alkenes, alkynes, organic halides and alcohols with one –OH, IUPAC 1993 names (owner).
+
 - [x] Chemistry 30 D: `lechatelier` — built 2026-09-25 with the ion colour table (DATA_SHEET.md §1.11); illustrative K<sub>c</sub> presets and temperature factor (owner).
 
 - [x] Chemistry 30 D: `titration` — built 2026-09-25, monoprotic only (owner), with the K<sub>a</sub> and indicator tables (DATA_SHEET.md §1.9, §1.10).

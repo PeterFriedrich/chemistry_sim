@@ -17,7 +17,7 @@ symptom before acting on it.
 
 ### Before tutoring with it
 
-- [ ] **Owner walkthrough of every sim against hand calculations.** SPEC_phase1.md §5 criterion 5: default settings for each sim, compute the readouts by hand with the booklet, confirm they match. Done when each sim has a ✓ (or a bug filed) here. `calorimetry`: ☐ `hess`: ☐ `voltaic`: ☐ `electrolysis`: ☐ `titration`: ☐ `lechatelier`: ☐
+- [ ] **Owner walkthrough of every sim against hand calculations.** SPEC_phase1.md §5 criterion 5: default settings for each sim, compute the readouts by hand with the booklet, confirm they match. Done when each sim has a ✓ (or a bug filed) here. `calorimetry`: ☐ `hess`: ☐ `voltaic`: ☐ `electrolysis`: ☐ `titration`: ☐ `lechatelier`: ☐ `organic`: ☐
 - [ ] **Map sims to program-of-studies outcomes.** Units are matched by title only; check specific outcome codes against the Alberta Education programs of study before showing them on a page.
 
 ### Phase 1 simulations (one per bullet; propose each first — CLAUDE.md)
@@ -26,7 +26,7 @@ symptom before acting on it.
 - [ ] Chemistry 20 B: `gaslaws` — blocked on the gas values above.
 - [ ] Chemistry 20 C: `dilution` and `ph`.
 - [ ] Chemistry 20 D: `stoichiometry` — limiting reagent. Molar masses are in (DATA_SHEET.md §1.8, `molarMass()` in `chem/electrolysis.js`).
-- [ ] Chemistry 30 C: `organic` — naming, qualitative.
+- [ ] Chemistry 30 C: `organic` beyond phase 1 — rings and benzene, carboxylic acids, esters, diols, branched substituents (isopropyl), cis/trans; and organic reactions (addition, substitution, elimination, esterification, polymerization). Propose first.
 - [ ] Chemistry 30 D: polyprotic titrations (CO₃²⁻ with HCl, H₃PO₄ with NaOH: two or more equivalence points) — deferred from `titration` by the owner, 2026-09-25. Propose first.
 
 ### Tidy-ups from the setup
@@ -37,6 +37,8 @@ symptom before acting on it.
 ## Done
 
 Closed items moved out of `## Open work` live in **`docs/TODO_archive.md`** — one line each below, reasoning there.
+
+- [x] **Chemistry 30 C: `organic` — built 2026-09-25: acyclic alkanes, alkenes, alkynes, organic halides and alcohols with one –OH, IUPAC 1993 names (owner).** — BUILT 2026-09-25 · `docs/TODO_archive.md`
 
 - [x] **Chemistry 30 D: `lechatelier` — built 2026-09-25 with the ion colour table (DATA_SHEET.md §1.11); illustrative K<sub>c</sub> presets and temperature f** — BUILT 2026-09-25 · `docs/TODO_archive.md`
 
