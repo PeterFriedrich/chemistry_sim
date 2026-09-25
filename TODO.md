@@ -12,7 +12,7 @@ symptom before acting on it.
 
 ### Needs the owner
 
-- [ ] **Approve or edit the phase 1 sim list** (SPEC_phase1.md §3). Record the approval as a DECISIONS row; until then only `calorimetry` exists.
+- [ ] **Approve or edit the Chemistry 20 rows of the phase 1 sim list** (SPEC_phase1.md §3). The Chemistry 30 rows were approved 2026-09-25 (DECISIONS row). Record the Chemistry 20 approval as another DECISIONS row.
 - [ ] **Supply the Chemistry 20 gas values** (R, STP/SATP definitions and molar volumes) and their source — the Data Booklet prints none of them (DATA_SHEET.md §1.5). Blocks `gaslaws`.
 
 ### Before tutoring with it

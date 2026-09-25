@@ -1,9 +1,9 @@
 # Spec — Phase 1: one simulation per course unit
 
-**Status: PROPOSED.** The sim list in §3 is a starting proposal written when the
-repo was set up (2026-09-25); the owner approves or edits it before any sim
-other than the seed `calorimetry` is built. Record the approval as a DECISIONS
-row.
+**Status: Chemistry 30 rows APPROVED (owner, 2026-09-25); Chemistry 20 rows
+still PROPOSED.** The sim list in §3 was a starting proposal written when the
+repo was set up; the owner approved the Chemistry 30 rows as written
+(DECISIONS.md). The Chemistry 20 rows wait for the owner's approval or edits.
 
 ## 1. Goal
 
@@ -20,7 +20,7 @@ Phase 1 covers every unit of both courses with at least one simulation.
   check → explain sequence without a tutor.
 - Devices: laptop and phone/tablet browsers. Light and dark mode.
 
-## 3. Scope (proposed)
+## 3. Scope (Chemistry 30 approved, Chemistry 20 proposed)
 
 | Course | Unit | Simulation (catalog id) | Booklet data it needs |
 |---|---|---|---|
