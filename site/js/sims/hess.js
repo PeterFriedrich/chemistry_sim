@@ -2,7 +2,7 @@ import * as H from '../chem/hess.js';
 import { fitCanvas, theme, clear, line, text, arrow, niceStep } from '../lib/canvas.js';
 import { section, slider, choice, readouts, el } from '../lib/controls.js';
 import { createClock } from '../lib/clock.js';
-import { fmt, fixed } from '../lib/format.js';
+import { fmt, fixed, species as formula } from '../lib/format.js';
 
 export const equations = [
   { html: 'Δ<sub>r</sub>H° = Σ nΔ<sub>f</sub>H°<sub>products</sub> − Σ nΔ<sub>f</sub>H°<sub>reactants</sub>', what: 'n = coefficient in the balanced equation' },
@@ -27,8 +27,6 @@ export const legend = [
   { color: 'endo', label: 'endothermic ΔrH' },
 ];
 
-const SUB = '₀₁₂₃₄₅₆₇₈₉';
-const formula = (s) => s.replace(/\d/g, (d) => SUB[d]);
 const side = (list) => list.map(([n, s]) => (n === 1 ? '' : `${n} `) + formula(s)).join(' + ');
 // Endothermic values carry an explicit + as students write them.
 const signed = (v) => (v > 0 ? '+' : '') + fixed(v, 1);

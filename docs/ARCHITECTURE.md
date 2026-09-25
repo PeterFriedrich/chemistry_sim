@@ -70,7 +70,8 @@ Colour meanings are shared across sims so students learn one code:
 `--c-reactant`, `--c-product`, `--c-element` (the zero of the formation
 scale), `--c-exo` (warm: heat out) and `--c-endo` (cool: heat in), chosen with
 `hess`; `--c-series-a`/`-b` are plain data series (calorimetry's water and
-metal); `--c-danger` is the error box. The physics_sim vector tokens are gone.
+metal); `--c-electron`, `--c-cation` and `--c-anion` for
+charge carriers (`voltaic`); `--c-danger` is the error box and warnings. The physics_sim vector tokens are gone.
 
 ## 6. Verification and deployment
 
@@ -116,3 +117,10 @@ could mislead.
   at 0. Sums and differences print to 0.1 kJ (the addition rule, since the
   table is to 0.1 kJ/mol); ΔH = nΔ<sub>r</sub>H prints to 3 significant figures.
   The Hess-route animation is drawing only.
+- **Voltaic cells** (`chem/redox.js`): standard conditions only (1.0 mol/L,
+  298.15 K), so E°<sub>cell</sub> is the table difference with no Nernst
+  correction; the half-cells offered are the bench metal | ion couples plus the
+  hydrogen half-cell (Group 1 and 2 metals past Mg would react with the water).
+  E° values print to 0.01 V, as the table does. Electrode wear, the electron
+  stream and the ion drift in the salt bridge are decoration and stop when
+  E°<sub>cell</sub> ≤ 0.
