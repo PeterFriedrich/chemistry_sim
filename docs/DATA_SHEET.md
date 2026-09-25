@@ -48,7 +48,7 @@ V in **L**; c (amount concentration) in mol/L; [ ] = amount concentration.
 | fold-out | Periodic table: atomic molar mass (g/mol, 2 d.p.), electronegativity, most stable ion charges, state at 101.325 kPa and 298.15 K | not yet |
 | 4–5 | Standard molar enthalpies of formation at 298.15 K (kJ/mol) | **yes — §1.6** |
 | 6 | Solubility of some common ionic compounds in water at 298.15 K; flame colours | not yet |
-| 7 | Selected standard electrode potentials (1.0 mol/L, 298.15 K, 101.325 kPa) | not yet |
+| 7 | Selected standard electrode potentials (1.0 mol/L, 298.15 K, 101.325 kPa) | **yes — §1.7** |
 | 8–9 | Relative strengths of acids and bases at 298.15 K, with K<sub>a</sub> | not yet |
 | 10 | Acid–base indicators at 298.15 K (pH ranges and colours) | not yet |
 | 11 | Colours of common aqueous ions | not yet |
@@ -178,6 +178,67 @@ only: an element in its standard state has Δ<sub>f</sub>H° = 0 by definition.
 | water (vapour) | H2O(g) | −241.8 |
 | zinc oxide | ZnO(s) | −350.5 |
 | zinc sulfide (sphalerite) | ZnS(s) | −206.0 |
+
+### 1.7 Selected standard electrode potentials (p. 7)
+
+Reduction half-reactions, strongest oxidizing agent first, "for 1.0 mol/L
+solutions at 298.15 K (25.00 °C) and a pressure of 101.325 kPa". Transcribed
+from the PDF with `pypdf` (49 rows; charges the extraction split onto the next
+line were rejoined), then read against the page; every row is checked for
+charge and atom balance by `test_redox_every_half_reaction_balances`. Code:
+`site/js/chem/redox-data.js`.
+
+| Reduction half-reaction | E° (V) |
+|---|---|
+| F₂(g) + 2 e⁻ ⇌ 2 F⁻(aq) | +2.87 |
+| PbO₂(s) + SO₄²⁻(aq) + 4 H⁺(aq) + 2 e⁻ ⇌ PbSO₄(s) + 2 H₂O(l) | +1.69 |
+| MnO₄⁻(aq) + 8 H⁺(aq) + 5 e⁻ ⇌ Mn²⁺(aq) + 4 H₂O(l) | +1.51 |
+| Au³⁺(aq) + 3 e⁻ ⇌ Au(s) | +1.50 |
+| ClO₄⁻(aq) + 8 H⁺(aq) + 8 e⁻ ⇌ Cl⁻(aq) + 4 H₂O(l) | +1.39 |
+| Cl₂(g) + 2 e⁻ ⇌ 2 Cl⁻(aq) | +1.36 |
+| 2 HNO₂(aq) + 4 H⁺(aq) + 4 e⁻ ⇌ N₂O(g) + 3 H₂O(l) | +1.30 |
+| Cr₂O₇²⁻(aq) + 14 H⁺(aq) + 6 e⁻ ⇌ 2 Cr³⁺(aq) + 7 H₂O(l) | +1.23 |
+| O₂(g) + 4 H⁺(aq) + 4 e⁻ ⇌ 2 H₂O(l) | +1.23 |
+| MnO₂(s) + 4 H⁺(aq) + 2 e⁻ ⇌ Mn²⁺(aq) + 2 H₂O(l) | +1.22 |
+| Br₂(l) + 2 e⁻ ⇌ 2 Br⁻(aq) | +1.07 |
+| Hg²⁺(aq) + 2 e⁻ ⇌ Hg(l) | +0.85 |
+| OCl⁻(aq) + H₂O(l) + 2 e⁻ ⇌ Cl⁻(aq) + 2 OH⁻(aq) | +0.84 |
+| 2 NO₃⁻(aq) + 4 H⁺(aq) + 2 e⁻ ⇌ N₂O₄(g) + 2 H₂O(l) | +0.80 |
+| Ag⁺(aq) + e⁻ ⇌ Ag(s) | +0.80 |
+| Fe³⁺(aq) + e⁻ ⇌ Fe²⁺(aq) | +0.77 |
+| O₂(g) + 2 H⁺(aq) + 2 e⁻ ⇌ H₂O₂(l) | +0.70 |
+| I₂(s) + 2 e⁻ ⇌ 2 I⁻(aq) | +0.54 |
+| O₂(g) + 2 H₂O(l) + 4 e⁻ ⇌ 4 OH⁻(aq) | +0.40 |
+| Cu²⁺(aq) + 2 e⁻ ⇌ Cu(s) | +0.34 |
+| SO₄²⁻(aq) + 4 H⁺(aq) + 2 e⁻ ⇌ H₂SO₃(aq) + H₂O(l) | +0.17 |
+| Sn⁴⁺(aq) + 2 e⁻ ⇌ Sn²⁺(aq) | +0.15 |
+| S(s) + 2 H⁺(aq) + 2 e⁻ ⇌ H₂S(aq) | +0.14 |
+| AgBr(s) + e⁻ ⇌ Ag(s) + Br⁻(aq) | +0.07 |
+| 2 H⁺(aq) + 2 e⁻ ⇌ H₂(g) | 0.00 |
+| Pb²⁺(aq) + 2 e⁻ ⇌ Pb(s) | −0.13 |
+| Sn²⁺(aq) + 2 e⁻ ⇌ Sn(s) | −0.14 |
+| AgI(s) + e⁻ ⇌ Ag(s) + I⁻(aq) | −0.15 |
+| Ni²⁺(aq) + 2 e⁻ ⇌ Ni(s) | −0.26 |
+| Co²⁺(aq) + 2 e⁻ ⇌ Co(s) | −0.28 |
+| PbSO₄(s) + 2 e⁻ ⇌ Pb(s) + SO₄²⁻(aq) | −0.36 |
+| Se(s) + 2 H⁺(aq) + 2 e⁻ ⇌ H₂Se(aq) | −0.40 |
+| Cd²⁺(aq) + 2 e⁻ ⇌ Cd(s) | −0.40 |
+| Cr³⁺(aq) + e⁻ ⇌ Cr²⁺(aq) | −0.41 |
+| Fe²⁺(aq) + 2 e⁻ ⇌ Fe(s) | −0.45 |
+| NO₂⁻(aq) + H₂O(l) + e⁻ ⇌ NO(g) + 2 OH⁻(aq) | −0.46 |
+| Ag₂S(s) + 2 e⁻ ⇌ 2 Ag(s) + S²⁻(aq) | −0.69 |
+| Zn²⁺(aq) + 2 e⁻ ⇌ Zn(s) | −0.76 |
+| 2 H₂O(l) + 2 e⁻ ⇌ H₂(g) + 2 OH⁻(aq) | −0.83 |
+| Cr²⁺(aq) + 2 e⁻ ⇌ Cr(s) | −0.91 |
+| Se(s) + 2 e⁻ ⇌ Se²⁻(aq) | −0.92 |
+| SO₄²⁻(aq) + H₂O(l) + 2 e⁻ ⇌ SO₃²⁻(aq) + 2 OH⁻(aq) | −0.93 |
+| Al³⁺(aq) + 3 e⁻ ⇌ Al(s) | −1.66 |
+| Mg²⁺(aq) + 2 e⁻ ⇌ Mg(s) | −2.37 |
+| Na⁺(aq) + e⁻ ⇌ Na(s) | −2.71 |
+| Ca²⁺(aq) + 2 e⁻ ⇌ Ca(s) | −2.87 |
+| Ba²⁺(aq) + 2 e⁻ ⇌ Ba(s) | −2.91 |
+| K⁺(aq) + e⁻ ⇌ K(s) | −2.93 |
+| Li⁺(aq) + e⁻ ⇌ Li(s) | −3.04 |
 
 ## 2. Chemistry 20: values not in the booklet
 

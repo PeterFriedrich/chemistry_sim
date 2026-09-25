@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import * as H from '../site/js/chem/hess.js';
 import { formationEnthalpy } from '../site/js/chem/formation-data.js';
+import { atoms, count } from './atoms.js';
 
 const near = (a, b, tol = 1e-9) => assert.ok(Math.abs(a - b) <= tol, `${a} vs ${b}`);
 const byId = (id) => H.reactions.find((r) => r.id === id);
@@ -48,30 +49,6 @@ test('test_hess_reverse_reaction_flips_sign', () => {
   near(H.reactionEnthalpy(byId('photosynthesis')).dH, -H.reactionEnthalpy(byId('respiration')).dH);
   near(H.reactionEnthalpy(byId('limestone')).dH, 179.2, 1e-9); // endothermic
 });
-
-// Atom counts for a formula like C2H5OH(l) or Ca(OH)2(s); test-only, since no
-// readout needs one.
-function atoms(formula) {
-  const body = formula.replace(/\((s|l|g|aq)\)$/, '');
-  const stack = [{}];
-  const re = /([A-Z][a-z]?|\(|\))(\d*)/g;
-  let m;
-  while ((m = re.exec(body))) {
-    const [, tok, num] = m;
-    const k = num ? Number(num) : 1;
-    if (tok === '(') stack.push({});
-    else if (tok === ')') {
-      const inner = stack.pop();
-      for (const [el, c] of Object.entries(inner)) stack.at(-1)[el] = (stack.at(-1)[el] ?? 0) + c * k;
-    } else stack.at(-1)[tok] = (stack.at(-1)[tok] ?? 0) + k;
-  }
-  return stack[0];
-}
-function count(side) {
-  const tot = {};
-  for (const [n, s] of side) for (const [el, c] of Object.entries(atoms(s))) tot[el] = (tot[el] ?? 0) + n * c;
-  return tot;
-}
 
 test('test_hess_presets_are_balanced_and_in_the_booklet', () => {
   assert.deepEqual(atoms('Ca(OH)2(s)'), { Ca: 1, O: 2, H: 2 });
