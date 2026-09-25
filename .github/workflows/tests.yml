@@ -1,0 +1,52 @@
+name: Tests
+
+# THE MERGE GATE. Runs on every PR and every push to main. Without one,
+# "N passed" in a PR body attests to the author's laptop, not to the merged
+# state.
+#
+# Deliberately OFFLINE and secret-free: node:test and the doc guards read only
+# committed files, so this needs no network, no token and no npm install. It
+# stays fast and cannot flake on an upstream outage — a merge gate that goes red
+# for reasons unrelated to the change is a gate people learn to ignore.
+# The browser smoke test (tools/verify-sims.js) is NOT here: docs/ARCHITECTURE.md §6.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0  # tests/loaded-path.test.js reads git history
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+
+      # The guards use `str | None` (3.10+); pin rather than trust the image.
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Run tests
+        run: node --test
+
+      # Bans line-number citations and fails on an unresolvable section pointer.
+      - name: Check doc citations
+        run: python scripts/check_doc_citations.py
+
+      # A new decisions row names a test that exists or is tagged [unverifiable];
+      # a row that supersedes an earlier one has that row marked in place.
+      - name: Check decisions log
+        run: python scripts/check_decisions_log.py
