@@ -93,7 +93,10 @@ export function mount(ui) {
 
   function apply(stress, label, tag) {
     const t = clock.t;
-    const before = at(t);
+    // Start from the equilibrium the last shift is heading to, not the animation's
+    // transient: a stress pressed mid-shift would otherwise begin off equilibrium
+    // and Q would not follow the student method (docs/FINDINGS_readouts.md).
+    const before = segs.at(-1).to;
     const after = E.applyStress(sys, { c: before, K, V }, stress);
     const Q = E.massAction(sys, after.c);
     const dir = E.shiftDirection(Q, after.K);

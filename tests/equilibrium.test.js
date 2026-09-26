@@ -111,3 +111,17 @@ test('test_equilibrium_chromate_dichromate', () => {
   const eq = E.equilibrate(s, base.c, base.K);
   assert.ok(eq['Cr2O7^2-(aq)'] < 0.1 && eq['CrO4^2-(aq)'] > 0.15);
 });
+
+test('test_equilibrium_second_stress_starts_from_the_new_equilibrium', () => {
+  // Haber: add 0.200 N₂, let it settle, then double the volume. At the new equilibrium
+  // Q = Kc, and doubling V divides [N₂][H₂]³ by 16 and [NH₃]² by 4, so Q = 4 Kc = 0.625.
+  const s = sys('haber');
+  const st = start(s);
+  const a = E.applyStress(s, st, { kind: 'add', species: 'N2(g)', amount: 0.2 });
+  const eq = E.equilibrate(s, a.c, a.K);
+  near(E.massAction(s, eq), st.K, 1e-9);
+  const b = E.applyStress(s, { c: eq, K: a.K, V: a.V }, { kind: 'volume', factor: 2 });
+  near(E.massAction(s, b.c), 4 * st.K, 1e-9);
+  assert.equal(sig3(E.massAction(s, b.c)), 0.625);
+  assert.equal(E.shiftDirection(E.massAction(s, b.c), b.K), 'reverse');
+});

@@ -32,7 +32,6 @@ symptom before acting on it.
 
 ### From the 2026-09-26 readouts audit (docs/FINDINGS_readouts.md)
 
-- [ ] **FAIL `lechatelier`: a stress pressed before the last shift settles uses the animation's transient as "before"** (Q 0.531 instead of 0.624). Owner choice: complete the shift instantly (`before = segs.at(-1).to`) or disable stresses until settled; test two stresses in a row.
 - [ ] **Owner: should K<sub>b</sub> = K<sub>w</sub>/K<sub>a</sub> be rounded to 2 sf in `titration`?** ~17 % of weak-analyte settings differ by 0.01 pH between the two methods; defaults agree. Record as a DECISIONS row either way.
 - [ ] `titration`: move `sigOf` and the shown-pH indicator comparison from `sims/titration.js` into `chem/titration.js` with tests.
 
@@ -44,6 +43,8 @@ symptom before acting on it.
 ## Done
 
 Closed items moved out of `## Open work` live in **`docs/TODO_archive.md`** — one line each below, reasoning there.
+
+- [x] **FAIL `lechatelier`: a stress pressed before the last shift settles uses the animation's transient as "before"** — 2026-09-26 · `docs/TODO_archive.md`
 
 - [x] **Chemistry 30 D: `bronsted` — built 2026-09-26: Brønsted–Lowry reaction predictor from the booklet acid table (SPEC_phase2.md §1).** — BUILT 2026-09-26 · `docs/TODO_archive.md`
 
