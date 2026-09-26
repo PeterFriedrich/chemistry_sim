@@ -62,6 +62,14 @@ export function phaseChange(m, M, given, process) {
   return { n, molar, dH: enthalpyChange(n, molar) };
 }
 
+// Backwards: the molar enthalpy from the heat (a positive number of kJ) that m
+// grams absorbed or released. `given` is the positive ΔfusH or ΔvapH.
+export function molarFromHeat(m, M, heat, process) {
+  const n = m / M;
+  const dH = PHASE_CHANGES[process].sign * heat;
+  return { n, dH, molar: dH / n, given: heat / n };
+}
+
 // Swap every H2O(l) in the equation for H2O(g) or back.
 export function withWater(reaction, state) {
   const swap = (side) => side.map(([n, s]) => [n, s.startsWith('H2O(') ? `H2O(${state})` : s]);

@@ -79,3 +79,17 @@ test('test_hess_phase_change_water_worked_example', () => {
   assert.equal(r.dH.toPrecision(3), '81.3');
   assert.ok(H.phaseChange(36.0, molarMass('H2O'), 40.7, 'condensing').dH < 0);
 });
+
+test('test_hess_phase_change_backwards_chloroform_worked_example', () => {
+  // 40.0 g of CHCl3 condenses and liberates 9.87 kJ: M = 12.01 + 1.01 + 3(35.45) = 119.37 g/mol,
+  // n = 0.335 mol, ΔH = −9.87 kJ, ΔcondH = −29.5 kJ/mol, so ΔvapH = +29.5 kJ/mol.
+  const M = molarMass('CHCl3');
+  assert.equal(M.toFixed(2), '119.37');
+  const r = H.molarFromHeat(40.0, M, 9.87, 'condensing');
+  assert.equal(r.n.toPrecision(3), '0.335');
+  assert.equal(r.dH, -9.87);
+  assert.equal(r.molar.toPrecision(3), '-29.5');
+  assert.equal(r.given.toPrecision(3), '29.5');
+  // Round trip: forwards with the value found gives the heat back.
+  assert.ok(Math.abs(H.phaseChange(40.0, M, r.given, 'condensing').dH - r.dH) < 1e-12);
+});
