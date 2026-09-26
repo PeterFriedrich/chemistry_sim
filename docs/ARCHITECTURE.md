@@ -130,6 +130,12 @@ could mislead.
   booklet's ΔfH° values, e.g. −96.4 vs −98.9 kJ for SO₂ + ½ O₂ → SO₃) and
   scales it by moles of reaction = n ÷ coefficient; the equation itself is
   not entered, only the one coefficient the student reads from it.
+  The adding-equations mode (`combine`, `mismatches`, `additivity`) uses fixed
+  preset questions: a target and two to four given equations, each with the
+  ΔH the question prints (not recomputed from the booklet, and printed to that
+  question's decimal places). The student reverses each and multiplies it by
+  ½, 1, 2, 3 or 4; species cancel only when fully used up, and the target's ΔH
+  shows only once the net equation matches it. No equation entry, as above.
 - **Voltaic cells** (`chem/redox.js`): standard conditions only (1.0 mol/L,
   298.15 K), so E°<sub>cell</sub> is the table difference with no Nernst
   correction; the half-cells offered are the bench metal | ion couples plus the

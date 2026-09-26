@@ -5,16 +5,22 @@ import { section, slider, choice, readouts, el } from '../lib/controls.js';
 import { createClock } from '../lib/clock.js';
 import { fmt, fixed, species as formula } from '../lib/format.js';
 
+// Four given equations need the height on a phone.
+export const tallOnMobile = true;
+
 export const equations = [
   { html: 'Δ<sub>r</sub>H° = Σ nΔ<sub>f</sub>H°<sub>products</sub> − Σ nΔ<sub>f</sub>H°<sub>reactants</sub>', what: 'n = coefficient in the balanced equation' },
   { html: 'Δ<sub>f</sub>H° = 0', what: 'for an element in its standard state: O₂(g), H₂(g), N₂(g), C(s), Al(s), Fe(s)' },
   { html: 'ΔH = nΔ<sub>r</sub>H', what: 'n = amount of the substance Δ<sub>r</sub>H is quoted per' },
   { html: 'ΔH &lt; 0 exothermic, ΔH &gt; 0 endothermic', what: 'the sign is the change in the system’s enthalpy' },
   { html: 'ΔH = (n ÷ coefficient) × ΔH<sub>equation</sub>', what: 'a ΔH given for an equation is per the coefficients as written (½ O₂ means per ½ mol)' },
+  { html: 'reverse an equation → change the sign of ΔH; multiply it by k → multiply ΔH by k', what: 'Hess’s law by adding equations: species on both sides cancel, and the ΔH values add' },
   { html: 'ΔH = nΔ<sub>fus</sub>H or nΔ<sub>vap</sub>H, n = m/M', what: 'phase change: the molar enthalpy is given in the question; melting and boiling absorb heat' },
 ];
 
 export const prompts = [
+  'Adding equations: find ΔH for C(s) + ½ O₂(g) → CO(g) from the two combustion equations. Which one do you reverse, and why?',
+  'Adding equations, diborane: four given equations. Start with the one that has B₂H₆ in it — which side does it need to be on?',
   'Given equation: SO₂(g) + ½ O₂(g) → SO₃(g), ΔH = −96.4 kJ. How much heat is released when 1.60 g of O₂ is consumed? Why divide by ½?',
   'Phase change: how much heat is needed to melt 9.0 g of solid aluminium? Its molar heat of fusion is 10.7 kJ/mol.',
   'Phase change, backwards: 40.0 g of chloroform, CHCl₃, condenses and liberates 9.87 kJ. Find its molar heat of vaporization with “Solve for”.',
@@ -56,6 +62,12 @@ const PROCESS = [
   { value: 'vaporizing', label: 'Vaporizing (l → g), +ΔvapH' },
   { value: 'condensing', label: 'Condensing (g → l), −ΔvapH' },
 ];
+// Coefficients after multiplying: ½, 3/2, 5/2, 2 as students write them.
+const coefOf = (n) => (n === 1 ? '' : n === 0.5 ? '½ ' : Number.isInteger(n) ? `${n} ` : Number.isInteger(n * 2) ? `${n * 2}/2 ` : `${n} `);
+const USES = [
+  ...[1, 2, 3, 4, 0.5].map((k) => ({ value: `f${k}`, reversed: false, k, label: `As written, × ${coefOf(k).trim() || 1}` })),
+  ...[1, 2, 3, 4, 0.5].map((k) => ({ value: `r${k}`, reversed: true, k, label: `Reversed, × ${coefOf(k).trim() || 1}` })),
+];
 const RATE = 0.7; // Hess-route steps per second of playback; animation only
 
 export function mount(ui) {
@@ -66,6 +78,7 @@ export function mount(ui) {
       { value: 'hess', label: 'ΔrH from ΔfH° (Hess)' },
       { value: 'phase', label: 'Phase change: ΔH = nΔH (given)' },
       { value: 'equation', label: 'Given ΔH for an equation: ΔH = (n ÷ coefficient) × ΔH' },
+      { value: 'add', label: 'Adding equations: reverse, multiply, cancel' },
     ],
     value: 'hess',
   });
@@ -92,6 +105,13 @@ export function mount(ui) {
   const eCoef = slider(ebox, { label: 'Its coefficient in the equation', min: 0.5, max: 25, step: 0.5, value: 0.5, digits: 1 });
   const eMass = slider(ebox, { label: 'Mass, m', min: 0.01, max: 1000, step: 0.01, value: 1.6, unit: 'g', digits: 2 });
   const eDH = slider(ebox, { label: 'ΔH given for the equation', min: -6000, max: 6000, step: 0.1, value: -96.4, unit: 'kJ', digits: 1 });
+  const xbox = section(ui.controls, 'Equations given');
+  const preset = choice(xbox, { label: 'Question', options: H.additivity.map((p) => ({ value: p.id, label: p.label })), value: 'co' });
+  const uses = [0, 1, 2, 3].map((i) => {
+    const c = choice(xbox, { label: `Equation (${i + 1})`, options: USES, value: 'f1' });
+    return { c, row: xbox.lastElementChild };
+  });
+  preset.onChange(() => uses.forEach((u) => (u.c.value = 'f1')));
   const rbox = section(ui.controls, 'Reaction');
   const pick = choice(rbox, {
     label: 'Balanced equation',
@@ -138,11 +158,18 @@ export function mount(ui) {
     { id: 'kind', label: 'Heat is' },
   ]);
   const dl3 = ui.readouts.lastElementChild;
+  const out4 = readouts(ui.readouts, [
+    { id: 'sum', label: 'ΣΔH of the equations as used' },
+    { id: 'left', label: 'Still to cancel or adjust' },
+    { id: 'dh', label: 'ΔH for the target equation' },
+    { id: 'kind', label: 'Reaction is' },
+  ]);
+  const dl4 = ui.readouts.lastElementChild;
 
   const canvas = fitCanvas(ui.canvas);
   const clock = createClock(ui.transport, { frame: draw });
   let shown = null;
-  [mode, sub, proc, solve, mass, given, heat, eSub, eCoef, eMass, eDH, pick, water, amount].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
+  [mode, sub, proc, solve, mass, given, heat, eSub, eCoef, eMass, eDH, pick, water, amount, preset, ...uses.map((u) => u.c)].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
 
   const current = () => H.withWater(H.reactions.find((r) => r.id === pick.value), water.value);
 
@@ -162,20 +189,22 @@ export function mount(ui) {
     el('caption', { text: 'kJ/mol and kJ; reactants above the line', style: 'caption-side: bottom; text-align: left; color: var(--c-muted); font-size: 12px; padding-top: 4px' }, table);
   }
 
+  const shownIf = (node, on) => {
+    const d = on ? '' : 'none';
+    if (node.style.display !== d) node.style.display = d;
+  };
+
   function draw(clk) {
     const hess = mode.value === 'hess';
     const phase = mode.value === 'phase';
-    const shownIf = (node, on) => {
-      const d = on ? '' : 'none';
-      if (node.style.display !== d) node.style.display = d;
-    };
     [rbox, abox, dl1, table].forEach((n) => shownIf(n, hess));
     [gbox, dl2].forEach((n) => shownIf(n, phase));
     [ebox, dl3].forEach((n) => shownIf(n, mode.value === 'equation'));
+    [xbox, dl4].forEach((n) => shownIf(n, mode.value === 'add'));
     shownIf(givenRow, solve.value !== 'molar');
     shownIf(heatRow, solve.value !== 'dh');
     shownIf(massRow, solve.value !== 'mass');
-    (hess ? drawHess : phase ? drawPhase : drawEquation)(clk);
+    (hess ? drawHess : phase ? drawPhase : mode.value === 'add' ? drawAdd : drawEquation)(clk);
   }
 
   function drawPhase(clk) {
@@ -212,6 +241,70 @@ export function mount(ui) {
     out3.set('dh', `${absorbed ? '+' : ''}${fmt(r.dH, 3)} kJ`);
     out3.set('kind', absorbed ? 'absorbed (endothermic)' : r.dH < 0 ? 'released (exothermic)' : '—');
     twoLevel(clk, 'reactants', 'products', `${fmt(eMass.value, 3)} g ${formula(eSub.value)}: ${fmt(r.extent, 3)} × (${fixed(eDH.value, 1)} kJ)`, r.dH);
+  }
+
+  function drawAdd() {
+    const { ctx, w, h } = canvas;
+    const th = theme();
+    const p = H.additivity.find((x) => x.id === preset.value);
+    const steps = p.given.map((eq, i) => ({ eq, reversed: uses[i].c.option.reversed, k: uses[i].c.option.k }));
+    const r = H.combine(steps);
+    const left = H.mismatches(r, p.target);
+    const done = left.length === 0;
+    const signedDp = (v) => (v > 0 ? '+' : '') + fixed(v, p.dp);
+    uses.forEach((u, i) => shownIf(u.row, i < p.given.length));
+
+    out4.set('sum', `${signedDp(r.dH)} kJ`);
+    out4.set('left', done ? 'nothing: the sum is the target equation' : left.map(formula).join(', '));
+    out4.set('dh', done ? `${signedDp(r.dH)} kJ` : '— (target not reached yet)');
+    out4.set('kind', done ? (r.dH < 0 ? 'exothermic' : 'endothermic') : '—');
+
+    clear(ctx, w, h);
+    const narrow = w < 620;
+    const x0 = 12;
+    const maxW = w - 24;
+    // One equation as coloured terms; a term that cancels in the sum is struck through.
+    const eqLine = (reactants, products, y, size, { weight = 500, strike = false } = {}) => {
+      const toks = [];
+      const term = (n, sp) => ({ s: coefOf(n) + formula(sp), struck: strike && !r.net.get(sp) });
+      reactants.forEach(([n, sp], i) => (i && toks.push({ s: ' + ' }), toks.push(term(n, sp))));
+      toks.push({ s: ' → ' });
+      products.forEach(([n, sp], i) => (i && toks.push({ s: ' + ' }), toks.push(term(n, sp))));
+      let sz = size;
+      const width = () => (ctx.font = `${weight} ${sz}px ${th.font}`, toks.reduce((a, t) => a + ctx.measureText(t.s).width, 0));
+      while (sz > 9 && width() > maxW) sz--;
+      let x = x0;
+      for (const t of toks) {
+        const tw = ctx.measureText(t.s).width;
+        text(ctx, t.s, x, y, { size: sz, weight, color: t.struck ? th.muted : th.ink });
+        if (t.struck) line(ctx, x, y, x + tw, y, { color: th.danger, width: 1.5 });
+        ctx.font = `${weight} ${sz}px ${th.font}`;
+        x += tw;
+      }
+    };
+    const scaled = (side, s) => side.map(([n, sp]) => [n * s, sp]);
+
+    text(ctx, 'Target', x0, 16, { color: th.muted, size: 12 });
+    eqLine(p.target.reactants, p.target.products, 36, narrow ? 14 : 16, { weight: 650 });
+    const rowH = Math.min(52, (h - 170) / p.given.length);
+    let y = 70;
+    steps.forEach((st, i) => {
+      const dH = (st.reversed ? -1 : 1) * st.k * st.eq.dH;
+      const how = `(${i + 1}) ${st.reversed ? 'reversed' : 'as written'}${st.k === 1 ? '' : `, × ${coefOf(st.k).trim()}`}`;
+      text(ctx, how, x0, y, { color: th.muted, size: 12 });
+      text(ctx, `ΔH = ${signedDp(dH)} kJ`, w - 12, y, { color: dH < 0 ? th.exo : th.endo, size: 12, weight: 650, align: 'right' });
+      const [a, b] = st.reversed ? [st.eq.products, st.eq.reactants] : [st.eq.reactants, st.eq.products];
+      eqLine(scaled(a, st.k), scaled(b, st.k), y + 18, narrow ? 13 : 15, { strike: true });
+      y += rowH;
+    });
+    line(ctx, x0, y - 6, w - 12, y - 6, { color: th.ink, width: 1.5 });
+    text(ctx, 'Sum', x0, y + 10, { color: th.muted, size: 12 });
+    text(ctx, `ΣΔH = ${signedDp(r.dH)} kJ`, w - 12, y + 10, { color: r.dH < 0 ? th.exo : th.endo, size: 13, weight: 700, align: 'right' });
+    if (r.reactants.length || r.products.length) eqLine(r.reactants, r.products, y + 30, narrow ? 14 : 16, { weight: 650 });
+    text(ctx, done ? '✓ matches the target' : 'not the target yet', x0, y + 56, {
+      color: done ? th.product : th.muted, size: 13, weight: done ? 700 : 500,
+    });
+    clock.setTimeLabel(done ? 'target reached' : 'reverse and multiply the given equations');
   }
 
   // Two enthalpy levels, reactant on the left and product on the right; the
