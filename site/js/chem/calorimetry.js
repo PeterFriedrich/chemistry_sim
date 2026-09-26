@@ -30,3 +30,13 @@ export function temperaturesAt(m1, c1, t1, m2, c2, t2, s) {
   const f = Math.exp(-s);
   return [tf + (t1 - tf) * f, tf + (t2 - tf) * f];
 }
+
+// Bomb calorimeter: C is the whole calorimeter's heat capacity in kJ/°C, given
+// in the question, so Q = CΔt is in kJ (gained by the calorimeter). The fuel's
+// molar enthalpy of combustion is ΔcH = −Q / n. Chemistry 30 treats the bomb's
+// constant-volume result as ΔcH, and so does this.
+export function bomb(C, dt, m, M) {
+  const Q = C * dt;
+  const n = m / M;
+  return { Q, n, molar: -Q / n };
+}
