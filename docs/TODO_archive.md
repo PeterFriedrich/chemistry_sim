@@ -8,6 +8,8 @@ Items are verbatim as they were closed, newest-moved first in the order they app
 
 ---
 
+- [x] **FAIL `calorimetry`: equal starting temperatures print float residue** (Δt = −3.55 × 10⁻¹⁵ °C, e.g. 10 g Cu / 63 g water both at 30.0 °C). Snap Δt in a tested `chem/calorimetry.js` helper; test Δt = Q = 0. — FIXED 2026-09-26: `finalTemperature` returns t1 exactly when t1 = t2 (the only case with residue; unequal starts give real Δt), `test_calorimetry_equal_start_temperatures_give_zero_change`.
+
 - [x] Chemistry 30 C: `organic` — built 2026-09-25: acyclic alkanes, alkenes, alkynes, organic halides and alcohols with one –OH, IUPAC 1993 names (owner).
 
 - [x] Chemistry 30 D: `lechatelier` — built 2026-09-25 with the ion colour table (DATA_SHEET.md §1.11); illustrative K<sub>c</sub> presets and temperature factor (owner).
