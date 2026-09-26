@@ -131,6 +131,14 @@ could mislead.
   voltage is −E°<sub>cell</sub>, with no overvoltage. Gas products are reported
   in mol only, since the booklet prints no molar volume. Bubbles, the plating
   coat and the dissolving anode are decoration.
+- **Brønsted–Lowry predictor** (`chem/bronsted.js`): a fixed list of 15
+  solutions, each entered as the entities the student lists (strong acids
+  levelled to H₃O⁺, salts as ions, Na⁺ a spectator, water always present). Only
+  the single strongest acid–base pair reacts, one proton, with no follow-on
+  steps; there are no concentrations, so no pH. Products are favoured when
+  K<sub>a</sub>(SA) > K<sub>a</sub>(conjugate acid of SB), the same test as "SA above
+  SB on the table", and K<sub>eq</sub> is their ratio. An SA and SB from the same row
+  (H₃O⁺ with H₂O, H₂O with OH⁻) is "no net reaction". The moving H⁺ is picture only.
 - **Titration** (`chem/titration.js`): monoprotic analytes only, 1 : 1 with
   NaOH(aq) or HCl(aq). Readouts use the student method: V<sub>eq</sub> from
   n = cV; initial and equivalence pH from K<sub>a</sub> or K<sub>b</sub> =
