@@ -108,7 +108,9 @@ could mislead.
 
 - **Calorimetry** (`chem/calorimetry.js`): a perfect calorimeter — the metal
   exchanges heat with one chosen object only (water, air or the polystyrene
-  foam cup, booklet c values); nothing else absorbs heat and none escapes. The approach to equilibrium on screen
+  foam cup, booklet c values); nothing else absorbs heat and none escapes.
+  The one-object mode is Q = mcΔt with the student's own start and end
+  temperatures; water is entered in mL at 1.00 g/mL (not in the booklet). The approach to equilibrium on screen
   is an exponential with an arbitrary rate, for animation only; readouts use
   t<sub>f</sub> from heat lost = heat gained.
 - **Enthalpy of reaction** (`chem/hess.js`): fixed, balanced preset equations

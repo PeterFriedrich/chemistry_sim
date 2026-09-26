@@ -3,9 +3,15 @@
 // object, so in an isolated system Q_hot + Q_cold = 0.
 // Teaching model (docs/ARCHITECTURE.md §7): the cup absorbs no heat and none is
 // lost to the room, as in the textbook "assume a perfect calorimeter" problems.
+import { WATER_DENSITY } from './constants.js';
 
 export function heat(m, c, dt) {
   return m * c * dt;
+}
+
+// Mass in g of V mL of water, at the textbook 1.00 g/mL.
+export function waterMass(V) {
+  return V * WATER_DENSITY;
 }
 
 // Final temperature when two objects exchange heat only with each other.

@@ -66,6 +66,8 @@ V in **L**; c (amount concentration) in mol/L; [ ] = amount concentration.
 
 ### 1.5 Not printed
 
+- **No density of water.** `calorimetry`'s one-object mode takes water in mL at
+  the textbook 1.00 g/mL (`WATER_DENSITY` in `constants.js`, DECISIONS row).
 - **No gas constant R, no molar volume at STP or SATP, no STP/SATP
   definitions, no Avogadro constant.** Chemistry 20 Unit B (gases) needs these.
   Before a gas sim is built, the owner supplies the values their Chemistry 20

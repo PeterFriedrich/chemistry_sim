@@ -33,7 +33,7 @@ export const sims = [
     course: 'c30',
     unit: 'A',
     title: 'Simple Calorimetry',
-    summary: 'Drop a hot metal block into water in a foam cup. The heat the metal loses is the heat the water gains.',
+    summary: 'Q = mcΔt for one object — water, air, a foam cup or a metal warming or cooling — then a hot metal block in water, air or a cup: the heat one loses is the heat the other gains.',
     concepts: ['Q = mcΔt', 'heat lost = heat gained', 'specific heat capacity'],
   },
   {
