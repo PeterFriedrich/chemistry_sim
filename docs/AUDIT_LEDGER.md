@@ -16,12 +16,13 @@ top-down, fundamental decisions first.
 
 | Date | Target / scope | Instrument | Output | Verdict (one line) | Outstanding |
 |------|----------------|------------|--------|--------------------|-------------|
+| 2026-09-26 | Readouts vs hand calculation, all 7 sims (defaults + slider extremes, live page text) | `project-audit` correctness checklist; scratch Node probes + Playwright readout dump | `docs/FINDINGS_readouts.md` | 2 FAIL (calorimetry equal-T float residue; lechatelier stress mid-shift), 2 WARN (titration Kb rounding + untested sim logic; `fmt()` gap at defaults), hess/voltaic/electrolysis/organic PASS | Fix both FAILs; owner decision on Kb rounding; move titration sig/indicator logic into `chem/`; owner walkthrough (SPEC §5.5) still open |
 
 ## Queued — briefed, not yet run
 
 ## Never audited (candidates, roughly ranked)
 
-- Readouts vs hand calculations for every sim at default settings (SPEC_phase1.md §5) — the headline promise of the site.
 - Sign conventions: ΔH and Q signs (system vs surroundings), E°cell = E°cathode − E°anode.
 - The teaching models (ARCHITECTURE.md §7): does any of them teach something false at the edges of its sliders?
+- Rendering tells the truth (canvas vs readouts at every slider setting, phone width) — not covered by the 2026-09-26 readouts run.
 - Accessibility: keyboard use of every control, colour-only encodings on canvas (indicator colours especially).

@@ -29,9 +29,16 @@ symptom before acting on it.
 - [ ] Chemistry 30 C: `organic` beyond phase 1 — rings and benzene, carboxylic acids, esters, diols, branched substituents (isopropyl), cis/trans; and organic reactions (addition, substitution, elimination, esterification, polymerization). Propose first.
 - [ ] Chemistry 30 D: polyprotic titrations (CO₃²⁻ with HCl, H₃PO₄ with NaOH: two or more equivalence points) — deferred from `titration` by the owner, 2026-09-25. Propose first.
 
+### From the 2026-09-26 readouts audit (docs/FINDINGS_readouts.md)
+
+- [ ] **FAIL `calorimetry`: equal starting temperatures print float residue** (Δt = −3.55 × 10⁻¹⁵ °C, e.g. 10 g Cu / 63 g water both at 30.0 °C). Snap Δt in a tested `chem/calorimetry.js` helper; test Δt = Q = 0.
+- [ ] **FAIL `lechatelier`: a stress pressed before the last shift settles uses the animation's transient as "before"** (Q 0.531 instead of 0.624). Owner choice: complete the shift instantly (`before = segs.at(-1).to`) or disable stresses until settled; test two stresses in a row.
+- [ ] **Owner: should K<sub>b</sub> = K<sub>w</sub>/K<sub>a</sub> be rounded to 2 sf in `titration`?** ~17 % of weak-analyte settings differ by 0.01 pH between the two methods; defaults agree. Record as a DECISIONS row either way.
+- [ ] `titration`: move `sigOf` and the shown-pH indicator comparison from `sims/titration.js` into `chem/titration.js` with tests.
+
 ### Tidy-ups from the setup
 
-- [ ] **`fmt()` hides significant figures in round numbers ≥ 10<sup>sig</sup>**: `fmt(1000, 3)` prints "1000", not "1.00 × 10³" (toPrecision's e-notation is converted back on purpose). Changing it alters readouts in every sim (e.g. calorimetry's joules), so propose first. `lechatelier`'s chromate preset was chosen to avoid it.
+- [ ] **`fmt()` hides significant figures in round numbers ≥ 10<sup>sig</sup>**: `fmt(1000, 3)` prints "1000", not "1.00 × 10³" (toPrecision's e-notation is converted back on purpose). Changing it alters readouts in every sim (e.g. calorimetry's joules), so propose first. `lechatelier`'s chromate preset was chosen to avoid it. It already shows at `electrolysis` defaults ("1800 s", "1800 C") and in `hess` at n = 1 mol (propane "−2220 kJ"); full list in docs/FINDINGS_readouts.md.
 - [ ] `site/js/lib/color.js` (wavelength → RGB) is inherited and unused; use it for flame colours / line spectra or delete it.
 
 ## Done
