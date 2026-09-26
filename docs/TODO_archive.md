@@ -8,6 +8,8 @@ Items are verbatim as they were closed, newest-moved first in the order they app
 
 ---
 
+- [x] **FAIL `lechatelier`: a stress pressed before the last shift settles uses the animation's transient as "before"** (Q 0.531 instead of 0.624). Owner choice: complete the shift instantly (`before = segs.at(-1).to`) or disable stresses until settled; test two stresses in a row. — FIXED 2026-09-26 with option (a): `before = segs.at(-1).to`; `test_equilibrium_second_stress_starts_from_the_new_equilibrium`.
+
 - [x] **Chemistry 30 D: `bronsted` — built 2026-09-26: Brønsted–Lowry reaction predictor from the booklet acid table (SPEC_phase2.md §1).**
 
 - [x] **FAIL `calorimetry`: equal starting temperatures print float residue** (Δt = −3.55 × 10⁻¹⁵ °C, e.g. 10 g Cu / 63 g water both at 30.0 °C). Snap Δt in a tested `chem/calorimetry.js` helper; test Δt = Q = 0. — FIXED 2026-09-26: `finalTemperature` returns t1 exactly when t1 = t2 (the only case with residue; unequal starts give real Δt), `test_calorimetry_equal_start_temperatures_give_zero_change`.

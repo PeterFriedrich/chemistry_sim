@@ -161,7 +161,7 @@ could mislead.
   the new K<sub>c</sub>. Q and K<sub>c</sub> right after a stress are the student
   method; the new equilibrium is solved exactly at constant K<sub>c</sub>
   (bisection on the extent) and shown with "≈". The relaxation's time course,
-  the particle positions and the NO₂ tint are picture only; particle counts
+  the particle positions and the NO₂ tint are picture only, and a stress pressed mid-shift starts from the equilibrium that shift is heading to (the in-flight shift completes at once); particle counts
   follow c × V.
 - **Organic naming** (`chem/organic.js`): acyclic molecules only — a drawn
   chain of up to 10 carbons, one double or triple bond, up to four substituents
