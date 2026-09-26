@@ -46,6 +46,22 @@ export function enthalpyChange(n, molarDH) {
   return n * molarDH;
 }
 
+// ΔH = nΔH for a phase change, with the molar enthalpy (ΔfusH or ΔvapH) given
+// in the question as a positive number — the booklet prints none. Melting and
+// vaporizing absorb heat (+); freezing and condensing release the same (−).
+export const PHASE_CHANGES = {
+  melting: { from: 's', to: 'l', sign: 1 },
+  freezing: { from: 'l', to: 's', sign: -1 },
+  vaporizing: { from: 'l', to: 'g', sign: 1 },
+  condensing: { from: 'g', to: 'l', sign: -1 },
+};
+
+export function phaseChange(m, M, given, process) {
+  const n = m / M;
+  const molar = PHASE_CHANGES[process].sign * given;
+  return { n, molar, dH: enthalpyChange(n, molar) };
+}
+
 // Swap every H2O(l) in the equation for H2O(g) or back.
 export function withWater(reaction, state) {
   const swap = (side) => side.map(([n, s]) => [n, s.startsWith('H2O(') ? `H2O(${state})` : s]);

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as H from '../site/js/chem/hess.js';
 import { formationEnthalpy } from '../site/js/chem/formation-data.js';
 import { atoms, count } from './atoms.js';
+import { molarMass } from '../site/js/chem/electrolysis.js';
 
 const near = (a, b, tol = 1e-9) => assert.ok(Math.abs(a - b) <= tol, `${a} vs ${b}`);
 const byId = (id) => H.reactions.find((r) => r.id === id);
@@ -57,4 +58,24 @@ test('test_hess_presets_are_balanced_and_in_the_booklet', () => {
     for (const [, s] of [...r.reactants, ...r.products]) H.formationOf(s); // throws if missing
     assert.ok([...r.reactants, ...r.products].some(([, s]) => s === r.per), `${r.id}: per not in equation`);
   }
+});
+
+test('test_hess_phase_change_aluminium_fusion_worked_example', () => {
+  // Melt 9.0 g of Al(s), ΔfusH = 10.7 kJ/mol (given in the question):
+  // n = 9.0 / 26.98 = 0.334 mol, ΔH = 0.334 × 10.7 = +3.57 kJ (absorbed).
+  const M = molarMass('Al');
+  assert.equal(M, 26.98);
+  const r = H.phaseChange(9.0, M, 10.7, 'melting');
+  assert.equal(r.n.toPrecision(3), '0.334');
+  assert.equal(r.dH.toPrecision(3), '3.57');
+  // Freezing the same aluminium releases the same heat.
+  assert.equal(H.phaseChange(9.0, M, 10.7, 'freezing').dH, -r.dH);
+});
+
+test('test_hess_phase_change_water_worked_example', () => {
+  // Boil 36.0 g of water, ΔvapH = 40.7 kJ/mol: n = 36.0 / 18.02 = 2.00 mol, ΔH = +81.3 kJ.
+  const r = H.phaseChange(36.0, molarMass('H2O'), 40.7, 'vaporizing');
+  assert.equal(r.n.toPrecision(3), '2.00');
+  assert.equal(r.dH.toPrecision(3), '81.3');
+  assert.ok(H.phaseChange(36.0, molarMass('H2O'), 40.7, 'condensing').dH < 0);
 });
