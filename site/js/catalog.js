@@ -77,6 +77,14 @@ export const sims = [
     concepts: ['Kc expression', 'Q vs Kc', 'only temperature changes Kc'],
   },
   {
+    id: 'bronsted',
+    course: 'c30',
+    unit: 'D',
+    title: 'Predicting Acid–Base Reactions',
+    summary: 'Mix two solutions and use the Data Booklet’s acid table: list the entities, find the strongest acid and base, write the proton transfer and decide which side is favoured.',
+    concepts: ['Brønsted–Lowry acids and bases', 'SA and SB from the table', 'products or reactants favoured'],
+  },
+  {
     id: 'titration',
     course: 'c30',
     unit: 'D',

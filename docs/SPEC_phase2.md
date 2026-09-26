@@ -14,7 +14,9 @@ Recommended order: 1, then 2, then 3 (smallest).
 
 ---
 
-## 1. `bronsted`: Brønsted–Lowry reaction predictor (Unit D)
+## 1. `bronsted`: Brønsted–Lowry reaction predictor (Unit D) — APPROVED and built 2026-09-26
+
+Approved as proposed (DECISIONS row). Open questions settled by default: (a) the list below; (b) K<sub>eq</sub> is shown; (c) no "quantitative" label.
 
 **Teaches.** The five-step student method:
 1. List every entity present, with strong acids written as H₃O⁺ and ionic compounds as their ions.
