@@ -119,7 +119,10 @@ could mislead.
   the booklet's Δ<sub>f</sub>H° at 298.15 K, elements in their standard states
   at 0. Sums and differences print to 0.1 kJ (the addition rule, since the
   table is to 0.1 kJ/mol); ΔH = nΔ<sub>r</sub>H prints to 3 significant figures.
-  The Hess-route animation is drawing only.
+  The Hess-route animation is drawing only. The phase-change mode is
+  ΔH = nΔ<sub>fus</sub>H or nΔ<sub>vap</sub>H with n = m/M: M from the booklet's
+  periodic table, the molar enthalpy entered as given in the question (the
+  booklet prints none), its sign set by the direction of the change.
 - **Voltaic cells** (`chem/redox.js`): standard conditions only (1.0 mol/L,
   298.15 K), so E°<sub>cell</sub> is the table difference with no Nernst
   correction; the half-cells offered are the bench metal | ion couples plus the
