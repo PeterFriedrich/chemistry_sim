@@ -118,3 +118,26 @@ test('test_hess_given_equation_sulfur_dioxide_worked_example', () => {
   const booklet = H.reactionEnthalpy({ reactants: [[1, 'SO2(g)'], [0.5, 'O2(g)']], products: [[1, 'SO3(g)']] }).dH;
   assert.equal(booklet.toFixed(1), '-98.9');
 });
+
+test('test_hess_additivity_presets_solve_to_their_textbook_answers', () => {
+  const answers = { co: -110.5, no2: 66.5, ethyne: 226.7, diborane: 36 };
+  for (const p of H.additivity) {
+    for (const eq of [p.target, ...p.given]) assert.deepEqual(count(eq.reactants), count(eq.products), `${p.id} is not balanced`);
+    const steps = p.given.map((eq, i) => ({ eq, reversed: p.solution[i][0], k: p.solution[i][1] }));
+    const r = H.combine(steps);
+    assert.deepEqual(H.mismatches(r, p.target), [], p.id);
+    assert.equal(r.dH.toFixed(p.dp), answers[p.id].toFixed(p.dp), p.id);
+  }
+});
+
+test('test_hess_additivity_reverse_flips_sign_and_unsolved_reports_leftovers', () => {
+  const p = H.additivity.find((x) => x.id === 'co');
+  const asGiven = H.combine(p.given.map((eq) => ({ eq, reversed: false, k: 1 })));
+  // Both forwards: C + CO + 1½ O2 → 2 CO2, nothing cancels.
+  assert.equal(asGiven.dH.toFixed(1), '-676.5');
+  assert.deepEqual(H.mismatches(asGiven, p.target).sort(), ['CO(g)', 'CO2(g)', 'O2(g)']);
+  const rev = H.combine([{ eq: p.given[1], reversed: true, k: 2 }]);
+  assert.equal(rev.dH, 566);
+  assert.deepEqual(rev.reactants, [[2, 'CO2(g)']]);
+  assert.deepEqual(rev.products, [[2, 'CO(g)'], [1, 'O2(g)']]);
+});

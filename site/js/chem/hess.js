@@ -120,3 +120,76 @@ export const reactions = [
   { id: 'dimer', label: 'Nitrogen dioxide to dinitrogen tetroxide', per: 'N2O4(g)',
     reactants: [[2, 'NO2(g)']], products: [[1, 'N2O4(g)']] },
 ];
+
+// Hess's law by adding given equations. Each step is a given equation (its ΔH
+// in kJ as the question prints it, not recomputed from the booklet), reversed or
+// not and multiplied by k. A species on both sides cancels; ΔH adds, with the
+// sign flipped for a reversed equation.
+export function combine(steps) {
+  const net = new Map(); // species → net coefficient, + on the product side
+  let dH = 0;
+  for (const { eq, reversed, k } of steps) {
+    const s = (reversed ? -1 : 1) * k;
+    for (const [n, sp] of eq.reactants) net.set(sp, (net.get(sp) ?? 0) - s * n);
+    for (const [n, sp] of eq.products) net.set(sp, (net.get(sp) ?? 0) + s * n);
+    dH += s * eq.dH;
+  }
+  const reactants = [];
+  const products = [];
+  for (const [sp, n] of net) {
+    if (Math.abs(n) < 1e-9) continue;
+    (n < 0 ? reactants : products).push([Math.abs(n), sp]);
+  }
+  return { reactants, products, dH, net };
+}
+
+// Species whose net coefficient differs from the target's (empty = target reached).
+export function mismatches(result, target) {
+  const want = combine([{ eq: { ...target, dH: 0 }, reversed: false, k: 1 }]).net;
+  const all = new Set([...result.net.keys(), ...want.keys()]);
+  return [...all].filter((sp) => Math.abs((result.net.get(sp) ?? 0) - (want.get(sp) ?? 0)) > 1e-9);
+}
+
+// Additivity presets: textbook questions with given ΔH values (kJ, `dp` decimal
+// places as printed). `solution` is [reversed, k] per given equation.
+export const additivity = [
+  {
+    id: 'co', label: 'Formation of carbon monoxide', dp: 1,
+    target: { reactants: [[1, 'C(s)'], [0.5, 'O2(g)']], products: [[1, 'CO(g)']] },
+    given: [
+      { reactants: [[1, 'C(s)'], [1, 'O2(g)']], products: [[1, 'CO2(g)']], dH: -393.5 },
+      { reactants: [[1, 'CO(g)'], [0.5, 'O2(g)']], products: [[1, 'CO2(g)']], dH: -283.0 },
+    ],
+    solution: [[false, 1], [true, 1]],
+  },
+  {
+    id: 'no2', label: 'Formation of nitrogen dioxide', dp: 1,
+    target: { reactants: [[1, 'N2(g)'], [2, 'O2(g)']], products: [[2, 'NO2(g)']] },
+    given: [
+      { reactants: [[1, 'N2(g)'], [1, 'O2(g)']], products: [[2, 'NO(g)']], dH: 180.6 },
+      { reactants: [[2, 'NO(g)'], [1, 'O2(g)']], products: [[2, 'NO2(g)']], dH: -114.1 },
+    ],
+    solution: [[false, 1], [false, 1]],
+  },
+  {
+    id: 'ethyne', label: 'Formation of ethyne', dp: 1,
+    target: { reactants: [[2, 'C(s)'], [1, 'H2(g)']], products: [[1, 'C2H2(g)']] },
+    given: [
+      { reactants: [[1, 'C2H2(g)'], [2.5, 'O2(g)']], products: [[2, 'CO2(g)'], [1, 'H2O(l)']], dH: -1299.5 },
+      { reactants: [[1, 'C(s)'], [1, 'O2(g)']], products: [[1, 'CO2(g)']], dH: -393.5 },
+      { reactants: [[1, 'H2(g)'], [0.5, 'O2(g)']], products: [[1, 'H2O(l)']], dH: -285.8 },
+    ],
+    solution: [[true, 1], [false, 2], [false, 1]],
+  },
+  {
+    id: 'diborane', label: 'Formation of diborane', dp: 0,
+    target: { reactants: [[2, 'B(s)'], [3, 'H2(g)']], products: [[1, 'B2H6(g)']] },
+    given: [
+      { reactants: [[2, 'B(s)'], [1.5, 'O2(g)']], products: [[1, 'B2O3(s)']], dH: -1273 },
+      { reactants: [[1, 'B2H6(g)'], [3, 'O2(g)']], products: [[1, 'B2O3(s)'], [3, 'H2O(g)']], dH: -2035 },
+      { reactants: [[1, 'H2(g)'], [0.5, 'O2(g)']], products: [[1, 'H2O(l)']], dH: -286 },
+      { reactants: [[1, 'H2O(l)']], products: [[1, 'H2O(g)']], dH: 44 },
+    ],
+    solution: [[false, 1], [true, 1], [false, 3], [false, 3]],
+  },
+];
