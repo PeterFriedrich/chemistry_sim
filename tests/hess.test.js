@@ -93,3 +93,16 @@ test('test_hess_phase_change_backwards_chloroform_worked_example', () => {
   // Round trip: forwards with the value found gives the heat back.
   assert.ok(Math.abs(H.phaseChange(40.0, M, r.given, 'condensing').dH - r.dH) < 1e-12);
 });
+
+test('test_hess_phase_change_mass_from_heat_ammonia_worked_example', () => {
+  // NH3 condenses, ΔvapH = 1.37 kJ/mol as given, 10.0 kJ released:
+  // n = 10.0 / 1.37 = 7.30 mol, M = 14.01 + 3(1.01) = 17.04 g/mol, m = 124 g.
+  const M = molarMass('NH3');
+  assert.equal(M.toFixed(2), '17.04');
+  const r = H.massFromHeat(M, 10.0, 1.37, 'condensing');
+  assert.equal(r.n.toPrecision(3), '7.30');
+  assert.equal(r.m.toPrecision(3), '124');
+  assert.equal(r.dH, -10.0);
+  // Round trip: that mass, forwards, releases the same 10.0 kJ.
+  assert.ok(Math.abs(H.phaseChange(r.m, M, 1.37, 'condensing').dH + 10.0) < 1e-12);
+});

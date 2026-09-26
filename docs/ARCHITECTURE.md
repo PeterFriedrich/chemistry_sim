@@ -123,7 +123,9 @@ could mislead.
   ΔH = nΔ<sub>fus</sub>H or nΔ<sub>vap</sub>H with n = m/M: M from the booklet's
   periodic table, the molar enthalpy entered as given in the question (the
   booklet prints none), its sign set by the direction of the change. It also
-  runs backwards: from the heat given for m grams to the molar enthalpy.
+  runs backwards: from the heat given for m grams to the molar enthalpy, or
+  from the heat and molar enthalpy to the mass. A given molar enthalpy is
+  entered to 0.01 kJ/mol and printed as entered.
 - **Voltaic cells** (`chem/redox.js`): standard conditions only (1.0 mol/L,
   298.15 K), so E°<sub>cell</sub> is the table difference with no Nernst
   correction; the half-cells offered are the bench metal | ion couples plus the

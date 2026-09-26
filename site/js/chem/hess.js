@@ -70,6 +70,13 @@ export function molarFromHeat(m, M, heat, process) {
   return { n, dH, molar: dH / n, given: heat / n };
 }
 
+// The mass that absorbs or releases `heat` kJ, given the molar enthalpy (+).
+export function massFromHeat(M, heat, given, process) {
+  const n = heat / given;
+  const dH = PHASE_CHANGES[process].sign * heat;
+  return { n, m: n * M, dH, molar: PHASE_CHANGES[process].sign * given, given };
+}
+
 // Swap every H2O(l) in the equation for H2O(g) or back.
 export function withWater(reaction, state) {
   const swap = (side) => side.map(([n, s]) => [n, s.startsWith('H2O(') ? `H2O(${state})` : s]);
