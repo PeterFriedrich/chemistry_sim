@@ -17,3 +17,8 @@ test('test_constants_match_alberta_data_booklet', () => {
   assert.equal(C.F, 9.65e4);
   assert.equal(C.KELVIN_OFFSET, 273.15);
 });
+
+test('test_water_density_is_the_textbook_assumption', () => {
+  // Not in the Data Booklet; 1 mL of water is taken as 1.00 g (docs/DECISIONS.md).
+  assert.equal(C.WATER_DENSITY, 1.0);
+});

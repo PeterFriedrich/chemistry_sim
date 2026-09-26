@@ -16,3 +16,7 @@ export const specificHeat = {
 export const Kw = 1.0e-14; // water autoionization constant at 298.15 K
 export const F = 9.65e4; // Faraday constant, C/mol e⁻
 export const KELVIN_OFFSET = 273.15; // "25.00 °C is equivalent to 298.15 K"
+
+// Not printed in the booklet: the textbook assumption that 1 mL of water has a
+// mass of 1.00 g, used to turn "48 mL of water" into m for Q = mcΔt (DECISIONS).
+export const WATER_DENSITY = 1.0; // g/mL

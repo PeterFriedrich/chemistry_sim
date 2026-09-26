@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { heat, finalTemperature, temperaturesAt } from '../site/js/chem/calorimetry.js';
+import { heat, finalTemperature, temperaturesAt, waterMass } from '../site/js/chem/calorimetry.js';
 import { specificHeat } from '../site/js/chem/constants.js';
 
 const near = (a, b, tol = 1e-9) => assert.ok(Math.abs(a - b) <= tol, `${a} vs ${b}`);
@@ -38,4 +38,13 @@ test('test_calorimetry_equal_start_temperatures_give_zero_change', () => {
       assert.equal(heat(mw, specificHeat.water, tf - 30), 0);
     }
   }
+});
+
+test('test_calorimetry_one_object_water_worked_example', () => {
+  // 48 mL of water cools by 30.0 °C: m = 48 mL × 1.00 g/mL = 48 g,
+  // Q = (48)(4.19)(−30.0) = −6033.6 J = −6.03 kJ (heat lost).
+  const m = waterMass(48);
+  assert.equal(m, 48);
+  near(heat(m, specificHeat.water, 50.0 - 80.0), -6033.6);
+  assert.equal((heat(m, specificHeat.water, -30.0) / 1000).toPrecision(3), '-6.03');
 });
