@@ -106,8 +106,9 @@ charge carriers (`voltaic`); `--c-danger` is the error box and warnings. The phy
 Each is stated in the code where it lives and flagged to the student where it
 could mislead.
 
-- **Calorimetry** (`chem/calorimetry.js`): a perfect calorimeter — the foam
-  cup absorbs no heat and none escapes. The approach to equilibrium on screen
+- **Calorimetry** (`chem/calorimetry.js`): a perfect calorimeter — the metal
+  exchanges heat with one chosen object only (water, air or the polystyrene
+  foam cup, booklet c values); nothing else absorbs heat and none escapes. The approach to equilibrium on screen
   is an exponential with an arbitrary rate, for animation only; readouts use
   t<sub>f</sub> from heat lost = heat gained.
 - **Enthalpy of reaction** (`chem/hess.js`): fixed, balanced preset equations
