@@ -106,3 +106,15 @@ test('test_hess_phase_change_mass_from_heat_ammonia_worked_example', () => {
   // Round trip: that mass, forwards, releases the same 10.0 kJ.
   assert.ok(Math.abs(H.phaseChange(r.m, M, 1.37, 'condensing').dH + 10.0) < 1e-12);
 });
+
+test('test_hess_given_equation_sulfur_dioxide_worked_example', () => {
+  // SO2(g) + ½ O2(g) → SO3(g), ΔH = −96.4 kJ as given; 1.60 g of O2 consumed:
+  // n = 1.60 / 32.00 = 0.0500 mol, n / ½ = 0.100 mol of reaction, ΔH = −9.64 kJ (released).
+  const r = H.givenEquation(1.60, molarMass('O2'), 0.5, -96.4);
+  assert.equal(r.n.toPrecision(3), '0.0500');
+  assert.equal(r.extent.toPrecision(3), '0.100');
+  assert.equal(r.dH.toPrecision(3), '-9.64');
+  // The booklet's own ΔfH° give −98.9 kJ for this equation; the question's value is used.
+  const booklet = H.reactionEnthalpy({ reactants: [[1, 'SO2(g)'], [0.5, 'O2(g)']], products: [[1, 'SO3(g)']] }).dH;
+  assert.equal(booklet.toFixed(1), '-98.9');
+});
