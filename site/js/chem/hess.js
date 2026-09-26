@@ -41,6 +41,25 @@ export function molarEnthalpy(reaction, species) {
   return reactionEnthalpy(reaction).dH / entry[0];
 }
 
+// Backwards: the ΔfH° of one species from a ΔrH given for the equation as
+// written (kJ), every other species at its booklet value. Returns the sums with
+// the solved term included, so they read like reactionEnthalpy's.
+export function unknownFormation(reaction, species, dHrxn) {
+  const others = (list) => sumFormation(list.filter(([, s]) => s !== species));
+  const r = others(reaction.reactants);
+  const p = others(reaction.products);
+  const inP = reaction.products.find(([, s]) => s === species);
+  const [n] = inP ?? reaction.reactants.find(([, s]) => s === species);
+  // dHrxn = (p ± n·x) − r, with + for a product and − for a reactant.
+  const dfH = ((dHrxn - (p - r)) / n) * (inP ? 1 : -1);
+  return {
+    dfH, n, known: p - r,
+    reactants: inP ? r : r + n * dfH,
+    products: inP ? p + n * dfH : p,
+    dH: dHrxn,
+  };
+}
+
 // ΔH = nΔrH: n mol of the substance ΔrH is quoted per.
 export function enthalpyChange(n, molarDH) {
   return n * molarDH;
