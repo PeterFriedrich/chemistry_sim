@@ -27,3 +27,15 @@ test('test_calorimetry_heat_lost_equals_heat_gained', () => {
     near(heat(m1, c1, a - t1) + heat(m2, c2, b - t2), 0, 1e-9);
   }
 });
+
+test('test_calorimetry_equal_start_temperatures_give_zero_change', () => {
+  // 10 g Cu and 63 g water both at 30.0 °C: the weighted mean alone is 30 − 3.55 × 10⁻¹⁵.
+  for (const metal of ['copper', 'aluminium', 'iron', 'tin']) {
+    for (const [mm, mw] of [[10, 63], [10, 102], [200, 400]]) {
+      const tf = finalTemperature(mm, specificHeat[metal], 30, mw, specificHeat.water, 30);
+      assert.equal(tf - 30, 0);
+      assert.equal(heat(mm, specificHeat[metal], tf - 30), 0);
+      assert.equal(heat(mw, specificHeat.water, tf - 30), 0);
+    }
+  }
+});

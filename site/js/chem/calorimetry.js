@@ -10,6 +10,9 @@ export function heat(m, c, dt) {
 
 // Final temperature when two objects exchange heat only with each other.
 export function finalTemperature(m1, c1, t1, m2, c2, t2) {
+  // Equal starts: the weighted mean can come back as t1 ± 1 ulp, which the
+  // readouts would print as a Δt of −3.55 × 10⁻¹⁵ °C instead of 0.
+  if (t1 === t2) return t1;
   return (m1 * c1 * t1 + m2 * c2 * t2) / (m1 * c1 + m2 * c2);
 }
 
