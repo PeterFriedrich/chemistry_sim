@@ -66,6 +66,9 @@ V in **L**; c (amount concentration) in mol/L; [ ] = amount concentration.
 
 ### 1.5 Not printed
 
+- **No molar enthalpies of fusion or vaporization, and no melting or boiling
+  points** (searched the PDF text, 2026-09-26). `hess`'s phase-change mode takes
+  the value the question gives.
 - **No density of water.** `calorimetry`'s one-object mode takes water in mL at
   the textbook 1.00 g/mL (`WATER_DENSITY` in `constants.js`, DECISIONS row).
 - **No gas constant R, no molar volume at STP or SATP, no STP/SATP

@@ -41,7 +41,7 @@ export const sims = [
     course: 'c30',
     unit: 'A',
     title: 'Enthalpy of Reaction from ΔfH°',
-    summary: 'Pick a balanced reaction and get ΔrH from the Data Booklet’s formation enthalpies, drawn as an enthalpy diagram with the Hess route through the elements.',
+    summary: 'Pick a balanced reaction and get ΔrH from the Data Booklet’s formation enthalpies, drawn as an enthalpy diagram with the Hess route through the elements. Or a phase change: ΔH = nΔfusH or nΔvapH from a given molar enthalpy.',
     concepts: ['ΔrH = ΣnΔfH°(products) − ΣnΔfH°(reactants)', 'Hess’s law', 'ΔH = nΔrH'],
   },
   {

@@ -1,4 +1,5 @@
 import * as H from '../chem/hess.js';
+import { molarMass } from '../chem/electrolysis.js';
 import { fitCanvas, theme, clear, line, text, arrow, niceStep } from '../lib/canvas.js';
 import { section, slider, choice, readouts, el } from '../lib/controls.js';
 import { createClock } from '../lib/clock.js';
@@ -9,9 +10,12 @@ export const equations = [
   { html: 'Δ<sub>f</sub>H° = 0', what: 'for an element in its standard state: O₂(g), H₂(g), N₂(g), C(s), Al(s), Fe(s)' },
   { html: 'ΔH = nΔ<sub>r</sub>H', what: 'n = amount of the substance Δ<sub>r</sub>H is quoted per' },
   { html: 'ΔH &lt; 0 exothermic, ΔH &gt; 0 endothermic', what: 'the sign is the change in the system’s enthalpy' },
+  { html: 'ΔH = nΔ<sub>fus</sub>H or nΔ<sub>vap</sub>H, n = m/M', what: 'phase change: the molar enthalpy is given in the question; melting and boiling absorb heat' },
 ];
 
 export const prompts = [
+  'Phase change: how much heat is needed to melt 9.0 g of solid aluminium? Its molar heat of fusion is 10.7 kJ/mol.',
+  'Phase change: switch to freezing with the same aluminium. What happens to the sign of ΔH, and why not its size?',
   'Predict: does burning methane release more energy when the water forms as a liquid or as a vapour? Switch the water state and check. Where did the difference go?',
   'Calculate Δ<sub>r</sub>H for the thermite reaction by hand from the Data Booklet, then compare with the readout. Why do Al(s) and Fe(s) add nothing?',
   'Compare cellular respiration with photosynthesis. What happens to Δ<sub>r</sub>H when an equation is reversed?',
@@ -30,9 +34,34 @@ export const legend = [
 const side = (list) => list.map(([n, s]) => (n === 1 ? '' : `${n} `) + formula(s)).join(' + ');
 // Endothermic values carry an explicit + as students write them.
 const signed = (v) => (v > 0 ? '+' : '') + fixed(v, 1);
+// Substances for the phase-change questions; M from the booklet's periodic table.
+const SUBSTANCES = [
+  ['Al', 'aluminium'], ['Fe', 'iron'], ['Cu', 'copper'], ['Pb', 'lead'], ['Ag', 'silver'], ['Au', 'gold'],
+  ['H2O', 'water'], ['NaCl', 'sodium chloride'], ['NH3', 'ammonia'], ['C2H5OH', 'ethanol'], ['CH4', 'methane'],
+].map(([f, name]) => ({ value: f, label: `${formula(f)}, ${name}` }));
+const PROCESS = [
+  { value: 'melting', label: 'Melting (s → l), +ΔfusH' },
+  { value: 'freezing', label: 'Freezing (l → s), −ΔfusH' },
+  { value: 'vaporizing', label: 'Vaporizing (l → g), +ΔvapH' },
+  { value: 'condensing', label: 'Condensing (g → l), −ΔvapH' },
+];
 const RATE = 0.7; // Hess-route steps per second of playback; animation only
 
 export function mount(ui) {
+  const qbox = section(ui.controls, 'Question');
+  const mode = choice(qbox, {
+    label: 'Question type',
+    options: [
+      { value: 'hess', label: 'ΔrH from ΔfH° (Hess)' },
+      { value: 'phase', label: 'Phase change: ΔH = nΔH (given)' },
+    ],
+    value: 'hess',
+  });
+  const gbox = section(ui.controls, 'Phase change');
+  const sub = choice(gbox, { label: 'Substance', options: SUBSTANCES, value: 'Al' });
+  const proc = choice(gbox, { label: 'Process', options: PROCESS, value: 'melting' });
+  const mass = slider(gbox, { label: 'Mass, m', min: 0.1, max: 500, step: 0.1, value: 9, unit: 'g', digits: 1 });
+  const given = slider(gbox, { label: 'Molar enthalpy given (ΔfusH or ΔvapH)', min: 0.1, max: 100, step: 0.1, value: 10.7, unit: 'kJ/mol', digits: 1 });
   const rbox = section(ui.controls, 'Reaction');
   const pick = choice(rbox, {
     label: 'Balanced equation',
@@ -58,12 +87,21 @@ export function mount(ui) {
     { id: 'dh', label: 'ΔH for n mol' },
     { id: 'kind', label: 'Reaction is' },
   ]);
+  const dl1 = ui.readouts.lastElementChild;
   const table = el('table', { class: 'data-table', style: 'margin-top: 10px' }, ui.readouts);
+  const out2 = readouts(ui.readouts, [
+    { id: 'M', label: 'Molar mass M' },
+    { id: 'n', label: 'n = m/M' },
+    { id: 'molar', label: 'Molar enthalpy, with its sign' },
+    { id: 'dh', label: 'ΔH = nΔH' },
+    { id: 'kind', label: 'Heat is' },
+  ]);
+  const dl2 = ui.readouts.lastElementChild;
 
   const canvas = fitCanvas(ui.canvas);
   const clock = createClock(ui.transport, { frame: draw });
   let shown = null;
-  [pick, water, amount].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
+  [mode, sub, proc, mass, given, pick, water, amount].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
 
   const current = () => H.withWater(H.reactions.find((r) => r.id === pick.value), water.value);
 
@@ -84,6 +122,64 @@ export function mount(ui) {
   }
 
   function draw(clk) {
+    const hess = mode.value === 'hess';
+    const shownIf = (node, on) => {
+      const d = on ? '' : 'none';
+      if (node.style.display !== d) node.style.display = d;
+    };
+    [rbox, abox, dl1, table].forEach((n) => shownIf(n, hess));
+    [gbox, dl2].forEach((n) => shownIf(n, !hess));
+    (hess ? drawHess : drawPhase)(clk);
+  }
+
+  function drawPhase(clk) {
+    const { ctx, w, h } = canvas;
+    const th = theme();
+    const f = sub.value;
+    const ph = H.PHASE_CHANGES[proc.value];
+    const M = molarMass(f);
+    const r = H.phaseChange(mass.value, M, given.value, proc.value);
+    const absorbed = r.dH > 0;
+    out2.set('M', `${fixed(M, 2)} g/mol`);
+    out2.set('n', `${fmt(r.n, 3)} mol`);
+    out2.set('molar', `${signed(r.molar)} kJ/mol`);
+    out2.set('dh', `${absorbed ? '+' : ''}${fmt(r.dH, 3)} kJ`);
+    out2.set('kind', absorbed ? 'absorbed (endothermic)' : 'released (exothermic)');
+
+    clear(ctx, w, h);
+    const narrow = w < 620;
+    const s0 = formula(`${f}(${ph.from})`);
+    const s1 = formula(`${f}(${ph.to})`);
+    text(ctx, `${s0} → ${s1}`, w / 2, 22, { size: narrow ? 14 : 16, weight: 600, align: 'center' });
+    // Reactant phase on the left, product on the right; the higher-enthalpy
+    // phase sits higher (liquid above solid, gas above liquid).
+    const top = 70;
+    const bottom = h - 50;
+    const yR = absorbed ? bottom : top;
+    const yP = absorbed ? top : bottom;
+    const x0 = w * (narrow ? 0.08 : 0.2);
+    const x1 = w * (narrow ? 0.92 : 0.8);
+    const xa = x0 + (x1 - x0) * 0.4;
+    const xb = x0 + (x1 - x0) * 0.6;
+    const ax = (x0 + x1) / 2;
+    const color = absorbed ? th.endo : th.exo;
+    line(ctx, x0, yR, xa, yR, { color: th.reactant, width: 5 });
+    line(ctx, xb, yP, x1, yP, { color: th.product, width: 5 });
+    const tag = (y) => (y === top ? -18 : 18);
+    text(ctx, s0, (x0 + xa) / 2, yR + tag(yR), { size: 13, weight: 650, align: 'center' });
+    text(ctx, s1, (xb + x1) / 2, yP + tag(yP), { size: 13, weight: 650, align: 'center' });
+    text(ctx, 'H', x0 - 4, top - 18, { color: th.muted, size: 12 });
+    const fgrow = Math.min(1, clk.t * RATE);
+    line(ctx, xa, yR, ax, yR, { color: th.muted, width: 1, dash: [3, 3] });
+    line(ctx, ax, yP, xb, yP, { color: th.muted, width: 1, dash: [3, 3] });
+    arrow(ctx, ax, yR, 0, (yP - yR) * Math.max(fgrow, 0.02), { color, width: 3 });
+    const label = `ΔH = ${absorbed ? '+' : ''}${fmt(r.dH, 3)} kJ`;
+    ctx.font = `700 13px ${th.font}`;
+    text(ctx, label, Math.min(ax + 10, w - 6 - ctx.measureText(label).width), (top + bottom) / 2, { color, size: 13, weight: 700 });
+    clock.setTimeLabel(absorbed ? 'heat absorbed from the surroundings' : 'heat released to the surroundings');
+  }
+
+  function drawHess(clk) {
     const { ctx, w, h } = canvas;
     const th = theme();
     const rx = current();
