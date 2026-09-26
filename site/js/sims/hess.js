@@ -15,6 +15,7 @@ export const equations = [
 
 export const prompts = [
   'Phase change: how much heat is needed to melt 9.0 g of solid aluminium? Its molar heat of fusion is 10.7 kJ/mol.',
+  'Phase change, backwards: 40.0 g of chloroform, CHCl₃, condenses and liberates 9.87 kJ. Find its molar heat of vaporization with “Solve for”.',
   'Phase change: switch to freezing with the same aluminium. What happens to the sign of ΔH, and why not its size?',
   'Predict: does burning methane release more energy when the water forms as a liquid or as a vapour? Switch the water state and check. Where did the difference go?',
   'Calculate Δ<sub>r</sub>H for the thermite reaction by hand from the Data Booklet, then compare with the readout. Why do Al(s) and Fe(s) add nothing?',
@@ -37,7 +38,7 @@ const signed = (v) => (v > 0 ? '+' : '') + fixed(v, 1);
 // Substances for the phase-change questions; M from the booklet's periodic table.
 const SUBSTANCES = [
   ['Al', 'aluminium'], ['Fe', 'iron'], ['Cu', 'copper'], ['Pb', 'lead'], ['Ag', 'silver'], ['Au', 'gold'],
-  ['H2O', 'water'], ['NaCl', 'sodium chloride'], ['NH3', 'ammonia'], ['C2H5OH', 'ethanol'], ['CH4', 'methane'],
+  ['H2O', 'water'], ['NaCl', 'sodium chloride'], ['NH3', 'ammonia'], ['C2H5OH', 'ethanol'], ['CH4', 'methane'], ['CHCl3', 'chloroform'],
 ].map(([f, name]) => ({ value: f, label: `${formula(f)}, ${name}` }));
 const PROCESS = [
   { value: 'melting', label: 'Melting (s → l), +ΔfusH' },
@@ -60,8 +61,19 @@ export function mount(ui) {
   const gbox = section(ui.controls, 'Phase change');
   const sub = choice(gbox, { label: 'Substance', options: SUBSTANCES, value: 'Al' });
   const proc = choice(gbox, { label: 'Process', options: PROCESS, value: 'melting' });
+  const solve = choice(gbox, {
+    label: 'Solve for',
+    options: [
+      { value: 'dh', label: 'ΔH, from the molar enthalpy given' },
+      { value: 'molar', label: 'Molar enthalpy, from the heat given' },
+    ],
+    value: 'dh',
+  });
   const mass = slider(gbox, { label: 'Mass, m', min: 0.1, max: 500, step: 0.1, value: 9, unit: 'g', digits: 1 });
   const given = slider(gbox, { label: 'Molar enthalpy given (ΔfusH or ΔvapH)', min: 0.1, max: 100, step: 0.1, value: 10.7, unit: 'kJ/mol', digits: 1 });
+  const givenRow = gbox.lastElementChild;
+  const heat = slider(gbox, { label: 'Heat absorbed or released, given', min: 0.01, max: 1000, step: 0.01, value: 9.87, unit: 'kJ', digits: 2 });
+  const heatRow = gbox.lastElementChild;
   const rbox = section(ui.controls, 'Reaction');
   const pick = choice(rbox, {
     label: 'Balanced equation',
@@ -93,6 +105,7 @@ export function mount(ui) {
     { id: 'M', label: 'Molar mass M' },
     { id: 'n', label: 'n = m/M' },
     { id: 'molar', label: 'Molar enthalpy, with its sign' },
+    { id: 'prop', label: 'Δ<sub>fus</sub>H or Δ<sub>vap</sub>H (as tabulated, +)' },
     { id: 'dh', label: 'ΔH = nΔH' },
     { id: 'kind', label: 'Heat is' },
   ]);
@@ -101,7 +114,7 @@ export function mount(ui) {
   const canvas = fitCanvas(ui.canvas);
   const clock = createClock(ui.transport, { frame: draw });
   let shown = null;
-  [mode, sub, proc, mass, given, pick, water, amount].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
+  [mode, sub, proc, solve, mass, given, heat, pick, water, amount].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
 
   const current = () => H.withWater(H.reactions.find((r) => r.id === pick.value), water.value);
 
@@ -129,6 +142,8 @@ export function mount(ui) {
     };
     [rbox, abox, dl1, table].forEach((n) => shownIf(n, hess));
     [gbox, dl2].forEach((n) => shownIf(n, !hess));
+    shownIf(givenRow, solve.value === 'dh');
+    shownIf(heatRow, solve.value !== 'dh');
     (hess ? drawHess : drawPhase)(clk);
   }
 
@@ -138,11 +153,17 @@ export function mount(ui) {
     const f = sub.value;
     const ph = H.PHASE_CHANGES[proc.value];
     const M = molarMass(f);
-    const r = H.phaseChange(mass.value, M, given.value, proc.value);
+    const forwards = solve.value === 'dh';
+    const r = forwards
+      ? { ...H.phaseChange(mass.value, M, given.value, proc.value), given: given.value }
+      : H.molarFromHeat(mass.value, M, heat.value, proc.value);
     const absorbed = r.dH > 0;
+    const sym = proc.value === 'melting' || proc.value === 'freezing' ? 'ΔfusH' : 'ΔvapH';
     out2.set('M', `${fixed(M, 2)} g/mol`);
     out2.set('n', `${fmt(r.n, 3)} mol`);
-    out2.set('molar', `${signed(r.molar)} kJ/mol`);
+    // Given, it prints as entered; solved, to 3 significant figures.
+    out2.set('molar', forwards ? `${signed(r.molar)} kJ/mol` : `${absorbed ? '+' : ''}${fmt(r.molar, 3)} kJ/mol`);
+    out2.set('prop', `${sym} = +${forwards ? fixed(r.given, 1) : fmt(r.given, 3)} kJ/mol`);
     out2.set('dh', `${absorbed ? '+' : ''}${fmt(r.dH, 3)} kJ`);
     out2.set('kind', absorbed ? 'absorbed (endothermic)' : 'released (exothermic)');
 
