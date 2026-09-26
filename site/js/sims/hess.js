@@ -16,6 +16,7 @@ export const equations = [
 export const prompts = [
   'Phase change: how much heat is needed to melt 9.0 g of solid aluminium? Its molar heat of fusion is 10.7 kJ/mol.',
   'Phase change, backwards: 40.0 g of chloroform, CHCl₃, condenses and liberates 9.87 kJ. Find its molar heat of vaporization with “Solve for”.',
+  'Phase change, for the mass: ammonia condenses and releases 10.0 kJ; its ΔvapH is 23.3 kJ/mol. What mass condensed?',
   'Phase change: switch to freezing with the same aluminium. What happens to the sign of ΔH, and why not its size?',
   'Predict: does burning methane release more energy when the water forms as a liquid or as a vapour? Switch the water state and check. Where did the difference go?',
   'Calculate Δ<sub>r</sub>H for the thermite reaction by hand from the Data Booklet, then compare with the readout. Why do Al(s) and Fe(s) add nothing?',
@@ -66,11 +67,13 @@ export function mount(ui) {
     options: [
       { value: 'dh', label: 'ΔH, from the molar enthalpy given' },
       { value: 'molar', label: 'Molar enthalpy, from the heat given' },
+      { value: 'mass', label: 'Mass, from the heat and molar enthalpy given' },
     ],
     value: 'dh',
   });
   const mass = slider(gbox, { label: 'Mass, m', min: 0.1, max: 500, step: 0.1, value: 9, unit: 'g', digits: 1 });
-  const given = slider(gbox, { label: 'Molar enthalpy given (ΔfusH or ΔvapH)', min: 0.1, max: 100, step: 0.1, value: 10.7, unit: 'kJ/mol', digits: 1 });
+  const massRow = gbox.lastElementChild;
+  const given = slider(gbox, { label: 'Molar enthalpy given (ΔfusH or ΔvapH)', min: 0.01, max: 100, step: 0.01, value: 10.7, unit: 'kJ/mol', digits: 2 });
   const givenRow = gbox.lastElementChild;
   const heat = slider(gbox, { label: 'Heat absorbed or released, given', min: 0.01, max: 1000, step: 0.01, value: 9.87, unit: 'kJ', digits: 2 });
   const heatRow = gbox.lastElementChild;
@@ -103,7 +106,8 @@ export function mount(ui) {
   const table = el('table', { class: 'data-table', style: 'margin-top: 10px' }, ui.readouts);
   const out2 = readouts(ui.readouts, [
     { id: 'M', label: 'Molar mass M' },
-    { id: 'n', label: 'n = m/M' },
+    { id: 'n', label: 'Amount n' },
+    { id: 'm', label: 'Mass m' },
     { id: 'molar', label: 'Molar enthalpy, with its sign' },
     { id: 'prop', label: 'Δ<sub>fus</sub>H or Δ<sub>vap</sub>H (as tabulated, +)' },
     { id: 'dh', label: 'ΔH = nΔH' },
@@ -142,8 +146,9 @@ export function mount(ui) {
     };
     [rbox, abox, dl1, table].forEach((n) => shownIf(n, hess));
     [gbox, dl2].forEach((n) => shownIf(n, !hess));
-    shownIf(givenRow, solve.value === 'dh');
+    shownIf(givenRow, solve.value !== 'molar');
     shownIf(heatRow, solve.value !== 'dh');
+    shownIf(massRow, solve.value !== 'mass');
     (hess ? drawHess : drawPhase)(clk);
   }
 
@@ -153,17 +158,19 @@ export function mount(ui) {
     const f = sub.value;
     const ph = H.PHASE_CHANGES[proc.value];
     const M = molarMass(f);
-    const forwards = solve.value === 'dh';
-    const r = forwards
-      ? { ...H.phaseChange(mass.value, M, given.value, proc.value), given: given.value }
-      : H.molarFromHeat(mass.value, M, heat.value, proc.value);
+    const forwards = solve.value !== 'molar'; // the molar enthalpy is an input
+    const r =
+      solve.value === 'dh' ? { ...H.phaseChange(mass.value, M, given.value, proc.value), m: mass.value, given: given.value }
+        : solve.value === 'molar' ? { ...H.molarFromHeat(mass.value, M, heat.value, proc.value), m: mass.value }
+          : H.massFromHeat(M, heat.value, given.value, proc.value);
     const absorbed = r.dH > 0;
     const sym = proc.value === 'melting' || proc.value === 'freezing' ? 'ΔfusH' : 'ΔvapH';
     out2.set('M', `${fixed(M, 2)} g/mol`);
-    out2.set('n', `${fmt(r.n, 3)} mol`);
-    // Given, it prints as entered; solved, to 3 significant figures.
-    out2.set('molar', forwards ? `${signed(r.molar)} kJ/mol` : `${absorbed ? '+' : ''}${fmt(r.molar, 3)} kJ/mol`);
-    out2.set('prop', `${sym} = +${forwards ? fixed(r.given, 1) : fmt(r.given, 3)} kJ/mol`);
+    out2.set('n', `${fmt(r.n, 3)} mol` + (solve.value === 'mass' ? ' (n = ΔH / molar ΔH)' : ' (n = m/M)'));
+    out2.set('m', solve.value === 'mass' ? `${fmt(r.m, 3)} g (m = nM)` : `${fixed(r.m, 1)} g`);
+    // A given value prints as entered (10.7, 1.37); a solved one to 3 significant figures.
+    out2.set('molar', forwards ? `${r.molar > 0 ? '+' : '−'}${given.value} kJ/mol` : `${absorbed ? '+' : ''}${fmt(r.molar, 3)} kJ/mol`);
+    out2.set('prop', `${sym} = +${forwards ? given.value : fmt(r.given, 3)} kJ/mol`);
     out2.set('dh', `${absorbed ? '+' : ''}${fmt(r.dH, 3)} kJ`);
     out2.set('kind', absorbed ? 'absorbed (endothermic)' : 'released (exothermic)');
 
