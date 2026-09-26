@@ -122,7 +122,8 @@ could mislead.
   The Hess-route animation is drawing only. The phase-change mode is
   ΔH = nΔ<sub>fus</sub>H or nΔ<sub>vap</sub>H with n = m/M: M from the booklet's
   periodic table, the molar enthalpy entered as given in the question (the
-  booklet prints none), its sign set by the direction of the change.
+  booklet prints none), its sign set by the direction of the change. It also
+  runs backwards: from the heat given for m grams to the molar enthalpy.
 - **Voltaic cells** (`chem/redox.js`): standard conditions only (1.0 mol/L,
   298.15 K), so E°<sub>cell</sub> is the table difference with no Nernst
   correction; the half-cells offered are the bench metal | ion couples plus the
