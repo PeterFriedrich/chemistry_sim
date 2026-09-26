@@ -3,7 +3,8 @@ import { specificHeat, WATER_DENSITY } from '../chem/constants.js';
 import { fitCanvas, theme, clear, line, text, roundRect } from '../lib/canvas.js';
 import { section, slider, choice, readouts } from '../lib/controls.js';
 import { createClock } from '../lib/clock.js';
-import { fmt } from '../lib/format.js';
+import { fmt, species } from '../lib/format.js';
+import { molarMass } from '../chem/electrolysis.js';
 
 export const equations = [
   { html: 'Q = mcΔt', what: 'heat gained (+) or lost (−) by one object' },
@@ -11,6 +12,8 @@ export const equations = [
   { html: 'm = V × 1.00 g/mL', what: 'for water only (not printed in the booklet)' },
   { html: 'Q<sub>lost by metal</sub> = Q<sub>gained by the other object</sub>', what: 'two objects: no heat leaves the system' },
   { html: 't<sub>f</sub> = (m<sub>1</sub>c<sub>1</sub>t<sub>1</sub> + m<sub>2</sub>c<sub>2</sub>t<sub>2</sub>) / (m<sub>1</sub>c<sub>1</sub> + m<sub>2</sub>c<sub>2</sub>)', what: 'solving the line above for the final temperature' },
+  { html: 'Q = CΔt', what: 'bomb calorimeter: C is the whole calorimeter’s heat capacity (kJ/°C), given in the question' },
+  { html: 'Δ<sub>c</sub>H = −Q ÷ n', what: 'bomb: the heat the calorimeter gains is released by n mol of fuel' },
 ];
 
 export const prompts = [
@@ -20,6 +23,7 @@ export const prompts = [
   'Two objects: put the same hot block in 200 g of air instead of water. Why does the air warm so much more, for the same heat?',
   'Two objects: swap copper for aluminium with the same mass. Which one warms the water more, and why?',
   'Two objects: double the water mass. Does the heat transferred double? Does the temperature change of the water?',
+  'Bomb: 1.50 g of ethanol burns in a bomb calorimeter (C = 10.0 kJ/°C) and the temperature rises from 20.00 °C to 24.45 °C. Find the molar enthalpy of combustion, then check.',
 ];
 
 export const legend = [
@@ -41,6 +45,12 @@ const OTHERS = [
   { value: 'polystyreneCup', name: 'foam cup', bar: 'cup', label: cLabel('Polystyrene foam cup', 'polystyreneCup') },
 ];
 const METAL_NAMES = { copper: 'copper', aluminium: 'aluminium', iron: 'iron', tin: 'tin' };
+// Bomb calorimeter fuels; M from the booklet's atomic molar masses.
+const FUELS = [
+  ['CH4(g)', 'methane'], ['C3H8(g)', 'propane'], ['C4H10(g)', 'butane'], ['C8H18(l)', 'octane'],
+  ['CH3OH(l)', 'methanol'], ['C2H5OH(l)', 'ethanol'], ['C6H12O6(s)', 'glucose'], ['C12H22O11(s)', 'sucrose'],
+  ['C6H5COOH(s)', 'benzoic acid'], ['C10H8(s)', 'naphthalene'],
+].map(([f, name]) => ({ value: f, name, label: `${species(f)}, ${name}` }));
 const RATE = 0.8; // e-foldings per second of playback; animation only
 const T_MAX = 100;
 
@@ -51,6 +61,7 @@ export function mount(ui) {
     options: [
       { value: 'one', label: 'One object: Q = mcΔt' },
       { value: 'two', label: 'Two objects: heat lost = heat gained' },
+      { value: 'bomb', label: 'Bomb calorimeter: Q = CΔt' },
     ],
     value: 'one',
   });
@@ -75,6 +86,14 @@ export function mount(ui) {
   const mw = slider(wbox, { label: 'Mass', min: 1, max: 400, step: 1, value: 200, unit: 'g' });
   const tw = slider(wbox, { label: 'Initial temperature', min: 5, max: 30, step: 0.5, value: 20, unit: '°C', digits: 1 });
 
+  // --- bomb calorimeter ---
+  const bbox = section(ui.controls, 'Bomb calorimeter');
+  const fuel = choice(bbox, { label: 'Fuel burned', options: FUELS, value: 'C2H5OH(l)' });
+  const fm = slider(bbox, { label: 'Mass of fuel, m', min: 0.01, max: 20, step: 0.01, value: 1.5, unit: 'g', digits: 2 });
+  const cap = slider(bbox, { label: 'Heat capacity of calorimeter, C', min: 0.1, max: 50, step: 0.01, value: 10, unit: 'kJ/°C', digits: 2 });
+  const bti = slider(bbox, { label: 'Initial temperature', min: 0, max: 50, step: 0.01, value: 20, unit: '°C', digits: 2 });
+  const btf = slider(bbox, { label: 'Final temperature', min: 0, max: 100, step: 0.01, value: 24.45, unit: '°C', digits: 2 });
+
   const out1 = readouts(ui.readouts, [
     { id: 'm', label: 'Mass m' },
     { id: 'c', label: 'Specific heat capacity c' },
@@ -91,23 +110,33 @@ export function mount(ui) {
     { id: 'qw', label: 'Q of the other object' },
   ]);
   const dl2 = ui.readouts.lastElementChild;
+  const out3 = readouts(ui.readouts, [
+    { id: 'dt', label: 'Δt = t<sub>final</sub> − t<sub>initial</sub>' },
+    { id: 'q', label: 'Q = CΔt, gained by the calorimeter' },
+    { id: 'M', label: 'Molar mass M' },
+    { id: 'n', label: 'n = m ÷ M' },
+    { id: 'h', label: 'Δ<sub>c</sub>H = −Q ÷ n' },
+  ]);
+  const dl3 = ui.readouts.lastElementChild;
 
   const canvas = fitCanvas(ui.canvas);
   const clock = createClock(ui.transport, { frame: draw });
-  [mode, sub, vol, mass, ti, tfin, metal, mm, tm, other, mw, tw].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
+  [mode, sub, vol, mass, ti, tfin, metal, mm, tm, other, mw, tw, fuel, fm, cap, bti, btf].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
 
   function draw(clk) {
     const one = mode.value === 'one';
+    const bomb = mode.value === 'bomb';
     const shown = (node, on) => {
       const d = on ? '' : 'none';
       if (node.style.display !== d) node.style.display = d;
     };
     [obox, dl1].forEach((n) => shown(n, one));
-    [mbox, wbox, dl2].forEach((n) => shown(n, !one));
+    [mbox, wbox, dl2].forEach((n) => shown(n, mode.value === 'two'));
+    [bbox, dl3].forEach((n) => shown(n, bomb));
     shown(volRow, sub.value === 'water');
     shown(massRow, sub.value !== 'water');
     clear(canvas.ctx, canvas.w, canvas.h);
-    (one ? drawOne : drawTwo)(clk);
+    (bomb ? drawBomb : one ? drawOne : drawTwo)(clk);
   }
 
   // The cup (with water ∝ fill when it holds water) and the shared temperature scale.
@@ -157,8 +186,16 @@ export function mount(ui) {
       roundRect(ctx, cx - side / 2, top + cupH - side - 6, side, side, 4);
       ctx.fill();
     };
+    const vessel = (color) => {
+      const bw = cupW * 0.4;
+      const bh = cupH * 0.5;
+      ctx.fillStyle = color;
+      roundRect(ctx, cx - bw / 2, top + cupH - bh - 10, bw, bh, 10);
+      ctx.fill();
+      line(ctx, cx, top + cupH - bh - 10, cx, top - 6, { color: th.ink });
+    };
     const caption = (s) => text(ctx, s, cx, top + cupH + 16, { color: th.muted, size: 12, align: 'center' });
-    return { th, bar, finalLine, block, caption };
+    return { th, bar, finalLine, block, vessel, caption };
   }
 
   function drawOne(clk) {
@@ -211,5 +248,25 @@ export function mount(ui) {
     f.finalLine(tf);
     f.bar(nowM, f.th.seriesB, 'metal', 0);
     f.bar(nowW, f.th.seriesA, other.option.bar ?? name, 1);
+  }
+
+  function drawBomb(clk) {
+    const M = molarMass(fuel.value);
+    const dt = btf.value - bti.value;
+    const r = K.bomb(cap.value, dt, fm.value, M);
+
+    out3.set('dt', `${fmt(dt, 3)} °C`);
+    out3.set('q', `${fmt(cap.value, 3)} kJ/°C × ${fmt(dt, 3)} °C = ${fmt(r.Q, 3)} kJ`);
+    out3.set('M', `${M.toFixed(2)} g/mol`);
+    out3.set('n', `${fmt(fm.value, 3)} g ÷ ${M.toFixed(2)} g/mol = ${fmt(r.n, 3)} mol`);
+    out3.set('h', dt === 0 ? '— (Δt = 0)' : `${fmt(r.molar, 3)} kJ/mol`);
+
+    const f = frame(0.7);
+    f.vessel(f.th.seriesB);
+    f.caption(`bomb (${fuel.option.name}) in water`);
+    const now = btf.value + (bti.value - btf.value) * Math.exp(-clk.t * RATE);
+    f.finalLine(btf.value);
+    f.bar(bti.value, f.th.muted, 'initial', 0);
+    f.bar(now, f.th.seriesA, 'now', 1);
   }
 }

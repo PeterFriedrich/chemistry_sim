@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { heat, finalTemperature, temperaturesAt, waterMass } from '../site/js/chem/calorimetry.js';
+import { heat, finalTemperature, temperaturesAt, waterMass, bomb } from '../site/js/chem/calorimetry.js';
+import { molarMass } from '../site/js/chem/electrolysis.js';
 import { specificHeat } from '../site/js/chem/constants.js';
 
 const near = (a, b, tol = 1e-9) => assert.ok(Math.abs(a - b) <= tol, `${a} vs ${b}`);
@@ -47,4 +48,16 @@ test('test_calorimetry_one_object_water_worked_example', () => {
   assert.equal(m, 48);
   near(heat(m, specificHeat.water, 50.0 - 80.0), -6033.6);
   assert.equal((heat(m, specificHeat.water, -30.0) / 1000).toPrecision(3), '-6.03');
+});
+
+test('test_calorimetry_bomb_worked_example', () => {
+  // 1.50 g ethanol, C = 10.0 kJ/°C, 20.00 → 24.45 °C: Q = (10.0)(4.45) = 44.5 kJ;
+  // M = 2(12.01) + 6(1.01) + 16.00 = 46.08 g/mol, n = 0.03255 mol; ΔcH = −1.37 × 10³ kJ/mol.
+  const M = molarMass('C2H5OH(l)');
+  near(M, 46.08, 1e-9);
+  const r = bomb(10.0, 24.45 - 20.0, 1.5, M);
+  near(r.Q, 44.5, 1e-9);
+  near(r.n, 1.5 / 46.08);
+  near(r.molar, -44.5 / (1.5 / 46.08));
+  assert.equal(r.molar.toPrecision(3), '-1.37e+3');
 });
