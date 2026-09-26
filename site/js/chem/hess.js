@@ -77,6 +77,16 @@ export function massFromHeat(M, heat, given, process) {
   return { n, m: n * M, dH, molar: PHASE_CHANGES[process].sign * given, given };
 }
 
+// A thermochemical equation given in the question with its ΔH (kJ, for the
+// equation as written, which may differ from the booklet's ΔfH° values): m grams
+// of a substance with coefficient `coef` is n/coef moles of reaction, so
+// ΔH = (n / coef) × ΔH(equation).
+export function givenEquation(m, M, coef, dHrxn) {
+  const n = m / M;
+  const extent = n / coef;
+  return { n, extent, dH: enthalpyChange(extent, dHrxn) };
+}
+
 // Swap every H2O(l) in the equation for H2O(g) or back.
 export function withWater(reaction, state) {
   const swap = (side) => side.map(([n, s]) => [n, s.startsWith('H2O(') ? `H2O(${state})` : s]);
