@@ -125,7 +125,11 @@ could mislead.
   booklet prints none), its sign set by the direction of the change. It also
   runs backwards: from the heat given for m grams to the molar enthalpy, or
   from the heat and molar enthalpy to the mass. A given molar enthalpy is
-  entered to 0.01 kJ/mol and printed as entered.
+  entered to 0.01 kJ/mol and printed as entered. The given-equation mode takes
+  a ΔH printed with an equation in the question (which may differ from the
+  booklet's ΔfH° values, e.g. −96.4 vs −98.9 kJ for SO₂ + ½ O₂ → SO₃) and
+  scales it by moles of reaction = n ÷ coefficient; the equation itself is
+  not entered, only the one coefficient the student reads from it.
 - **Voltaic cells** (`chem/redox.js`): standard conditions only (1.0 mol/L,
   298.15 K), so E°<sub>cell</sub> is the table difference with no Nernst
   correction; the half-cells offered are the bench metal | ion couples plus the

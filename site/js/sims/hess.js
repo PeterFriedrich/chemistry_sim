@@ -10,10 +10,12 @@ export const equations = [
   { html: 'Δ<sub>f</sub>H° = 0', what: 'for an element in its standard state: O₂(g), H₂(g), N₂(g), C(s), Al(s), Fe(s)' },
   { html: 'ΔH = nΔ<sub>r</sub>H', what: 'n = amount of the substance Δ<sub>r</sub>H is quoted per' },
   { html: 'ΔH &lt; 0 exothermic, ΔH &gt; 0 endothermic', what: 'the sign is the change in the system’s enthalpy' },
+  { html: 'ΔH = (n ÷ coefficient) × ΔH<sub>equation</sub>', what: 'a ΔH given for an equation is per the coefficients as written (½ O₂ means per ½ mol)' },
   { html: 'ΔH = nΔ<sub>fus</sub>H or nΔ<sub>vap</sub>H, n = m/M', what: 'phase change: the molar enthalpy is given in the question; melting and boiling absorb heat' },
 ];
 
 export const prompts = [
+  'Given equation: SO₂(g) + ½ O₂(g) → SO₃(g), ΔH = −96.4 kJ. How much heat is released when 1.60 g of O₂ is consumed? Why divide by ½?',
   'Phase change: how much heat is needed to melt 9.0 g of solid aluminium? Its molar heat of fusion is 10.7 kJ/mol.',
   'Phase change, backwards: 40.0 g of chloroform, CHCl₃, condenses and liberates 9.87 kJ. Find its molar heat of vaporization with “Solve for”.',
   'Phase change, for the mass: ammonia condenses and releases 10.0 kJ; its ΔvapH is 23.3 kJ/mol. What mass condensed?',
@@ -41,6 +43,13 @@ const SUBSTANCES = [
   ['Al', 'aluminium'], ['Fe', 'iron'], ['Cu', 'copper'], ['Pb', 'lead'], ['Ag', 'silver'], ['Au', 'gold'],
   ['H2O', 'water'], ['NaCl', 'sodium chloride'], ['NH3', 'ammonia'], ['C2H5OH', 'ethanol'], ['CH4', 'methane'], ['CHCl3', 'chloroform'],
 ].map(([f, name]) => ({ value: f, label: `${formula(f)}, ${name}` }));
+// Substances for "given ΔH for an equation" questions; M from the booklet.
+const EQ_SUBSTANCES = [
+  'O2', 'H2', 'N2', 'C', 'S', 'Al', 'Fe', 'Mg', 'CH4', 'C3H8', 'C4H10', 'C8H18', 'CH3OH', 'C2H5OH', 'C6H12O6',
+  'CO', 'CO2', 'H2O', 'NO', 'NO2', 'N2O4', 'NH3', 'SO2', 'SO3', 'Fe2O3', 'Al2O3', 'CaCO3', 'CaO', 'HCl', 'NaOH', 'NaCl',
+].map((f) => ({ value: f, label: formula(f) }));
+// Coefficients as the equation prints them: ½, 3/2, 2.
+const coefText = (k) => (k === 0.5 ? '½' : Number.isInteger(k) ? String(k) : `${k * 2}/2`);
 const PROCESS = [
   { value: 'melting', label: 'Melting (s → l), +ΔfusH' },
   { value: 'freezing', label: 'Freezing (l → s), −ΔfusH' },
@@ -56,6 +65,7 @@ export function mount(ui) {
     options: [
       { value: 'hess', label: 'ΔrH from ΔfH° (Hess)' },
       { value: 'phase', label: 'Phase change: ΔH = nΔH (given)' },
+      { value: 'equation', label: 'Given ΔH for an equation: ΔH = (n ÷ coefficient) × ΔH' },
     ],
     value: 'hess',
   });
@@ -77,6 +87,11 @@ export function mount(ui) {
   const givenRow = gbox.lastElementChild;
   const heat = slider(gbox, { label: 'Heat absorbed or released, given', min: 0.01, max: 1000, step: 0.01, value: 9.87, unit: 'kJ', digits: 2 });
   const heatRow = gbox.lastElementChild;
+  const ebox = section(ui.controls, 'Equation given');
+  const eSub = choice(ebox, { label: 'Substance whose mass is known', options: EQ_SUBSTANCES, value: 'O2' });
+  const eCoef = slider(ebox, { label: 'Its coefficient in the equation', min: 0.5, max: 25, step: 0.5, value: 0.5, digits: 1 });
+  const eMass = slider(ebox, { label: 'Mass, m', min: 0.01, max: 1000, step: 0.01, value: 1.6, unit: 'g', digits: 2 });
+  const eDH = slider(ebox, { label: 'ΔH given for the equation', min: -6000, max: 6000, step: 0.1, value: -96.4, unit: 'kJ', digits: 1 });
   const rbox = section(ui.controls, 'Reaction');
   const pick = choice(rbox, {
     label: 'Balanced equation',
@@ -114,11 +129,20 @@ export function mount(ui) {
     { id: 'kind', label: 'Heat is' },
   ]);
   const dl2 = ui.readouts.lastElementChild;
+  const out3 = readouts(ui.readouts, [
+    { id: 'M', label: 'Molar mass M' },
+    { id: 'n', label: 'n = m/M' },
+    { id: 'x', label: 'Moles of reaction = n ÷ coefficient' },
+    { id: 'given', label: 'ΔH for the equation as written' },
+    { id: 'dh', label: 'ΔH = (n ÷ coefficient) × ΔH' },
+    { id: 'kind', label: 'Heat is' },
+  ]);
+  const dl3 = ui.readouts.lastElementChild;
 
   const canvas = fitCanvas(ui.canvas);
   const clock = createClock(ui.transport, { frame: draw });
   let shown = null;
-  [mode, sub, proc, solve, mass, given, heat, pick, water, amount].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
+  [mode, sub, proc, solve, mass, given, heat, eSub, eCoef, eMass, eDH, pick, water, amount].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
 
   const current = () => H.withWater(H.reactions.find((r) => r.id === pick.value), water.value);
 
@@ -140,21 +164,21 @@ export function mount(ui) {
 
   function draw(clk) {
     const hess = mode.value === 'hess';
+    const phase = mode.value === 'phase';
     const shownIf = (node, on) => {
       const d = on ? '' : 'none';
       if (node.style.display !== d) node.style.display = d;
     };
     [rbox, abox, dl1, table].forEach((n) => shownIf(n, hess));
-    [gbox, dl2].forEach((n) => shownIf(n, !hess));
+    [gbox, dl2].forEach((n) => shownIf(n, phase));
+    [ebox, dl3].forEach((n) => shownIf(n, mode.value === 'equation'));
     shownIf(givenRow, solve.value !== 'molar');
     shownIf(heatRow, solve.value !== 'dh');
     shownIf(massRow, solve.value !== 'mass');
-    (hess ? drawHess : drawPhase)(clk);
+    (hess ? drawHess : phase ? drawPhase : drawEquation)(clk);
   }
 
   function drawPhase(clk) {
-    const { ctx, w, h } = canvas;
-    const th = theme();
     const f = sub.value;
     const ph = H.PHASE_CHANGES[proc.value];
     const M = molarMass(f);
@@ -174,13 +198,31 @@ export function mount(ui) {
     out2.set('dh', `${absorbed ? '+' : ''}${fmt(r.dH, 3)} kJ`);
     out2.set('kind', absorbed ? 'absorbed (endothermic)' : 'released (exothermic)');
 
+    twoLevel(clk, formula(`${f}(${ph.from})`), formula(`${f}(${ph.to})`), null, r.dH);
+  }
+
+  function drawEquation(clk) {
+    const M = molarMass(eSub.value);
+    const r = H.givenEquation(eMass.value, M, eCoef.value, eDH.value);
+    const absorbed = r.dH > 0;
+    out3.set('M', `${fixed(M, 2)} g/mol`);
+    out3.set('n', `${fmt(r.n, 3)} mol ${formula(eSub.value)}`);
+    out3.set('x', `${fmt(r.extent, 3)} mol (÷ ${coefText(eCoef.value)})`);
+    out3.set('given', `${eDH.value > 0 ? '+' : ''}${fixed(eDH.value, 1)} kJ per ${coefText(eCoef.value)} mol ${formula(eSub.value)}`);
+    out3.set('dh', `${absorbed ? '+' : ''}${fmt(r.dH, 3)} kJ`);
+    out3.set('kind', absorbed ? 'absorbed (endothermic)' : r.dH < 0 ? 'released (exothermic)' : '—');
+    twoLevel(clk, 'reactants', 'products', `${fmt(eMass.value, 3)} g ${formula(eSub.value)}: ${fmt(r.extent, 3)} × (${fixed(eDH.value, 1)} kJ)`, r.dH);
+  }
+
+  // Two enthalpy levels, reactant on the left and product on the right; the
+  // higher-enthalpy side sits higher, so the ΔH arrow points up when heat is absorbed.
+  function twoLevel(clk, s0, s1, title, dH) {
+    const { ctx, w, h } = canvas;
+    const th = theme();
+    const absorbed = dH > 0;
     clear(ctx, w, h);
     const narrow = w < 620;
-    const s0 = formula(`${f}(${ph.from})`);
-    const s1 = formula(`${f}(${ph.to})`);
-    text(ctx, `${s0} → ${s1}`, w / 2, 22, { size: narrow ? 14 : 16, weight: 600, align: 'center' });
-    // Reactant phase on the left, product on the right; the higher-enthalpy
-    // phase sits higher (liquid above solid, gas above liquid).
+    text(ctx, title ?? `${s0} → ${s1}`, w / 2, 22, { size: narrow ? 13 : 16, weight: 600, align: 'center' });
     const top = 70;
     const bottom = h - 50;
     const yR = absorbed ? bottom : top;
@@ -201,7 +243,7 @@ export function mount(ui) {
     line(ctx, xa, yR, ax, yR, { color: th.muted, width: 1, dash: [3, 3] });
     line(ctx, ax, yP, xb, yP, { color: th.muted, width: 1, dash: [3, 3] });
     arrow(ctx, ax, yR, 0, (yP - yR) * Math.max(fgrow, 0.02), { color, width: 3 });
-    const label = `ΔH = ${absorbed ? '+' : ''}${fmt(r.dH, 3)} kJ`;
+    const label = `ΔH = ${absorbed ? '+' : ''}${fmt(dH, 3)} kJ`;
     ctx.font = `700 13px ${th.font}`;
     text(ctx, label, Math.min(ax + 10, w - 6 - ctx.measureText(label).width), (top + bottom) / 2, { color, size: 13, weight: 700 });
     clock.setTimeLabel(absorbed ? 'heat absorbed from the surroundings' : 'heat released to the surroundings');
