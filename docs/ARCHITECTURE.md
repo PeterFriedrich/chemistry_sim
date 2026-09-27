@@ -252,3 +252,11 @@ could mislead.
   refused with a message rather than misnamed. Names follow IUPAC 1993
   (but-2-ene, propan-2-ol), omitting locants only where no other position exists
   (ethene, propene, ethanol, chloroethane). The line diagram's geometry is picture only.
+- **Periodic table** (`chem/periodic.js`): period, group, valence and total
+  electrons all follow from Z. Valence electrons are counted for the main groups
+  only (group number for 1–2, group − 10 for 13–18, helium 2); transition and
+  f-block elements show "not assigned in Chemistry 20". Energy-level diagrams
+  (2, 8, 8, 2) are drawn for Z ≤ 20 only, where that filling rule holds. Lewis
+  symbols place one dot per side before pairing, so unpaired dots are the
+  bonding electrons. Neutral atoms only; ions wait for the booklet's ion-charge
+  column.

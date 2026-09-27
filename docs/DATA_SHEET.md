@@ -252,7 +252,13 @@ directly; 18 that the extraction laid out differently (Ti, Sr, Ba, Eu–Lu, Pb, 
 Cm, Bk, Sg, Bh) were read from the raw text by hand. Values in parentheses are
 the mass number of the most stable isotope. Lead is printed as 207.2 with the
 booklet's note that its isotopic mix prevents more precision. Code:
-`site/js/chem/elements-data.js`. Electronegativities, ion charges and states
+`site/js/chem/elements-data.js`.
+
+Layout (used by `periodic`, read 2026-09-27 from the PDF's text): groups are
+numbered 1–18 and periods 1–7. Lanthanum–lutetium (57–71) and
+actinium–lawrencium (89–103) are the two separate rows below the table,
+lanthanum and actinium first in their rows; the table itself runs to
+roentgenium (111). Electronegativities, ion charges and states
 are **not** transcribed yet.
 
 | Z | Symbol | Name | M (g/mol) |
