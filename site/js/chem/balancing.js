@@ -149,32 +149,92 @@ export function combine(sk1, sk2, medium) {
 }
 
 const PRIORITY = [
-  [['F'], -1],
-  [['Li', 'Na', 'K', 'Rb', 'Cs'], 1],
-  [['Be', 'Mg', 'Ca', 'Sr', 'Ba'], 2],
-  [['H'], 1],
-  [['O'], -2],
-  [['Cl', 'Br', 'I'], -1],
+  [['F'], -1, 'F is always −1'],
+  [['Li', 'Na', 'K', 'Rb', 'Cs'], 1, 'Group 1 metals are +1'],
+  [['Be', 'Mg', 'Ca', 'Sr', 'Ba'], 2, 'Group 2 metals are +2'],
+  [['H'], 1, 'H is +1'],
+  [['O'], -2, 'O is −2'],
+  [['Cl', 'Br', 'I'], -1, 'Cl, Br and I are −1'],
 ];
 
-export function oxidationNumbers(species) {
+// The rules applied one at a time. Each step is { el, value, rule }; the last
+// element's step also has `sum` = { charge, known: [[count, el, value]], count,
+// num, den } for "count·x + Σ known = charge", with x = num/den in lowest terms.
+// When two or more elements are left that no rule fixes (CuSO4, NH4NO3),
+// `problem` lists them: the student splits the compound into its ions first.
+export function assignSteps(species) {
   const atoms = atomsOf(species);
   const els = Object.keys(atoms);
-  const on = {};
+  const charge = chargeOf(species);
+  if (els.length === 1) {
+    const [el] = els;
+    const g = gcd(Math.abs(charge), atoms[el]) || 1;
+    const rule = charge === 0 ? 'an element on its own is 0' : atoms[el] === 1 ? 'a monatomic ion has its charge' : 'the atoms share the charge';
+    const value = charge / atoms[el];
+    return { steps: [{ el, value, rule, sum: { charge, known: [], count: atoms[el], num: charge / g, den: atoms[el] / g } }], numbers: { [el]: value }, problem: null };
+  }
+  const steps = [];
   const left = new Set(els);
-  for (const [group, value] of PRIORITY) {
+  for (const [group, value, rule] of PRIORITY) {
     for (const el of group) {
       if (left.size > 1 && left.has(el)) {
-        on[el] = value;
+        steps.push({ el, value, rule });
         left.delete(el);
       }
     }
   }
-  if (left.size !== 1) throw new Error(`Oxidation numbers of ${species} are not set by the rules`);
+  if (left.size !== 1) return { steps, numbers: null, problem: [...left] };
   const [last] = left;
-  const known = Object.entries(on).reduce((t, [el, v]) => t + v * atoms[el], 0);
-  on[last] = (chargeOf(species) - known) / atoms[last];
-  return Object.fromEntries(els.map((el) => [el, on[el]])); // formula order
+  const known = steps.map((st) => [atoms[st.el], st.el, st.value]);
+  const num = charge - known.reduce((t, [n, , v]) => t + n * v, 0);
+  const g = gcd(Math.abs(num), atoms[last]) || 1;
+  steps.push({ el: last, value: num / atoms[last], rule: 'the sum equals the charge', sum: { charge, known, count: atoms[last], num: num / g, den: atoms[last] / g } });
+  const numbers = Object.fromEntries(els.map((el) => [el, steps.find((st) => st.el === el).value])); // formula order
+  return { steps, numbers, problem: null };
+}
+
+export function oxidationNumbers(species) {
+  const r = assignSteps(species);
+  if (r.problem) throw new Error(`Oxidation numbers of ${species} are not set by the rules`);
+  return r.numbers;
+}
+
+// What a student types: H2SO4, NO3-, NO3^-, [NO3]-, CO3 2-, CO3^2-, [CO3]2-,
+// CO₃²⁻ or Fe^3+. A charge with more than one digit before its sign needs a
+// caret, a space or brackets: NO3- is nitrate, not N with a 3− charge; but one
+// element then digits (Fe3+, S2-) is read as a monatomic ion. Returns
+// { species } in this module's notation (CO3^2-) or { error }. Elements must
+// be on the booklet's periodic table.
+const SUB = { '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4', '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9' };
+const SUP = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁺': '+', '⁻': '-' };
+export function parseSpecies(input, elements) {
+  let t = input.trim().replace(/\((s|l|g|aq)\)$/, '').replace(/[₀-₉]/g, (c) => SUB[c]).replace(/−/g, '-');
+  const sup = /[⁰-⁹⁺⁻¹²³]+$/.exec(t);
+  if (sup) t = `${t.slice(0, sup.index)}^${[...sup[0]].map((c) => SUP[c]).join('')}`;
+  let body = t;
+  let mag = 0;
+  let sign = '';
+  const m = /^\[(.+)\]\s*(\d*)([+-])$/.exec(t) ?? /^(.+?)\^(\d*)([+-])$/.exec(t) ?? /^(.+?)\s+(\d*)([+-])$/.exec(t) ?? /^(.+?)()([+-])$/.exec(t);
+  if (m) {
+    [, body, mag, sign] = m;
+    // One element then digits then a sign (Fe3+, S2-, O2-) is a monatomic ion.
+    const lone = !mag && /^([A-Z][a-z]?)(\d+)$/.exec(body);
+    if (lone) [, body, mag] = lone;
+    mag = mag ? Number(mag) : 1;
+  }
+  body = body.replace(/\s+/g, '');
+  if (!body) return { error: 'Type a formula, e.g. H2SO4 or CO3^2-.' };
+  if (!/^([A-Z][a-z]?\d*|\(|\)\d*)+$/.test(body)) return { error: `“${input.trim()}” is not a formula: use element symbols and numbers, e.g. H2SO4, NO3^- or [CO3]2-.` };
+  let depth = 0;
+  for (const c of body) {
+    depth += c === '(' ? 1 : c === ')' ? -1 : 0;
+    if (depth < 0) return { error: 'The brackets do not match.' };
+  }
+  if (depth) return { error: 'The brackets do not match.' };
+  const unknown = Object.keys(atomsOf(body)).find((el) => !elements[el]);
+  if (unknown) return { error: `${unknown} is not an element on the periodic table.` };
+  if (mag === 0) return { species: body };
+  return { species: `${body}^${mag === 1 ? '' : mag}${sign}` };
 }
 
 // Reactions for the oxidation-number mode, already balanced.
