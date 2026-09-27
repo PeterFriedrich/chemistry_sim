@@ -120,6 +120,12 @@ could mislead.
   readout is computed from that reading, so the efficiency readout differs from
   the set value by the reading's rounding only. The theoretical Δ<sub>c</sub>H°
   comes from `hess.js`, with the water as H₂O(g) by default.
+- **Activation energy** (`chem/activation.js`): the booklet prints no
+  activation energies, so E<sub>a</sub> (uncatalysed and catalysed) is the
+  student's input and only ΔH (from the `hess.js` presets, H₂O(l)) is booklet
+  data. The curve's shape is decoration; the readouts are
+  E<sub>a</sub>(reverse) = E<sub>a</sub>(forward) − ΔH. A peak at or below the
+  reactants or products is refused with a reason, not clamped.
 - **Enthalpy of reaction** (`chem/hess.js`): fixed, balanced preset equations
   only — no free equation entry, which would need a parser and a balancer (a
   general chemistry engine). Standard conditions throughout: Δ<sub>r</sub>H° from

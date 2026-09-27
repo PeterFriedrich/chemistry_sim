@@ -53,6 +53,14 @@ export const sims = [
     concepts: ['nΔcH = −mcΔt', 'n = m/M', 'efficiency'],
   },
   {
+    id: 'activation',
+    course: 'c30',
+    unit: 'A',
+    title: 'Activation Energy and Catalysts',
+    summary: 'A potential-energy diagram for a reaction from the booklet: set Ea, read Ea(reverse) = Ea(forward) − ΔH, and add a catalyst to see both barriers drop while ΔH stays the same.',
+    concepts: ['activated complex', 'Ea(reverse) = Ea(forward) − ΔH', 'catalysts'],
+  },
+  {
     id: 'voltaic',
     course: 'c30',
     unit: 'B',

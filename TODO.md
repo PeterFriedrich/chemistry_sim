@@ -13,12 +13,11 @@ symptom before acting on it.
 ### Needs the owner
 
 - [ ] **Approve or edit the Chemistry 20 rows of the phase 1 sim list** (SPEC_phase1.md §3). The Chemistry 30 rows were approved 2026-09-25 (DECISIONS row). Record the Chemistry 20 approval as another DECISIONS row.
-- [ ] **Approve, edit or drop the remaining phase 2 Chemistry 30 proposals** (`activation`; `bronsted` approved and built 2026-09-26, `fuel` 2026-09-27) and answer their open questions — docs/SPEC_phase2.md. Each approval is a DECISIONS row.
 - [ ] **Supply the Chemistry 20 gas values** (R, STP/SATP definitions and molar volumes) and their source — the Data Booklet prints none of them (DATA_SHEET.md §1.5). Blocks `gaslaws`.
 
 ### Before tutoring with it
 
-- [ ] **Owner walkthrough of every sim against hand calculations.** SPEC_phase1.md §5 criterion 5: default settings for each sim, compute the readouts by hand with the booklet, confirm they match. Done when each sim has a ✓ (or a bug filed) here. `calorimetry`: ☐ `hess`: ☐ `voltaic`: ☐ `electrolysis`: ☐ `titration`: ☐ `lechatelier`: ☐ `organic`: ☐ `bronsted`: ☐
+- [ ] **Owner walkthrough of every sim against hand calculations.** SPEC_phase1.md §5 criterion 5: default settings for each sim, compute the readouts by hand with the booklet, confirm they match. Done when each sim has a ✓ (or a bug filed) here. `calorimetry`: ☐ `hess`: ☐ `voltaic`: ☐ `electrolysis`: ☐ `titration`: ☐ `lechatelier`: ☐ `organic`: ☐ `bronsted`: ☐ `fuel`: ☐ `activation`: ☐
 - [ ] **Map sims to program-of-studies outcomes.** Units are matched by title only; check specific outcome codes against the Alberta Education programs of study before showing them on a page.
 
 ### Phase 1 simulations (one per bullet; propose each first — CLAUDE.md)
@@ -43,6 +42,8 @@ symptom before acting on it.
 ## Done
 
 Closed items moved out of `## Open work` live in **`docs/TODO_archive.md`** — one line each below, reasoning there.
+
+- [x] **Approve, edit or drop the phase 2 Chemistry 30 proposals** — all three approved and built: `bronsted` 2026-09-26, `fuel` and `activation` 2026-09-27 (SPEC_phase2.md, DECISIONS rows) · `docs/TODO_archive.md`
 
 - [x] **FAIL `lechatelier`: a stress pressed before the last shift settles uses the animation's transient as "before"** — 2026-09-26 · `docs/TODO_archive.md`
 
