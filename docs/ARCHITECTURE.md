@@ -261,3 +261,9 @@ could mislead.
   bonding electrons. Ions: metals take the booklet's charges; groups 15–17
   (which the booklet leaves "—") take −(8 − valence electrons). An ion's Lewis
   symbol is drawn only when it reaches a noble-gas count (not Pb²⁺, Sn²⁺).
+- **Names and formulas** (`chem/naming.js`): only the booklet's ions. Metals
+  with one printed charge take no Roman numeral; ions it does not list
+  (bromate, Hg₂²⁺) are not offered. Binary molecular compounds only (two
+  elements), plus a fixed list of common names. Formulas that read two ways
+  (MnO₂ as oxide or peroxide) take the monatomic anion. The tiles on the
+  canvas are counts, not structures.

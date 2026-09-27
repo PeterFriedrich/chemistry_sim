@@ -44,7 +44,7 @@ V in **L**; c (amount concentration) in mol/L; [ ] = amount concentration.
 
 | Page | Table | Transcribed? |
 |---|---|---|
-| inside cover | Common polyatomic ions | not yet |
+| PDF p. 2, above the periodic table | Common polyatomic ions | **yes — §1.12** |
 | fold-out | Periodic table: atomic molar mass (g/mol, 2 d.p.), electronegativity, most stable ion charges, state at 101.325 kPa and 298.15 K | molar masses and ion charges — **§1.8** |
 | 4–5 | Standard molar enthalpies of formation at 298.15 K (kJ/mol) | **yes — §1.6** |
 | 6 | Solubility of some common ionic compounds in water at 298.15 K; flame colours | not yet |
@@ -477,6 +477,51 @@ Code: `site/js/chem/ion-colour-data.js`.
 | manganese(II), Mn²⁺ | pale pink | colourless |
 | nickel(II), Ni²⁺ | blue-green | pale blue-green |
 | permanganate, MnO₄⁻ | deep purple | purple-pink |
+
+### 1.12 Table of Common Polyatomic Ions (PDF p. 2)
+
+Transcribed 2026-09-27 from the PDF rendered as an image, in the booklet's
+order (three columns, read down). 34 ions; ammonium is the only cation. Code:
+`site/js/chem/polyatomic-data.js`. The booklet gives hypochlorite two ways; the
+sims write OCl⁻ and accept ClO⁻. Ions students may know by analogy but the
+booklet does not list (bromate, iodite and so on) are not included.
+
+| Name | Formula |
+|---|---|
+| acetate (ethanoate) | CH₃COO⁻ |
+| ammonium | NH₄⁺ |
+| benzoate | C₆H₅COO⁻ |
+| borate | BO₃³⁻ |
+| carbide | C₂²⁻ |
+| carbonate | CO₃²⁻ |
+| hydrogen carbonate | HCO₃⁻ |
+| perchlorate | ClO₄⁻ |
+| chlorate | ClO₃⁻ |
+| chlorite | ClO₂⁻ |
+| hypochlorite | OCl⁻ or ClO⁻ |
+| chromate | CrO₄²⁻ |
+| dichromate | Cr₂O₇²⁻ |
+| cyanide | CN⁻ |
+| hydroxide | OH⁻ |
+| iodate | IO₃⁻ |
+| nitrate | NO₃⁻ |
+| nitrite | NO₂⁻ |
+| oxalate | OOCCOO²⁻ |
+| hydrogen oxalate | HOOCCOO⁻ |
+| permanganate | MnO₄⁻ |
+| peroxide | O₂²⁻ |
+| persulfide | S₂²⁻ |
+| phosphate | PO₄³⁻ |
+| hydrogen phosphate | HPO₄²⁻ |
+| dihydrogen phosphate | H₂PO₄⁻ |
+| silicate | SiO₃²⁻ |
+| sulfate | SO₄²⁻ |
+| hydrogen sulfate | HSO₄⁻ |
+| sulfite | SO₃²⁻ |
+| hydrogen sulfite | HSO₃⁻ |
+| hydrogen sulfide | HS⁻ |
+| thiocyanate | SCN⁻ |
+| thiosulfate | S₂O₃²⁻ |
 
 ## 2. Chemistry 20: values not in the booklet
 

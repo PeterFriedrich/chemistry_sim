@@ -37,6 +37,14 @@ export const sims = [
     concepts: ['period = energy levels', 'valence electrons from the group', 'electrons = protons = Z', 'Lewis symbols', 'ion charges'],
   },
   {
+    id: 'naming',
+    course: 'c20',
+    unit: 'A',
+    title: 'Names and Formulas',
+    summary: 'Type a formula or a name and get the other, step by step: ionic compounds with the booklet’s ion charges and polyatomic ions (Roman numerals, brackets, hydrates), molecular compounds with prefixes, acids by their IUPAC and classical names, elements, and common names.',
+    concepts: ['ionic charge balance', 'Roman numerals', 'polyatomic ions', 'prefixes', 'acid names'],
+  },
+  {
     id: 'calorimetry',
     course: 'c30',
     unit: 'A',
