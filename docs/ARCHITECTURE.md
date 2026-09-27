@@ -258,5 +258,6 @@ could mislead.
   f-block elements show "not assigned in Chemistry 20". Energy-level diagrams
   (2, 8, 8, 2) are drawn for Z ≤ 20 only, where that filling rule holds. Lewis
   symbols place one dot per side before pairing, so unpaired dots are the
-  bonding electrons. Neutral atoms only; ions wait for the booklet's ion-charge
-  column.
+  bonding electrons. Ions: metals take the booklet's charges; groups 15–17
+  (which the booklet leaves "—") take −(8 − valence electrons). An ion's Lewis
+  symbol is drawn only when it reaches a noble-gas count (not Pb²⁺, Sn²⁺).

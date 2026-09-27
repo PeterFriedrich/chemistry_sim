@@ -24,7 +24,7 @@ Phase 1 covers every unit of both courses with at least one simulation.
 
 | Course | Unit | Simulation (catalog id) | Booklet data it needs |
 |---|---|---|---|
-| Chemistry 20 | A Diversity of Matter and Chemical Bonding | Period, group, valence and total electrons on a tappable periodic table (`periodic`, **approved and built 2026-09-27**: DECISIONS row) | periodic table (atomic numbers) |
+| Chemistry 20 | A Diversity of Matter and Chemical Bonding | Period, group, valence and total electrons, and ions, on a tappable periodic table (`periodic`, **approved and built 2026-09-27**: DECISIONS row) | periodic table (atomic numbers, ion charges) |
 | Chemistry 20 | A Diversity of Matter and Chemical Bonding | Electronegativity difference and bond type / polarity (`bonding`) | periodic table (electronegativity) |
 | Chemistry 20 | B Forms of Matter: Gases | Gas laws in a piston: P, V, T, n (`gaslaws`) | **R and molar volumes are not in the booklet** (DATA_SHEET.md §1.5) — blocked on the owner's source |
 | Chemistry 20 | C Matter as Solutions, Acids, and Bases | Dilution and concentration, c₁V₁ = c₂V₂ (`dilution`); pH and [H₃O⁺] of strong acids and bases (`ph`) | K<sub>w</sub> |
