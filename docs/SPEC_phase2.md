@@ -1,4 +1,4 @@
-# Phase 2 proposals: Chemistry 30 sims (all approved and built)
+# Phase 2 proposals: Chemistry 30 sims (§1–§4 approved and built; §5 proposed)
 
 The phase 1 sims cover one or two topics per Chemistry 30 unit. Three topics that come up often on the diploma exam have no sim yet. Each proposal is one sim, built on its own branch, and has to meet every criterion in SPEC_phase1.md §4–§5. **Nothing here is approved.** The owner approves, edits or drops each proposal and answers its open questions. Each approval then becomes a DECISIONS row, and each open question that gets answered becomes another.
 
@@ -10,6 +10,7 @@ The topic list comes from the Chemistry 30 unit titles and common diploma questi
 | 2 | `fuel` | A | Molar enthalpy of combustion by calorimetry, and efficiency | specific heat of water, Δ<sub>f</sub>H°, molar masses (all transcribed) | an illustrative efficiency per apparatus |
 | 3 | `activation` | A | Potential-energy diagram: E<sub>a</sub>, activated complex, catalyst | Δ<sub>f</sub>H° via `hess.js` presets | illustrative E<sub>a</sub> (the booklet prints none) |
 | 4 | `spontaneity` | B | Predicting redox reactions (SOA/SRA) and their spontaneity from the redox table | electrode potentials (§1.7, in `redox-data.js`) | none |
+| 5 | `balancing` | B | Balancing half-reactions (acidic, basic), net ionic equations, oxidation numbers | none | none |
 
 Recommended order: 1, then 2, then 3 (smallest).
 
@@ -188,6 +189,88 @@ Code change: `candidates()` moves from `chem/electrolysis.js` into `chem/redox.j
 - (c) **Ties on the table.** Ag⁺ and NO₃⁻/H⁺ are both +0.80 V, and O₂/H⁺ and Cr₂O₇²⁻/H⁺ are both +1.23 V. My recommendation: break a tie by the booklet's printed row order (higher row wins), and say so in the UI. E°net = 0 counts as non-spontaneous.
 - (d) Is the reagent list right? Add or drop entries. One candidate is Na(s) in water: the table predicts H₂ and OH⁻ (+1.88 V).
 - (e) **Optional second mode: "Build the table from observations."** Pick 3–4 metals and their ion solutions, see a grid of which pairs react, then rank the OAs. This is a common diploma question, and it would reuse the same `predict()`. Build it now, or later?
+
+---
+
+## 5. `balancing`: redox equations the table does not print (Unit B) — PROPOSED 2026-09-27, not approved
+
+**Why.** `spontaneity`, `voltaic` and `electrolysis` only write net ionic equations from half-reactions the booklet already prints. Unit B also asks students to:
+- balance a half-reaction the table does not have, in acidic or basic solution;
+- combine two such half-reactions into the net ionic equation;
+- use oxidation numbers to decide what is oxidized and reduced, and whether a reaction is redox at all.
+
+The owner asked for this ("net ionic equations … for the electrochemistry unit in chem 30"). It needs no booklet data: every check is atom and charge balance.
+
+**Mode 1: Half-reaction method.** The student picks a skeleton half-reaction from a preset list and a medium (acidic or basic). The sim builds the balanced half-reaction one step at a time, with a "Next step" button:
+1. Balance the atoms other than O and H.
+2. Balance O by adding H₂O.
+3. Balance H by adding H⁺.
+4. Balance charge by adding e⁻. Electrons on the left mean a reduction; on the right, an oxidation.
+5. Basic only: add OH⁻ to both sides to match the H⁺, combine H⁺ + OH⁻ into H₂O, and cancel water.
+
+Proposed skeletons:
+- NO₃⁻ → NO
+- Cr₂O₇²⁻ → Cr³⁺
+- MnO₄⁻ → Mn²⁺
+- MnO₄⁻ → MnO₂
+- C₂O₄²⁻ → CO₂
+- SO₃²⁻ → SO₄²⁻
+- ClO₃⁻ → Cl⁻
+- H₂O₂ → O₂
+- C₂H₅OH → CH₃COOH
+- Fe²⁺ → Fe³⁺
+
+**Mode 2: Net ionic equation from two skeletons.** The question gives two skeleton half-reactions, as a textbook "unfamiliar reaction" question does. The sim:
+- balances each half-reaction as in mode 1;
+- says which is the reduction;
+- multiplies each so the electrons cancel;
+- adds them, and cancels H⁺, OH⁻ and H₂O that appear on both sides.
+
+This reuses `netEquation()` from `redox.js`, with each balanced half-reaction written in the table's reduction form.
+
+**Mode 3: Oxidation numbers.** The student picks a reaction from a preset list. The sim shows the oxidation number of each atom in every species, using the Chemistry 30 rules:
+- an element is 0, and a monatomic ion equals its charge;
+- O is −2, except −1 in peroxides;
+- H is +1, except −1 in metal hydrides;
+- the sum equals the species' charge.
+
+Carbon in organic compounds gets the average value (e.g. −2 in ethanol). The sim then marks which atom is oxidized (its number rises) and which is reduced (its number falls), and names the OA and RA. A reaction where nothing changes is labelled "not redox". The presets include:
+- neutralization and precipitation reactions, as the "not redox" cases;
+- one disproportionation (H₂O₂ → H₂O + O₂).
+
+**Readouts, all from a new `chem/balancing.js`.**
+- The balanced half-reaction, or both halves.
+- The electrons transferred, and reduction or oxidation.
+- The net ionic equation, with atom and charge totals for each side so the student can check them.
+- In mode 3: the oxidation numbers, the oxidized and reduced atoms, the OA and the RA.
+
+**Canvas.** A two-pan balance, one pan per side of the equation. Atom tallies and total charge are shown under each pan, and the beam levels as each step balances another quantity. Mode 3 writes each species with its oxidation numbers above the atoms, and arrows show the rise (oxidation) and fall (reduction).
+
+**Worked examples, for the tests.** Each one was checked atom by atom and charge by charge.
+
+| Question | Balanced |
+|---|---|
+| NO₃⁻ → NO, acidic | NO₃⁻ + 4 H⁺ + 3 e⁻ → NO + 2 H₂O |
+| Cr₂O₇²⁻ → Cr³⁺, acidic | Cr₂O₇²⁻ + 14 H⁺ + 6 e⁻ → 2 Cr³⁺ + 7 H₂O |
+| C₂H₅OH → CH₃COOH, acidic | C₂H₅OH + H₂O → CH₃COOH + 4 H⁺ + 4 e⁻ |
+| MnO₄⁻ → MnO₂, basic | MnO₄⁻ + 2 H₂O + 3 e⁻ → MnO₂ + 4 OH⁻ |
+| SO₃²⁻ → SO₄²⁻, basic | SO₃²⁻ + 2 OH⁻ → SO₄²⁻ + H₂O + 2 e⁻ |
+| Breathalyzer: Cr₂O₇²⁻ with C₂H₅OH, acidic | 2 Cr₂O₇²⁻ + 16 H⁺ + 3 C₂H₅OH → 4 Cr³⁺ + 11 H₂O + 3 CH₃COOH |
+| MnO₄⁻ with C₂O₄²⁻, acidic | 2 MnO₄⁻ + 16 H⁺ + 5 C₂O₄²⁻ → 2 Mn²⁺ + 8 H₂O + 10 CO₂ |
+| MnO₄⁻ with SO₃²⁻, basic | 2 MnO₄⁻ + H₂O + 3 SO₃²⁻ → 2 MnO₂ + 2 OH⁻ + 3 SO₄²⁻ |
+
+Oxidation-number checks: Mn in MnO₄⁻ is +7, Cr in Cr₂O₇²⁻ +6, C in C₂O₄²⁻ +3, S in SO₃²⁻ +4, O in H₂O₂ −1, H in NaH −1. C in C₂H₅OH averages −2, and C in CH₃COOH averages 0.
+
+**Teaching model.**
+- The skeletons come from questions, not the booklet, so there is no E° here. For spontaneity from the table, use `spontaneity`.
+- Balancing is exact integer arithmetic, tested against atom and charge balance. There is no guessing and no floating point.
+
+**Open questions for the owner.**
+- (a) **Presets only, or free entry of a skeleton?** My recommendation is presets, as in every other sim, plus your textbook's questions. Free entry needs a formula parser that rejects nonsense, and that is where bugs would reach a student.
+- (b) **Steps revealed one at a time** ("Next step", so the student tries first), or all at once? My recommendation is one at a time, with a "Show all" button.
+- (c) **Balancing by oxidation-number change.** Does your course teach this as a balancing method, or only oxidation numbers for identifying the OA and RA? My recommendation is to identify only, unless your textbook balances with it.
+- (d) **Basic solution.** Include it? My recommendation is yes. It's in the Alberta program, but some teachers skip it.
+- (e) **One sim with three modes, or split it?** My recommendation is one sim. The modes share the balancing code, and mode 2 builds directly on mode 1.
 
 ---
 
