@@ -123,7 +123,9 @@ could mislead.
   mode takes every number from the question (ΔcH, the object's mass and c,
   Δt or the efficiency) and solves for the efficiency, the fuel mass or Δt;
   only M comes from the booklet. A new fuel starts its ΔcH at the booklet value
-  with H₂O(g).
+  with H₂O(g). When the question gives no ΔcH, the mode writes the balanced
+  combustion equation and takes ΔcH from ΔfH° (H₂O(g) by default, with a
+  liquid toggle); the efficiency input defaults to 100 %.
 - **Activation energy** (`chem/activation.js`): the booklet prints no
   activation energies, so E<sub>a</sub> (uncatalysed and catalysed) is the
   student's input and only ΔH (from the `hess.js` presets, H₂O(l)) is booklet
