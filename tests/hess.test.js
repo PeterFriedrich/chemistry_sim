@@ -162,3 +162,15 @@ test('test_hess_unknown_formation_round_trips_every_preset', () => {
     assert.ok(Math.abs(u.reactants - e.reactants) < 1e-9 && Math.abs(u.products - e.products) < 1e-9, rx.id);
   }
 });
+
+test('test_hess_stability_order_is_most_negative_dfH_first', () => {
+  // Booklet: Al2O3(s) −1675.7, H2O(l) −285.8, NH3(g) −45.9, C2H2(g) +227.4.
+  const set = ['C2H2(g)', 'NH3(g)', 'Al2O3(s)', 'H2O(l)'];
+  assert.deepEqual(H.stabilityOrder(set), ['Al2O3(s)', 'H2O(l)', 'NH3(g)', 'C2H2(g)']);
+  const g = H.gradeStability(set, [4, 3, 1, 2]);
+  assert.equal(g.valid, true);
+  assert.equal(g.score, 4);
+  const wrong = H.gradeStability(set, [3, 4, 1, 2]);
+  assert.deepEqual(wrong.right, [true, true, false, false]);
+  assert.equal(H.gradeStability(set, [1, 1, 2, 3]).valid, false);
+});

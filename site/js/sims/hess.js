@@ -1,5 +1,6 @@
 import * as H from '../chem/hess.js';
 import { molarMass } from '../chem/electrolysis.js';
+import { formationEnthalpy } from '../chem/formation-data.js';
 import { fitCanvas, theme, clear, line, text, arrow, niceStep } from '../lib/canvas.js';
 import { section, slider, choice, readouts, el } from '../lib/controls.js';
 import { createClock } from '../lib/clock.js';
@@ -15,10 +16,12 @@ export const equations = [
   { html: 'ΔH &lt; 0 exothermic, ΔH &gt; 0 endothermic', what: 'the sign is the change in the system’s enthalpy' },
   { html: 'ΔH = (n ÷ coefficient) × ΔH<sub>equation</sub>', what: 'a ΔH given for an equation is per the coefficients as written (½ O₂ means per ½ mol)' },
   { html: 'reverse an equation → change the sign of ΔH; multiply it by k → multiply ΔH by k', what: 'Hess’s law by adding equations: species on both sides cancel, and the ΔH values add' },
+  { html: 'more negative Δ<sub>f</sub>H° → more stable', what: 'stability compared with the elements; a positive ΔfH° means less stable than its elements' },
   { html: 'ΔH = nΔ<sub>fus</sub>H or nΔ<sub>vap</sub>H, n = m/M', what: 'phase change: the molar enthalpy is given in the question; melting and boiling absorb heat' },
 ];
 
 export const prompts = [
+  'Stability: rank Al₂O₃(s), H₂O(l), NH₃(g) and C₂H₂(g) from most to least stable using only the ΔfH° table. Which one is less stable than its elements?',
   'Unknown ΔfH°: ethanol’s molar enthalpy of combustion is −1366.8 kJ/mol. Find ΔfH° of ethanol by hand, then pick “Combustion of ethanol”, solve for the unknown ΔfH° and check.',
   'Adding equations: find ΔH for C(s) + ½ O₂(g) → CO(g) from the two combustion equations. Which one do you reverse, and why?',
   'Adding equations, diborane: four given equations. Start with the one that has B₂H₆ in it — which side does it need to be on?',
@@ -80,6 +83,7 @@ export function mount(ui) {
       { value: 'phase', label: 'Phase change: ΔH = nΔH (given)' },
       { value: 'equation', label: 'Given ΔH for an equation: ΔH = (n ÷ coefficient) × ΔH' },
       { value: 'add', label: 'Adding equations: reverse, multiply, cancel' },
+      { value: 'stability', label: 'Order by stability (ΔfH°)' },
     ],
     value: 'hess',
   });
@@ -113,6 +117,34 @@ export function mount(ui) {
     return { c, row: xbox.lastElementChild };
   });
   preset.onChange(() => uses.forEach((u) => (u.c.value = 'f1')));
+  // --- stability ---
+  const COMPOUNDS = Object.entries(formationEnthalpy).map(([f, row]) => ({ value: f, label: `${formula(f)}, ${row.name}` }));
+  const RANKS = [{ value: 0, label: '—' }, ...[1, 2, 3, 4, 5].map((r) => ({ value: r, label: r === 1 ? '1 (most stable)' : String(r) }))];
+  const sbox = section(ui.controls, 'Compounds to order');
+  const sCount = choice(sbox, { label: 'How many', options: [3, 4, 5].map((n) => ({ value: n, label: String(n) })), value: 4 });
+  const newSet = el('button', { type: 'button', class: 'btn', text: 'New random set' }, sbox);
+  const START = ['C2H2(g)', 'NH3(g)', 'Al2O3(s)', 'H2O(l)', 'CO2(g)'];
+  const sRows = START.map((f, i) => {
+    const c = choice(sbox, { label: `Compound ${i + 1}`, options: COMPOUNDS, value: f });
+    const r1 = sbox.lastElementChild;
+    const rank = choice(sbox, { label: `Rank of compound ${i + 1}`, options: RANKS, value: 0 });
+    return { c, rank, rows: [r1, sbox.lastElementChild] };
+  });
+  const checkBtn = el('button', { type: 'button', class: 'btn btn-primary', text: 'Check my order' }, sbox);
+  let checked = false;
+  checkBtn.addEventListener('click', () => (checked = true));
+  newSet.addEventListener('click', () => {
+    // Distinct ΔfH° values, so there is one right order.
+    const pool = [...COMPOUNDS];
+    const picked = [];
+    while (picked.length < 5) {
+      const f = pool.splice(Math.floor(Math.random() * pool.length), 1)[0].value;
+      if (!picked.some((g) => H.formationOf(g) === H.formationOf(f))) picked.push(f);
+    }
+    sRows.forEach((row, i) => ((row.c.value = picked[i]), (row.rank.value = 0)));
+    checked = false;
+  });
+  [sCount, ...sRows.flatMap((row) => [row.c, row.rank])].forEach((c) => c.onChange(() => (checked = false)));
   const rbox = section(ui.controls, 'Reaction');
   const pick = choice(rbox, {
     label: 'Balanced equation',
@@ -181,6 +213,12 @@ export function mount(ui) {
     { id: 'book', label: 'Booklet value' },
   ]);
   const dl5 = ui.readouts.lastElementChild;
+  const out6 = readouts(ui.readouts, [
+    { id: 'yours', label: 'Your order, most stable first' },
+    { id: 'result', label: 'Result' },
+    { id: 'answer', label: 'Order by Δ<sub>f</sub>H°' },
+  ]);
+  const dl6 = ui.readouts.lastElementChild;
   const out4 = readouts(ui.readouts, [
     { id: 'sum', label: 'ΣΔH of the equations as used' },
     { id: 'left', label: 'Still to cancel or adjust' },
@@ -231,10 +269,11 @@ export function mount(ui) {
     [gbox, dl2].forEach((n) => shownIf(n, phase));
     [ebox, dl3].forEach((n) => shownIf(n, mode.value === 'equation'));
     [xbox, dl4].forEach((n) => shownIf(n, mode.value === 'add'));
+    [sbox, dl6].forEach((n) => shownIf(n, mode.value === 'stability'));
     shownIf(givenRow, solve.value !== 'molar');
     shownIf(heatRow, solve.value !== 'dh');
     shownIf(massRow, solve.value !== 'mass');
-    (hess ? drawHess : phase ? drawPhase : mode.value === 'add' ? drawAdd : drawEquation)(clk);
+    (hess ? drawHess : phase ? drawPhase : mode.value === 'add' ? drawAdd : mode.value === 'stability' ? drawStability : drawEquation)(clk);
   }
 
   function drawPhase(clk) {
@@ -335,6 +374,64 @@ export function mount(ui) {
       color: done ? th.product : th.muted, size: 13, weight: done ? 700 : 500,
     });
     clock.setTimeLabel(done ? 'target reached' : 'reverse and multiply the given equations');
+  }
+
+  function drawStability() {
+    const n = sCount.value;
+    sRows.forEach((row, i) => row.rows.forEach((r) => shownIf(r, i < n)));
+    const rows = sRows.slice(0, n);
+    const set = rows.map((row) => row.c.value);
+    const ranks = rows.map((row) => row.rank.value);
+    const dup = new Set(set).size < n;
+    const g = H.gradeStability(set, ranks);
+    const show = checked && g.valid && !dup;
+
+    out6.set('yours', g.valid ? g.byRank.map(formula).join(' > ') : `give each compound a rank from 1 to ${n}, once each`);
+    out6.set('result', dup ? 'the same compound is listed twice' : !checked ? 'press “Check my order”' : !g.valid ? '—' : g.score === n ? `all ${n} in the right place` : `${g.score} of ${n} in the right place`);
+    out6.set('answer', show ? g.order.map((f) => `${formula(f)} (${signed(H.formationOf(f))})`).join(' > ') : 'shown after checking');
+
+    const { ctx, w, h } = canvas;
+    const th = theme();
+    clear(ctx, w, h);
+    const narrow = w < 620;
+    if (!show) {
+      text(ctx, 'Most stable first: rank the compounds, then check.', w / 2, 30, { size: narrow ? 13 : 15, weight: 600, align: 'center' });
+      set.forEach((f, i) => text(ctx, `${formula(f)}   ?`, w / 2, 80 + i * 32, { size: 15, align: 'center', color: th.ink }));
+      text(ctx, 'Hint: compare each ΔfH° with the elements at 0 kJ/mol.', w / 2, h - 24, { color: th.muted, size: 12, align: 'center' });
+      clock.setTimeLabel('');
+      return;
+    }
+    // ΔfH° axis: lower is more stable, elements at 0.
+    const vals = set.map((f) => H.formationOf(f));
+    const lo = Math.min(0, ...vals);
+    const hi = Math.max(0, ...vals);
+    const span = hi - lo || 100;
+    const top = 40;
+    const bottom = h - 30;
+    const Y = (v) => top + ((hi + span * 0.05 - v) / (span * 1.1)) * (bottom - top);
+    const ax = narrow ? 52 : 80;
+    const step = niceStep(span * 1.1, 6);
+    for (let v = Math.ceil((lo - span * 0.05) / step) * step; v <= hi + span * 0.05; v += step) {
+      line(ctx, ax, Y(v), ax + 8, Y(v), { color: th.muted, width: 1 });
+      text(ctx, fixed(v, 0), ax - 6, Y(v), { color: th.muted, size: 11, align: 'right' });
+    }
+    line(ctx, ax, top - 10, ax, bottom, { color: th.muted, width: 1 });
+    text(ctx, 'ΔfH° (kJ/mol)', 8, top - 22, { color: th.muted, size: 12 });
+    line(ctx, ax, Y(0), w - 12, Y(0), { color: th.element, width: 2, dash: [6, 4] });
+    text(ctx, 'elements, 0', w - 14, Y(0) - 10, { color: th.element, size: 12, align: 'right' });
+    text(ctx, 'more stable ↓', w - 14, bottom - 4, { color: th.muted, size: 12, align: 'right' });
+    // Labels pushed apart where values are close, each tied to its level by a leader.
+    const items = g.order.map((f) => ({ f, y: Y(H.formationOf(f)), ok: g.right[g.byRank.indexOf(f)] }));
+    let prev = -Infinity;
+    for (const it of items.slice().sort((a, b) => a.y - b.y)) (it.ly = Math.max(it.y, prev + 18)), (prev = it.ly);
+    const lx = ax + (narrow ? 70 : 120);
+    items.forEach((it, i) => {
+      const color = it.ok ? th.product : th.danger;
+      line(ctx, ax + 12, it.y, ax + 52, it.y, { color, width: 4 });
+      line(ctx, ax + 52, it.y, lx - 4, it.ly, { color: th.muted, width: 1 });
+      text(ctx, `${i + 1}. ${formula(it.f)}  ${signed(H.formationOf(it.f))}${it.ok ? '' : '  ✗'}`, lx, it.ly, { color, size: narrow ? 12 : 13, weight: 650 });
+    });
+    clock.setTimeLabel(g.score === n ? 'all correct' : 'red: in the wrong place in your order');
   }
 
   // Two enthalpy levels, reactant on the left and product on the right; the
