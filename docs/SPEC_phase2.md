@@ -1,4 +1,4 @@
-# Phase 2 proposals: three Chemistry 30 sims (PROPOSED, not approved)
+# Phase 2 proposals: three Chemistry 30 sims (all approved and built)
 
 The phase 1 sims cover one or two topics per Chemistry 30 unit. Three topics that come up often on the diploma exam have no sim yet. Each proposal is one sim, built on its own branch, and has to meet every criterion in SPEC_phase1.md §4–§5. **Nothing here is approved.** The owner approves, edits or drops each proposal and answers its open questions. Each approval then becomes a DECISIONS row, and each open question that gets answered becomes another.
 
@@ -99,7 +99,9 @@ Approved by the owner ("Do fuel"), taking the recommended answers: (a) H₂O(g) 
 
 ---
 
-## 3. `activation`: potential-energy diagram with E<sub>a</sub> and a catalyst (Unit A)
+## 3. `activation`: potential-energy diagram with E<sub>a</sub> and a catalyst (Unit A) — APPROVED and built 2026-09-27
+
+Approved by the owner ("Yeah sure") with the recommendations: (a) its own sim; (b) a second slider for the catalysed E<sub>a</sub>, since questions give both values. An E<sub>a</sub> that would put the peak below the reactants or products shows an explanation instead of a diagram.
 
 **Teaches.**
 - The reactants, activated complex and products on a potential-energy diagram.
