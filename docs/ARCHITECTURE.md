@@ -130,6 +130,11 @@ could mislead.
   booklet's ΔfH° values, e.g. −96.4 vs −98.9 kJ for SO₂ + ½ O₂ → SO₃) and
   scales it by moles of reaction = n ÷ coefficient; the equation itself is
   not entered, only the one coefficient the student reads from it.
+  The Hess mode also solves backwards for the unknown Δ<sub>f</sub>H° of the
+  substance the reaction is quoted per (the fuel, for a combustion), from a
+  Δ<sub>r</sub>H per mole given in the question; every other species keeps its
+  booklet value (`unknownFormation`). The given value starts at the booklet's
+  Δ<sub>r</sub>H, so an untouched slider solves back to the booklet Δ<sub>f</sub>H°.
   The adding-equations mode (`combine`, `mismatches`, `additivity`) uses fixed
   preset questions: a target and two to four given equations, each with the
   ΔH the question prints (not recomputed from the booklet, and printed to that

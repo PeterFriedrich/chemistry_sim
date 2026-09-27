@@ -19,6 +19,7 @@ export const equations = [
 ];
 
 export const prompts = [
+  'Unknown ΔfH°: ethanol’s molar enthalpy of combustion is −1366.8 kJ/mol. Find ΔfH° of ethanol by hand, then pick “Combustion of ethanol”, solve for the unknown ΔfH° and check.',
   'Adding equations: find ΔH for C(s) + ½ O₂(g) → CO(g) from the two combustion equations. Which one do you reverse, and why?',
   'Adding equations, diborane: four given equations. Start with the one that has B₂H₆ in it — which side does it need to be on?',
   'Given equation: SO₂(g) + ½ O₂(g) → SO₃(g), ΔH = −96.4 kJ. How much heat is released when 1.60 g of O₂ is consumed? Why divide by ½?',
@@ -126,6 +127,21 @@ export function mount(ui) {
     ],
     value: 'l',
   });
+  const hSolve = choice(rbox, {
+    label: 'Solve for',
+    options: [
+      { value: 'drh', label: 'ΔrH, from the booklet’s ΔfH°' },
+      { value: 'dfh', label: 'Unknown ΔfH°, from a given ΔrH' },
+    ],
+    value: 'drh',
+  });
+  const hGiven = slider(rbox, { label: 'ΔrH given, per mole of the named substance', min: -6000, max: 6000, step: 0.1, value: -890.5, unit: 'kJ/mol', digits: 1 });
+  const hGivenRow = rbox.lastElementChild;
+  // A new reaction starts the given ΔrH at the booklet's value, which solves back to the booklet ΔfH°.
+  [pick, water].forEach((c) => c.onChange(() => {
+    const rx = current();
+    hGiven.value = H.molarEnthalpy(rx, rx.per);
+  }));
   const abox = section(ui.controls, 'Amount');
   const amount = slider(abox, { label: 'Amount reacted, n', min: 0.1, max: 10, step: 0.01, value: 1, unit: 'mol' });
 
@@ -158,6 +174,13 @@ export function mount(ui) {
     { id: 'kind', label: 'Heat is' },
   ]);
   const dl3 = ui.readouts.lastElementChild;
+  const out5 = readouts(ui.readouts, [
+    { id: 'given', label: 'Δ<sub>r</sub>H given' },
+    { id: 'known', label: 'Σ nΔ<sub>f</sub>H° of the rest, products − reactants' },
+    { id: 'x', label: 'Unknown Δ<sub>f</sub>H°' },
+    { id: 'book', label: 'Booklet value' },
+  ]);
+  const dl5 = ui.readouts.lastElementChild;
   const out4 = readouts(ui.readouts, [
     { id: 'sum', label: 'ΣΔH of the equations as used' },
     { id: 'left', label: 'Still to cancel or adjust' },
@@ -169,20 +192,23 @@ export function mount(ui) {
   const canvas = fitCanvas(ui.canvas);
   const clock = createClock(ui.transport, { frame: draw });
   let shown = null;
-  [mode, sub, proc, solve, mass, given, heat, eSub, eCoef, eMass, eDH, pick, water, amount, preset, ...uses.map((u) => u.c)].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
+  [mode, sub, proc, solve, mass, given, heat, eSub, eCoef, eMass, eDH, pick, water, amount, hSolve, hGiven, preset, ...uses.map((u) => u.c)].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
 
   const current = () => H.withWater(H.reactions.find((r) => r.id === pick.value), water.value);
 
-  function fillTable(rx) {
+  // `u` (unknown mode) replaces the named substance's booklet ΔfH° with the solved one, marked ?.
+  function fillTable(rx, u) {
     table.innerHTML = '<thead><tr><th>Species</th><th>n</th><th>Δ<sub>f</sub>H°</th><th>nΔ<sub>f</sub>H°</th></tr></thead>';
     const body = el('tbody', {}, table);
     const rows = (list, last) =>
       H.terms(list).forEach((t, i) => {
         const tr = el('tr', i === list.length - 1 && last ? { class: 'after' } : {}, body);
+        const q = u && t.species === rx.per;
+        const dfH = q ? u.dfH : t.dfH;
         el('td', { text: formula(t.species) }, tr);
         el('td', { text: String(t.n) }, tr);
-        el('td', { text: fixed(t.dfH, 1) }, tr);
-        el('td', { text: fixed(t.total, 1) }, tr);
+        el('td', { text: (q ? '? = ' : '') + fixed(dfH, 1) }, tr);
+        el('td', { text: fixed(t.n * dfH, 1) }, tr);
       });
     rows(rx.reactants, true);
     rows(rx.products, false);
@@ -197,7 +223,11 @@ export function mount(ui) {
   function draw(clk) {
     const hess = mode.value === 'hess';
     const phase = mode.value === 'phase';
-    [rbox, abox, dl1, table].forEach((n) => shownIf(n, hess));
+    const unknown = hSolve.value === 'dfh';
+    [rbox, table].forEach((n) => shownIf(n, hess));
+    [abox, dl1].forEach((n) => shownIf(n, hess && !unknown));
+    shownIf(dl5, hess && unknown);
+    shownIf(hGivenRow, unknown);
     [gbox, dl2].forEach((n) => shownIf(n, phase));
     [ebox, dl3].forEach((n) => shownIf(n, mode.value === 'equation'));
     [xbox, dl4].forEach((n) => shownIf(n, mode.value === 'add'));
@@ -346,12 +376,23 @@ export function mount(ui) {
     const { ctx, w, h } = canvas;
     const th = theme();
     const rx = current();
-    const e = H.reactionEnthalpy(rx);
-    const molar = H.molarEnthalpy(rx, rx.per);
+    const unknown = hSolve.value === 'dfh';
+    const coef = [...rx.reactants, ...rx.products].find(([, s]) => s === rx.per)[0];
+    const u = unknown ? H.unknownFormation(rx, rx.per, hGiven.value * coef) : null;
+    const e = u ?? H.reactionEnthalpy(rx);
+    const molar = unknown ? hGiven.value : H.molarEnthalpy(rx, rx.per);
     const exo = e.dH < 0;
 
-    const key = `${pick.value}|${water.value}`;
-    if (key !== shown) fillTable(rx), (shown = key);
+    const key = `${pick.value}|${water.value}|${unknown && hGiven.value}`;
+    if (key !== shown) fillTable(rx, u), (shown = key);
+    if (u) {
+      const name = formula(rx.per);
+      out5.set('given', `${signed(molar)} kJ/mol ${name}` + (coef === 1 ? '' : ` × ${coef} = ${signed(e.dH)} kJ`));
+      out5.set('known', `${signed(u.known)} kJ`);
+      const inP = rx.products.some(([, s]) => s === rx.per);
+      out5.set('x', `${inP ? '' : '−'}(${signed(e.dH)} − (${signed(u.known)})) ÷ ${coef} = ${signed(u.dfH)} kJ/mol ${name}`);
+      out5.set('book', `${signed(H.formationOf(rx.per))} kJ/mol`);
+    }
     out.set('sr', `${fixed(e.reactants, 1)} kJ`);
     out.set('sp', `${fixed(e.products, 1)} kJ`);
     out.set('drh', `${signed(e.dH)} kJ`);

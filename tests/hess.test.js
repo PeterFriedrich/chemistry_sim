@@ -141,3 +141,24 @@ test('test_hess_additivity_reverse_flips_sign_and_unsolved_reports_leftovers', (
   assert.deepEqual(rev.reactants, [[2, 'CO2(g)']]);
   assert.deepEqual(rev.products, [[2, 'CO(g)'], [1, 'O2(g)']]);
 });
+
+test('test_hess_unknown_formation_worked_example', () => {
+  // ΔcH of ethanol −1366.8 kJ/mol: Σ products = 2(−393.5) + 3(−285.8) = −1644.4 kJ,
+  // so ΔfH°(C2H5OH) = −1644.4 − (−1366.8) = −277.6 kJ/mol, the booklet value.
+  const rx = H.reactions.find((r) => r.id === 'ethanol');
+  const u = H.unknownFormation(rx, 'C2H5OH(l)', -1366.8);
+  assert.equal(u.dfH.toFixed(1), '-277.6');
+  assert.equal(u.known.toFixed(1), '-1644.4');
+  // A given value off the booklet's −890.5: −965.1 − (−890.0) = −75.1 kJ/mol.
+  const m = H.unknownFormation(H.reactions.find((r) => r.id === 'methane'), 'CH4(g)', -890.0);
+  assert.equal(m.dfH.toFixed(1), '-75.1');
+});
+
+test('test_hess_unknown_formation_round_trips_every_preset', () => {
+  for (const rx of H.reactions) {
+    const e = H.reactionEnthalpy(rx);
+    const u = H.unknownFormation(rx, rx.per, e.dH);
+    assert.ok(Math.abs(u.dfH - H.formationOf(rx.per)) < 1e-9, rx.id);
+    assert.ok(Math.abs(u.reactants - e.reactants) < 1e-9 && Math.abs(u.products - e.products) < 1e-9, rx.id);
+  }
+});
