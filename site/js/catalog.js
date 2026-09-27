@@ -29,6 +29,14 @@ export const courses = [
 
 export const sims = [
   {
+    id: 'periodic',
+    course: 'c20',
+    unit: 'A',
+    title: 'The Periodic Table: Period, Group and Electrons',
+    summary: 'Tap an element on the booklet’s periodic table. Read its period and group, then its valence electrons (group number, or group − 10) and total electrons (Z), drawn as an energy-level diagram and a Lewis symbol.',
+    concepts: ['period = energy levels', 'valence electrons from the group', 'electrons = protons = Z', 'Lewis symbols'],
+  },
+  {
     id: 'calorimetry',
     course: 'c30',
     unit: 'A',
