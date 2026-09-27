@@ -14,6 +14,7 @@ symptom before acting on it.
 
 - [ ] **Approve or edit the Chemistry 20 rows of the phase 1 sim list** (SPEC_phase1.md §3). The Chemistry 30 rows were approved 2026-09-25 (DECISIONS row). Record the Chemistry 20 approval as another DECISIONS row.
 - [ ] **Supply the Chemistry 20 gas values** (R, STP/SATP definitions and molar volumes) and their source — the Data Booklet prints none of them (DATA_SHEET.md §1.5). Blocks `gaslaws`.
+- [ ] **Approve, edit or drop the `spontaneity` redox predictor proposal** (SPEC_phase2.md §4, Unit B) and answer its open questions (a)–(e). Each answer becomes a DECISIONS row.
 
 ### Before tutoring with it
 
