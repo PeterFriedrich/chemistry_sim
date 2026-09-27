@@ -163,7 +163,7 @@ test('test_hess_unknown_formation_round_trips_every_preset', () => {
   }
 });
 
-test('test_hess_stability_order_is_most_negative_dfH_first', () => {
+test('test_hess_stability_order_is_most_negative_dfh_first', () => {
   // Booklet: Al2O3(s) −1675.7, H2O(l) −285.8, NH3(g) −45.9, C2H2(g) +227.4.
   const set = ['C2H2(g)', 'NH3(g)', 'Al2O3(s)', 'H2O(l)'];
   assert.deepEqual(H.stabilityOrder(set), ['Al2O3(s)', 'H2O(l)', 'NH3(g)', 'C2H2(g)']);
