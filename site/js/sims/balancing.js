@@ -170,6 +170,18 @@ export function mount(ui) {
     { id: 'chk', label: 'Check: Σ = charge' },
   ]);
   const dlA = ui.readouts.lastElementChild;
+  // The full rule list; the rows used so far are ticked, the latest marked.
+  const rulesTable = el('table', { class: 'data-table', style: 'margin-top: 12px' }, ui.readouts);
+  el('thead', { html: '<tr><th colspan="2" style="text-align: left">Oxidation number rules</th></tr>' }, rulesTable);
+  const rbody = el('tbody', {}, rulesTable);
+  const ruleRows = new Map(B.RULES.map((r, i) => {
+    const tr = el('tr', { class: 'after' }, rbody);
+    const mark = el('td', { style: 'width: 1.6em; font-family: inherit' }, tr);
+    const td = el('td', { style: 'text-align: left; font-weight: 400; font-family: inherit' }, tr);
+    el('div', { text: `${i + 1}. ${r.text}` }, td);
+    el('div', { text: `e.g. ${r.eg}`, style: 'color: var(--c-muted); font-size: 12px' }, td);
+    return [r.id, { tr, mark, td }];
+  }));
 
   const canvas = fitCanvas(ui.canvas);
   createClock(ui.transport, { frame: draw });
@@ -244,7 +256,7 @@ export function mount(ui) {
     shown(dlN, m === 'net');
     shown(dlB, m === 'onbal');
     [obox, dlO].forEach((n) => shown(n, m === 'on'));
-    [abox, dlA].forEach((n) => shown(n, m === 'assign'));
+    [abox, dlA, rulesTable].forEach((n) => shown(n, m === 'assign'));
     shown(sbox, m !== 'on');
     shown(qbox.querySelectorAll('.ctl-choice')[1], m === 'half' || m === 'net' || m === 'onbal');
     clear(ctx, w, h);
@@ -374,6 +386,16 @@ export function mount(ui) {
     const finalOn = new Map(r.steps.map((st) => [st.el, stepOn(st)])); // slot widths stay put as steps reveal
     const ruleText = (st) => `${st.el} ${stepOn(st)}: ${st.rule}`;
     const latest = shownItems.at(-1);
+    const used = new Set(shownItems.filter((it) => it.st).flatMap((it) => [it.st.id, it.st.also]));
+    if (shownItems.some((it) => it.l)) used.add(last.id).add(last.also);
+    const now = latest?.st ? [latest.st.id, latest.st.also] : latest?.l ? [last.id, last.also] : [];
+    for (const [id, row] of ruleRows) {
+      const mark = now.includes(id) ? '▶' : used.has(id) ? '✓' : '';
+      if (row.mark.textContent !== mark) row.mark.textContent = mark;
+      const weight = now.includes(id) ? '650' : '400';
+      if (row.td.style.fontWeight !== weight) row.td.style.fontWeight = weight;
+      row.mark.style.color = now.includes(id) ? 'var(--c-accent)' : 'var(--c-product)';
+    }
     outA.set('read', species(sp));
     outA.set('step', !latest ? 'Press “Next step” to apply the first rule.' : latest.st ? ruleText(latest.st) : latest.problem ? 'No rule fixes the rest: split the compound into its ions' : `${latest.l.eq}   (${latest.l.why})`);
     outA.set('nums', done ? order.map((el) => `${el} ${known.get(el)}`).join(', ') : '—');
@@ -412,10 +434,9 @@ export function mount(ui) {
       }
       x += tw;
     }
-    let yy = y + size + 10;
-    text(ctx, 'Rules, in order: F −1 · Group 1 +1 · Group 2 +2 · H +1', w / 2, yy, { color: th.muted, size: w < 620 ? 10 : 12, align: 'center' });
-    text(ctx, 'O −2 · Cl, Br, I −1 · the last element from the sum', w / 2, yy + 17, { color: th.muted, size: w < 620 ? 10 : 12, align: 'center' });
-    yy += 50;
+    let yy = y + size + 16;
+    text(ctx, 'Rules applied in order: F, Group 1, Group 2, H, O, Cl/Br/I; the last element from the sum', w / 2, yy, { color: th.muted, size: w < 620 ? 10 : 12, align: 'center' });
+    yy += 34;
     const narrow = w < 620;
     shownItems.filter((it) => it.st).forEach((it, i) => {
       yy = fitLine(ctx, `${i + 1}. ${ruleText(it.st)}`, yy, w, { size: narrow ? 14 : 15, weight: 500 });

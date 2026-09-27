@@ -215,3 +215,17 @@ test('test_balancing_oxidation_number_method_matches_half_reaction_method', () =
     }
   }
 });
+
+test('test_balancing_each_step_names_its_chem30_rule', () => {
+  const ids = (sp) => B.assignSteps(sp).steps.map((st) => [st.el, st.id, st.also ?? null]);
+  const known = new Set(B.RULES.map((r) => r.id));
+  for (const sp of ['H2SO4', 'S8', 'Fe^3+', 'NaH', 'H2O2', 'OF2', 'CaCO3', 'NaCl', 'ClO3^-', 'O2^2-']) {
+    for (const [, id] of ids(sp)) assert.ok(known.has(id), `${sp}: ${id}`);
+  }
+  assert.deepEqual(ids('H2SO4'), [['H', 'H', null], ['O', 'O', null], ['S', 'sum', null]]);
+  assert.deepEqual(ids('S8'), [['S', 'element', null]]);
+  assert.deepEqual(ids('Fe^3+'), [['Fe', 'monatomic', null]]);
+  assert.deepEqual(ids('NaH'), [['Na', 'group1', null], ['H', 'sum', 'H']]); // the hydride exception
+  assert.deepEqual(ids('H2O2'), [['H', 'H', null], ['O', 'sum', 'O']]); // the peroxide exception
+  assert.deepEqual(ids('CaCO3'), [['Ca', 'group2', null], ['O', 'O', null], ['C', 'sum', null]]);
+});

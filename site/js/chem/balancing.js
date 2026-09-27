@@ -188,16 +188,32 @@ export function balanceByOxidationNumbers(sk1, sk2, medium) {
   return { halves, red, ox, electrons, kRed, kOx, steps, final: steps.at(-1), problem: null };
 }
 
-const PRIORITY = [
-  [['F'], -1, 'F is always −1'],
-  [['Li', 'Na', 'K', 'Rb', 'Cs'], 1, 'Group 1 metals are +1'],
-  [['Be', 'Mg', 'Ca', 'Sr', 'Ba'], 2, 'Group 2 metals are +2'],
-  [['H'], 1, 'H is +1'],
-  [['O'], -2, 'O is −2'],
-  [['Cl', 'Br', 'I'], -1, 'Cl, Br and I are −1'],
+// The Chemistry 30 rules in full, as a student's reference list. Each step
+// below names the rule it used by `id`.
+export const RULES = [
+  { id: 'element', text: 'An atom in an element is 0', eg: 'Na, O₂, S₈' },
+  { id: 'monatomic', text: 'A monatomic ion equals its charge', eg: 'Fe³⁺ is +3, Cl⁻ is −1' },
+  { id: 'F', text: 'F is −1 in compounds', eg: 'NaF, OF₂' },
+  { id: 'group1', text: 'Group 1 metals are +1 in compounds', eg: 'Na in NaCl' },
+  { id: 'group2', text: 'Group 2 metals are +2 in compounds', eg: 'Ca in CaCO₃' },
+  { id: 'H', text: 'H is +1 in compounds, except −1 in metal hydrides', eg: 'H₂O; NaH' },
+  { id: 'O', text: 'O is −2 in compounds, except −1 in peroxides (and +2 in OF₂)', eg: 'H₂O; H₂O₂' },
+  { id: 'halogen', text: 'Cl, Br and I are −1, unless combined with O or F', eg: 'NaCl; not ClO₃⁻' },
+  { id: 'sum', text: 'The oxidation numbers add up to 0 in a compound, or to the charge of a polyatomic ion', eg: 'H₂SO₄: 0; SO₄²⁻: −2' },
 ];
 
-// The rules applied one at a time. Each step is { el, value, rule }; the last
+// Applied in this order until one element is left; the sum sets that one.
+const PRIORITY = [
+  [['F'], -1, 'F is always −1', 'F'],
+  [['Li', 'Na', 'K', 'Rb', 'Cs'], 1, 'Group 1 metals are +1', 'group1'],
+  [['Be', 'Mg', 'Ca', 'Sr', 'Ba'], 2, 'Group 2 metals are +2', 'group2'],
+  [['H'], 1, 'H is +1', 'H'],
+  [['O'], -2, 'O is −2', 'O'],
+  [['Cl', 'Br', 'I'], -1, 'Cl, Br and I are −1', 'halogen'],
+];
+
+// The rules applied one at a time. Each step is { el, value, rule, id } (`also`
+// names the exception a sum result lands on: H −1, O not −2); the last
 // element's step also has `sum` = { charge, known: [[count, el, value]], count,
 // num, den } for "count·x + Σ known = charge", with x = num/den in lowest terms.
 // When two or more elements are left that no rule fixes (CuSO4, NH4NO3),
@@ -210,15 +226,16 @@ export function assignSteps(species) {
     const [el] = els;
     const g = gcd(Math.abs(charge), atoms[el]) || 1;
     const rule = charge === 0 ? 'an element on its own is 0' : atoms[el] === 1 ? 'a monatomic ion has its charge' : 'the atoms share the charge';
+    const id = charge === 0 ? 'element' : atoms[el] === 1 ? 'monatomic' : 'sum';
     const value = charge / atoms[el];
-    return { steps: [{ el, value, rule, sum: { charge, known: [], count: atoms[el], num: charge / g, den: atoms[el] / g } }], numbers: { [el]: value }, problem: null };
+    return { steps: [{ el, value, rule, id, sum: { charge, known: [], count: atoms[el], num: charge / g, den: atoms[el] / g } }], numbers: { [el]: value }, problem: null };
   }
   const steps = [];
   const left = new Set(els);
-  for (const [group, value, rule] of PRIORITY) {
+  for (const [group, value, rule, id] of PRIORITY) {
     for (const el of group) {
       if (left.size > 1 && left.has(el)) {
-        steps.push({ el, value, rule });
+        steps.push({ el, value, rule, id });
         left.delete(el);
       }
     }
@@ -228,7 +245,9 @@ export function assignSteps(species) {
   const known = steps.map((st) => [atoms[st.el], st.el, st.value]);
   const num = charge - known.reduce((t, [n, , v]) => t + n * v, 0);
   const g = gcd(Math.abs(num), atoms[last]) || 1;
-  steps.push({ el: last, value: num / atoms[last], rule: 'the sum equals the charge', sum: { charge, known, count: atoms[last], num: num / g, den: atoms[last] / g } });
+  const value = num / atoms[last];
+  const also = (last === 'H' && value !== 1) || (last === 'O' && value !== -2) ? last : null;
+  steps.push({ el: last, value, rule: 'the sum equals the charge', id: 'sum', also, sum: { charge, known, count: atoms[last], num: num / g, den: atoms[last] / g } });
   const numbers = Object.fromEntries(els.map((el) => [el, steps.find((st) => st.el === el).value])); // formula order
   return { steps, numbers, problem: null };
 }

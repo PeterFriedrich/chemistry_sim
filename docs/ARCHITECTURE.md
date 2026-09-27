@@ -191,6 +191,8 @@ could mislead.
   for the ions to be split, since the polyatomic-ion table is not transcribed).
   `algebra()` writes the student's lines for the last element (substitute,
   multiply out, collect, move across, divide), each with its reason.
+  `RULES` is the full Chemistry 30 rule list the mode shows; each step's `id`
+  names the rule it used (`also`: the hydride or peroxide exception).
   `balanceByOxidationNumbers()` balances two skeletons by oxidation-number
   change, sharing the atom, H₂O/H⁺ and basic steps with `balanceHalf()`; a
   test holds it to the half-reaction method's result for every pair.
