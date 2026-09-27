@@ -35,6 +35,12 @@ symptom before acting on it.
 - [ ] **Owner: should K<sub>b</sub> = K<sub>w</sub>/K<sub>a</sub> be rounded to 2 sf in `titration`?** ~17 % of weak-analyte settings differ by 0.01 pH between the two methods; defaults agree. Record as a DECISIONS row either way.
 - [ ] `titration`: move `sigOf` and the shown-pH indicator comparison from `sims/titration.js` into `chem/titration.js` with tests.
 
+### From the 2026-09-27 Unit B audit (docs/FINDINGS_unitB.md)
+
+- [ ] **Owner: `spontaneity` with acidified MnO₄⁻ and Cl⁻**: keep the table's answer with a note that says Cl⁻ is oxidized in the lab, or leave the pair out (as `electrolysis` left chlorides out).
+- [ ] Transcribe the booklet's solubility table (p. 6) and derive `spontaneity`'s precipitate list from it (Ag₂SO₄ is unchecked today).
+- [ ] `balancing` tidy-ups: catalog summary; per-mode legend; per-atom change computed in `chem/`; peroxo-anions, NH₄⁺ in base, and the "disproportionation" wording for Fe + Fe³⁺.
+
 ### Tidy-ups from the setup
 
 - [ ] **`fmt()` hides significant figures in round numbers ≥ 10<sup>sig</sup>**: `fmt(1000, 3)` prints "1000", not "1.00 × 10³" (toPrecision's e-notation is converted back on purpose). Changing it alters readouts in every sim (e.g. calorimetry's joules), so propose first. `lechatelier`'s chromate preset was chosen to avoid it. It already shows at `electrolysis` defaults ("1800 s", "1800 C") and in `hess` at n = 1 mol (propane "−2220 kJ"); full list in docs/FINDINGS_readouts.md.
@@ -43,6 +49,8 @@ symptom before acting on it.
 ## Done
 
 Closed items moved out of `## Open work` live in **`docs/TODO_archive.md`** — one line each below, reasoning there.
+
+- [x] **Fix the 4 FAILs in `balancing`** — 2026-09-27 · `docs/TODO_archive.md`
 
 - [x] **Approve, edit or drop the phase 2 Chemistry 30 proposals** — all three approved and built: `bronsted` 2026-09-26, `fuel` and `activation` 2026-09-27 (SPEC_phase2.md, DECISIONS rows) · `docs/TODO_archive.md`
 

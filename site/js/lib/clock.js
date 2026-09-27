@@ -50,8 +50,9 @@ export function createClock(transport, { frame, onReset, speeds = [0.25, 0.5, 1,
     last = now;
     const dSim = clock.running ? dt * clock.speed : 0;
     clock.t += dSim;
-    frame(clock, dSim);
+    // Schedule first: a frame that throws must not stop the loop and freeze the page.
     requestAnimationFrame(tick);
+    frame(clock, dSim);
   };
   paint();
   if (autoplay) clock.play();
