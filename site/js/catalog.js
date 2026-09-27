@@ -77,6 +77,14 @@ export const sims = [
     concepts: ['SOA and SRA with water', 'minimum voltage', 'Q = It, n = Q/F'],
   },
   {
+    id: 'spontaneity',
+    course: 'c30',
+    unit: 'B',
+    title: 'Predicting Redox Reactions',
+    summary: 'Mix two reagents and use the Data Booklet’s redox table: list the entities, find the SOA and SRA, balance the electrons in the net equation and decide from E°net whether the reaction is spontaneous.',
+    concepts: ['SOA and SRA from the table', 'balancing electrons', 'E°net = E°SOA − E°SRA'],
+  },
+  {
     id: 'organic',
     course: 'c30',
     unit: 'C',

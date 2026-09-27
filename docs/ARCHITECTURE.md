@@ -178,6 +178,17 @@ could mislead.
   voltage is −E°<sub>cell</sub>, with no overvoltage. Gas products are reported
   in mol only, since the booklet prints no molar volume. Bubbles, the plating
   coat and the dissolving anode are decoration.
+- **Redox reaction predictor** (`chem/spontaneity.js`): a fixed list of 27
+  reagents (metals, solutions, halogens), each entered as the entities the
+  student lists; "acidified" adds H⁺ with no anion, and water is always
+  present. `candidates()` in `redox.js` (shared with `electrolysis`) lists the
+  OAs and RAs present, a multi-species agent only when all its partners are;
+  ties on E° go by the booklet's row order. Only the single SOA–SRA pair
+  reacts. E°net = E°(SOA) − E°(SRA), spontaneous only when > 0; one couple
+  both ways (Cu with Cu²⁺) is "no net reaction". Where water is the SOA or
+  SRA the result carries a rate caveat. Mixtures that would precipitate
+  (Ag⁺ or Pb²⁺ with Cl⁻, Br⁻, I⁻; Pb²⁺ with SO₄²⁻) are declined. The moving
+  electron is picture only.
 - **Brønsted–Lowry predictor** (`chem/bronsted.js`): a fixed list of 15
   solutions, each entered as the entities the student lists (strong acids
   levelled to H₃O⁺, salts as ions, Na⁺ a spectator, water always present). Only

@@ -36,6 +36,19 @@ export function assignElectrodes(a, b) {
   return a.half.E >= b.half.E ? { cathode: a, anode: b } : { cathode: b, anode: a };
 }
 
+// Every half-reaction that can run with what is present: as a reduction when all
+// its left-side species are there (oxidizing agents, strongest first), as an
+// oxidation when all its right-side species are (reducing agents, strongest
+// first). Ties on E° go by the booklet's printed row order: the higher row is
+// the stronger OA, the lower row the stronger RA.
+export function candidates(present) {
+  const has = (side) => side.every(([, s]) => present.includes(s));
+  return {
+    oxidizing: halfReactions.filter((h) => has(h.ox)),
+    reducing: halfReactions.filter((h) => has(h.red)).reverse(),
+  };
+}
+
 const gcd = (a, b) => (b ? gcd(b, a % b) : a);
 
 function merge(list) {
