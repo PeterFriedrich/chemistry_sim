@@ -1,4 +1,4 @@
-# Phase 2 proposals: three Chemistry 30 sims (all approved and built)
+# Phase 2 proposals: Chemistry 30 sims (§1–§3 approved and built; §4 proposed)
 
 The phase 1 sims cover one or two topics per Chemistry 30 unit. Three topics that come up often on the diploma exam have no sim yet. Each proposal is one sim, built on its own branch, and has to meet every criterion in SPEC_phase1.md §4–§5. **Nothing here is approved.** The owner approves, edits or drops each proposal and answers its open questions. Each approval then becomes a DECISIONS row, and each open question that gets answered becomes another.
 
@@ -9,6 +9,7 @@ The topic list comes from the Chemistry 30 unit titles and common diploma questi
 | 1 | `bronsted` | D | Predicting Brønsted–Lowry reactions from the acid table | K<sub>a</sub> table (§1.9, in `acid-data.js`) | none |
 | 2 | `fuel` | A | Molar enthalpy of combustion by calorimetry, and efficiency | specific heat of water, Δ<sub>f</sub>H°, molar masses (all transcribed) | an illustrative efficiency per apparatus |
 | 3 | `activation` | A | Potential-energy diagram: E<sub>a</sub>, activated complex, catalyst | Δ<sub>f</sub>H° via `hess.js` presets | illustrative E<sub>a</sub> (the booklet prints none) |
+| 4 | `spontaneity` | B | Predicting redox reactions (SOA/SRA) and their spontaneity from the redox table | electrode potentials (§1.7, in `redox-data.js`) | none |
 
 Recommended order: 1, then 2, then 3 (smallest).
 
@@ -130,10 +131,67 @@ The canvas draws the uncatalysed curve plus a dashed catalysed curve, with the E
 
 ---
 
+## 4. `spontaneity`: redox reaction predictor (Unit B) — PROPOSED 2026-09-27, not approved
+
+**Why.** `voltaic` only pairs two bench half-cells, and `electrolysis` only predicts what an external supply forces. The most common Unit B question has no sim: "A strip of copper is placed in silver nitrate solution. Predict the reaction and whether it is spontaneous." It is the redox twin of `bronsted`, and uses the same kind of method.
+
+**Teaches.** The Chemistry 30 SOA/SRA method:
+1. List every entity present. Ionic compounds are written as their ions, "acidified" adds H⁺(aq), and H₂O(l) is always present.
+2. Label each entity as an oxidizing agent (OA), a reducing agent (RA), or both, from the table. A multi-species OA such as MnO₄⁻ counts only when its partners (H⁺) are present too.
+3. The SOA is the OA highest on the table, and the SRA is the RA lowest on it.
+4. Write the reduction and oxidation half-reactions. Balance the electrons and add them to get the net equation.
+5. E°net = E°(SOA) − E°(SRA). The reaction is spontaneous when the SOA is above the SRA on the table, i.e. E°net > 0.
+
+**Controls.**
+- Two reagents, each chosen from a fixed list (the same pattern as `bronsted`). Reagent 2 can be "none", which leaves reagent 1 and water only.
+- Proposed list:
+  - Metals: Ag(s), Cu(s), Pb(s), Sn(s), Ni(s), Fe(s), Zn(s), Al(s), Mg(s).
+  - Solutions: AgNO₃, CuSO₄, Pb(NO₃)₂, SnCl₂, NiSO₄, FeSO₄, ZnSO₄, KI, KBr, NaCl, HCl, HNO₃, acidified KMnO₄, acidified K₂Cr₂O₇.
+  - Halogens: Cl₂(g), Br₂(l), I₂(s).
+
+**Readouts, all from a new `chem/spontaneity.js` that reuses `redox-data.js` and `netEquation()`.**
+- Entities present.
+- The OAs and RAs present, each with its E°, and the SOA and SRA marked.
+- The reduction and oxidation half-reactions.
+- The net equation.
+- E°net, in V.
+- Spontaneous or non-spontaneous.
+
+Code change: `candidates()` moves from `chem/electrolysis.js` into `chem/redox.js`, since two sims would then use it. `electrolysis` behaviour is unchanged, and its tests pin that.
+
+**Canvas.** The booklet table as a ladder, like `bronsted`: OAs on the left, RAs on the right, and only the rows holding a present entity, in table order with their E°. An arrow runs from the SOA to the SRA. It slopes downhill (upper-left to lower-right) when the reaction is spontaneous and uphill when it isn't.
+
+**Worked examples, for the tests.** All were computed with the existing `redox.js` code and match the booklet by hand.
+
+| Reagents | SOA (E°) | SRA (E°) | Net equation | E°net | Result |
+|---|---|---|---|---|---|
+| Cu(s) + AgNO₃(aq) | Ag⁺ (+0.80) | Cu (+0.34) | 2 Ag⁺ + Cu → 2 Ag + Cu²⁺ | +0.46 V | spontaneous |
+| Cu(s) + ZnSO₄(aq) | Zn²⁺ (−0.76) | Cu (+0.34) | Zn²⁺ + Cu → Zn + Cu²⁺ | −1.10 V | non-spontaneous |
+| Zn(s) + HCl(aq) | H⁺ (0.00) | Zn (−0.76) | 2 H⁺ + Zn → H₂ + Zn²⁺ | +0.76 V | spontaneous |
+| Cu(s) + HCl(aq) | H⁺ (0.00) | Cu (+0.34) | 2 H⁺ + Cu → H₂ + Cu²⁺ | −0.34 V | non-spontaneous |
+| Cu(s) + HNO₃(aq) | NO₃⁻/H⁺ (+0.80) | Cu (+0.34) | 2 NO₃⁻ + 4 H⁺ + Cu → N₂O₄ + 2 H₂O + Cu²⁺ | +0.46 V | spontaneous |
+| acidified KMnO₄ + FeSO₄ | MnO₄⁻/H⁺ (+1.51) | Fe²⁺ (+0.77) | MnO₄⁻ + 8 H⁺ + 5 Fe²⁺ → Mn²⁺ + 4 H₂O + 5 Fe³⁺ | +0.74 V | spontaneous |
+| Cl₂(g) + KI(aq) | Cl₂ (+1.36) | I⁻ (+0.54) | Cl₂ + 2 I⁻ → 2 Cl⁻ + I₂ | +0.82 V | spontaneous |
+
+**Teaching model.**
+- Standard conditions only, as in `voltaic`. The table predicts whether a reaction can happen, not how fast.
+- Only the single SOA–SRA pair reacts: there are no follow-on reactions.
+- Precipitation is not modelled. The proposed list avoids precipitating pairs where it can, e.g. there is no AgNO₃ with a halide; see (d).
+
+**Open questions for the owner.**
+- (a) **Where the table and the lab disagree.** Followed strictly, the table says acidified KMnO₄ alone oxidizes water (+1.51 over +1.23, E°net = +0.28 V), and Cl₂ in water does too. Should the sim:
+  - show the table's answer with a note that the reaction is slow in practice (my recommendation, since this is what the method gives on an exam), or
+  - leave those reagents out, the way `electrolysis` left out chlorides?
+- (b) **Sulfuric acid.** With H₂SO₄ the table's SOA is SO₄²⁻/H⁺ (+0.17), not H⁺. Zn + H₂SO₄ then gives H₂SO₃, not H₂. My recommendation: leave H₂SO₄ off the list, and have "acidified" add H⁺(aq) with no named anion, which is how most questions word it.
+- (c) **Ties on the table.** Ag⁺ and NO₃⁻/H⁺ are both +0.80 V, and O₂/H⁺ and Cr₂O₇²⁻/H⁺ are both +1.23 V. My recommendation: break a tie by the booklet's printed row order (higher row wins), and say so in the UI. E°net = 0 counts as non-spontaneous.
+- (d) Is the reagent list right? Add or drop entries. One candidate is Na(s) in water: the table predicts H₂ and OH⁻ (+1.88 V).
+- (e) **Optional second mode: "Build the table from observations."** Pick 3–4 metals and their ion solutions, see a grid of which pairs react, then rank the OAs. This is a common diploma question, and it would reuse the same `predict()`. Build it now, or later?
+
+---
+
 ## Also missing, not proposed yet
 
 - Redox titration (MnO₄⁻ / Fe²⁺).
-- A general spontaneity predictor for any two reagents.
 - Organic reactions (already a TODO).
 - ICE-table K<sub>c</sub> calculations.
 - Polyprotic titrations (already a TODO).
