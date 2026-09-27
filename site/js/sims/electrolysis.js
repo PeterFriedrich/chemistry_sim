@@ -1,5 +1,5 @@
 import * as X from '../chem/electrolysis.js';
-import { netEquation } from '../chem/redox.js';
+import { netEquation, candidates } from '../chem/redox.js';
 import { fitCanvas, theme, clear, line, text, roundRect } from '../lib/canvas.js';
 import { section, slider, choice, toggle, readouts, el } from '../lib/controls.js';
 import { createClock } from '../lib/clock.js';
@@ -80,7 +80,7 @@ export function mount(ui) {
   [pick, metal, I, tMin].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
 
   function fillTable(present, cell) {
-    const { oxidizing, reducing } = X.candidates(present);
+    const { oxidizing, reducing } = candidates(present);
     table.innerHTML = '<thead><tr><th>Agent</th><th>Species</th><th>E° (V)</th></tr></thead>';
     const body = el('tbody', {}, table);
     const rows = (list, best, tag, pick, last) =>

@@ -9,7 +9,7 @@
 import { halfReactions } from './redox-data.js';
 import { elements } from './elements-data.js';
 import { F } from './constants.js';
-import { cellPotential } from './redox.js';
+import { cellPotential, candidates } from './redox.js';
 
 // Aqueous electrolytes whose table prediction matches the lab. Chlorides are
 // left out: the table predicts O₂ at the anode but Cl₂ forms (overvoltage).
@@ -28,17 +28,6 @@ export function speciesPresent(electrolyte, metalElectrodes) {
   const list = [...electrolyte.ions, 'H2O(l)'];
   if (metalElectrodes && electrolyte.metal) list.push(electrolyte.metal);
   return list;
-}
-
-// Every half-reaction that can run with what is present: as a reduction when all
-// its left-side species are there (oxidizing agents, strongest first), as an
-// oxidation when all its right-side species are (reducing agents, strongest first).
-export function candidates(present) {
-  const has = (side) => side.every(([, s]) => present.includes(s));
-  return {
-    oxidizing: halfReactions.filter((h) => has(h.ox)).sort((a, b) => b.E - a.E),
-    reducing: halfReactions.filter((h) => has(h.red)).sort((a, b) => a.E - b.E),
-  };
 }
 
 export function predict(present) {

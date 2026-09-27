@@ -1,4 +1,4 @@
-# Phase 2 proposals: Chemistry 30 sims (§1–§3 approved and built; §4 proposed)
+# Phase 2 proposals: Chemistry 30 sims (all approved and built)
 
 The phase 1 sims cover one or two topics per Chemistry 30 unit. Three topics that come up often on the diploma exam have no sim yet. Each proposal is one sim, built on its own branch, and has to meet every criterion in SPEC_phase1.md §4–§5. **Nothing here is approved.** The owner approves, edits or drops each proposal and answers its open questions. Each approval then becomes a DECISIONS row, and each open question that gets answered becomes another.
 
@@ -131,7 +131,9 @@ The canvas draws the uncatalysed curve plus a dashed catalysed curve, with the E
 
 ---
 
-## 4. `spontaneity`: redox reaction predictor (Unit B) — PROPOSED 2026-09-27, not approved
+## 4. `spontaneity`: redox reaction predictor (Unit B) — APPROVED and built 2026-09-27
+
+Approved by the owner ("yeah do it") with the recommendations: (a) the table's answer with a rate note; (b) no H₂SO₄, "acidified" adds H⁺ only; (c) ties by booklet row order, E°net = 0 non-spontaneous; (d) the list as proposed plus Na(s). (e) The observation grid is deferred (TODO). Added in the build: mixtures that would precipitate are declined, since two free pickers can form one.
 
 **Why.** `voltaic` only pairs two bench half-cells, and `electrolysis` only predicts what an external supply forces. The most common Unit B question has no sim: "A strip of copper is placed in silver nitrate solution. Predict the reaction and whether it is spontaneous." It is the redox twin of `bronsted`, and uses the same kind of method.
 
