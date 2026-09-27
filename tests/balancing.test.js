@@ -118,3 +118,45 @@ test('test_balancing_redox_analysis_of_preset_reactions', () => {
   assert.equal(r('agcl').redox, false);
   assert.equal(r('ch4').redox, true);
 });
+
+test('test_balancing_assign_single_species_owner_examples', () => {
+  // The owner's starter list: H2O, [NO3]-, H2SO4, S8, [CO3]2-.
+  const a = (s) => B.assignSteps(s);
+  assert.deepEqual(a('H2O').numbers, { H: 1, O: -2 });
+  assert.deepEqual(a('NO3^-').numbers, { N: 5, O: -2 });
+  assert.deepEqual(a('H2SO4').numbers, { H: 1, S: 6, O: -2 });
+  assert.deepEqual(a('S8').numbers, { S: 0 });
+  assert.deepEqual(a('CO3^2-').numbers, { C: 4, O: -2 });
+  // H2SO4 step by step: H by rule, O by rule, S from 1·x + 2(+1) + 4(−2) = 0.
+  const st = a('H2SO4').steps;
+  assert.deepEqual(st.map((x) => [x.el, x.rule]), [['H', 'H is +1'], ['O', 'O is −2'], ['S', 'the sum equals the charge']]);
+  assert.deepEqual(st[2].sum, { charge: 0, known: [[2, 'H', 1], [4, 'O', -2]], count: 1, num: 6, den: 1 });
+  // The priority order gives the exceptions without special cases.
+  assert.equal(a('NaH').numbers.H, -1);
+  assert.equal(a('H2O2').numbers.O, -1);
+  assert.equal(a('OF2').numbers.O, 2);
+  assert.equal(a('NH4^+').numbers.N, -3);
+  assert.deepEqual(a('K2Cr2O7').numbers, { K: 1, Cr: 6, O: -2 });
+});
+
+test('test_balancing_assign_fractions_and_compounds_that_need_splitting', () => {
+  const fe = B.assignSteps('Fe3O4').steps.at(-1).sum;
+  assert.deepEqual([fe.num, fe.den], [8, 3]);
+  const cu = B.assignSteps('CuSO4');
+  assert.equal(cu.numbers, null);
+  assert.deepEqual(cu.problem, ['Cu', 'S']);
+});
+
+test('test_balancing_parse_species_notations', async () => {
+  const { elements } = await import('../site/js/chem/elements-data.js');
+  const p = (x) => B.parseSpecies(x, elements).species;
+  for (const x of ['[CO3]2-', 'CO3^2-', 'CO3 2-', 'CO₃²⁻']) assert.equal(p(x), 'CO3^2-', x);
+  for (const x of ['NO3-', 'NO3^-', '[NO3]-']) assert.equal(p(x), 'NO3^-', x);
+  assert.equal(p('H2SO4'), 'H2SO4');
+  assert.equal(p('Fe3+'), 'Fe^3+');
+  assert.equal(p('S2-'), 'S^2-');
+  assert.equal(p('Ca(OH)2(s)'), 'Ca(OH)2');
+  assert.match(B.parseSpecies('Xy2', elements).error, /not an element/);
+  assert.match(B.parseSpecies('H2(SO4', elements).error, /brackets/);
+  assert.match(B.parseSpecies('h2o', elements).error, /not a formula/);
+});

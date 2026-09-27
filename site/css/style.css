@@ -172,7 +172,7 @@ a { color: var(--c-accent); }
 .ctl-unit { font-size: 13px; color: var(--c-muted); min-width: 34px; }
 input[type="range"] { width: 100%; accent-color: var(--c-accent); margin: 6px 0 0; }
 .ctl-choice { display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
-select {
+select, input[type="text"] {
   font: inherit; font-size: 14px; padding: 6px 8px; color: var(--c-ink);
   background: var(--c-bg); border: 1px solid var(--c-border); border-radius: 6px;
 }

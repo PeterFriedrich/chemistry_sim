@@ -1,6 +1,7 @@
 import * as B from '../chem/balancing.js';
 import { fitCanvas, theme, clear, line, text, font, roundRect } from '../lib/canvas.js';
-import { section, choice, buttons, readouts } from '../lib/controls.js';
+import { section, choice, buttons, readouts, el } from '../lib/controls.js';
+import { elements } from '../chem/elements-data.js';
 import { createClock } from '../lib/clock.js';
 import { species } from '../lib/format.js';
 
@@ -15,6 +16,9 @@ export const equations = [
 ];
 
 export const prompts = [
+  'Assign oxidation numbers in H₂SO₄, NO₃⁻ and CO₃²⁻ by hand, then step through each. Which rule sets S, N and C?',
+  'Type S8, then Fe3+. Why is every atom in an element 0, but Fe in Fe³⁺ is +3?',
+  'Compare H₂O, H₂O₂ and NaH. Why is O −1 in one and H −1 in another?',
   'Balance NO₃⁻ → NO in acidic solution by hand, then step through it. Which step adds the electrons, and which side do they go on?',
   'Switch MnO₄⁻ → MnO₂ to basic solution. What do the two extra steps do to the H⁺?',
   'Net ionic equation: combine Cr₂O₇²⁻ → Cr³⁺ with C₂H₅OH → CH₃COOH (the breathalyzer). Why is the dichromate half multiplied by 2 and the ethanol half by 3?',
@@ -50,6 +54,18 @@ const eq = ({ left, right, e }, k = 1) => {
   return `${sideText(scale(left), ek?.side === 'left' && ek)} → ${sideText(scale(right), ek?.side === 'right' && ek)}`;
 };
 const on = (v) => (v === 0 ? '0' : `${v > 0 ? '+' : '−'}${Math.abs(v)}`);
+const frac = ({ num, den }) => (den === 1 ? on(num) : `${num > 0 ? '+' : '−'}${Math.abs(num)}/${den}`);
+const stepOn = (st) => (st.sum ? frac(st.sum) : on(st.value));
+// "2(+1) + x + 4(−2) = 0" in formula order, x for the element the sum sets.
+const sumText = (st, order) => {
+  const terms = order.map((el) => {
+    if (el === st.el) return st.sum.count === 1 ? 'x' : `${st.sum.count}x`;
+    const [n, , v] = st.sum.known.find(([, e]) => e === el);
+    return `${n === 1 ? '' : n}(${on(v)})`;
+  });
+  return `${terms.join(' + ')} = ${on(st.sum.charge)}`;
+};
+const EXAMPLES = ['H2O', 'NO3^-', 'H2SO4', 'S8', 'CO3^2-', 'K2Cr2O7', 'MnO4^-', 'NH4^+', 'H2O2', 'NaH', 'OF2', 'C2H5OH', 'Fe3O4', 'Fe^3+'];
 const check = (t) =>
   [...t.rows.map((r) => `${r.el} ${r.left}${r.left === r.right ? ' = ' : ' ≠ '}${r.right}`), `charge ${on(t.charge.left)}${t.charge.left === t.charge.right ? ' = ' : ' ≠ '}${on(t.charge.right)}`].join(', ');
 
@@ -58,11 +74,12 @@ export function mount(ui) {
   const mode = choice(qbox, {
     label: 'Question type',
     options: [
+      { value: 'assign', label: 'Assign oxidation numbers in one species' },
       { value: 'half', label: 'Balance a half-reaction' },
       { value: 'net', label: 'Net ionic equation from two half-reactions' },
       { value: 'on', label: 'Oxidation numbers: what is oxidized and reduced?' },
     ],
-    value: 'half',
+    value: 'assign',
   });
   const medium = choice(qbox, {
     label: 'Solution',
@@ -75,6 +92,17 @@ export function mount(ui) {
   const nbox = section(ui.controls, 'Skeletons given in the question');
   const n1 = choice(nbox, { label: 'Half-reaction 1', options: skOptions, value: 'Cr2O7' });
   const n2 = choice(nbox, { label: 'Half-reaction 2', options: skOptions, value: 'C2H5OH' });
+  const abox = section(ui.controls, 'Species');
+  const frow = el('div', { class: 'ctl ctl-choice' }, abox);
+  el('label', { for: 'ctl-formula', text: 'Formula' }, frow);
+  const formula = el('input', { id: 'ctl-formula', type: 'text', value: 'H2SO4', autocomplete: 'off', spellcheck: 'false' }, frow);
+  el('div', { class: 'ctl-unit', text: 'Charges: NO3^-, CO3^2-, [CO3]2- or CO3 2-' }, frow);
+  const ex = choice(abox, { label: 'Or pick an example', options: EXAMPLES.map((x) => ({ value: x, label: species(x) })), value: 'H2SO4' });
+  ex.onChange((v) => {
+    formula.value = v;
+    step = 0;
+  });
+  formula.addEventListener('input', () => (step = 0));
   const obox = section(ui.controls, 'Reaction');
   const rx = choice(obox, {
     label: 'Balanced equation',
@@ -113,6 +141,13 @@ export function mount(ui) {
     { id: 'ra', label: 'Reducing agent (RA)' },
   ]);
   const dlO = ui.readouts.lastElementChild;
+  const outA = readouts(ui.readouts, [
+    { id: 'read', label: 'Read as' },
+    { id: 'step', label: 'Latest step' },
+    { id: 'nums', label: 'Oxidation numbers' },
+    { id: 'chk', label: 'Check: Σ = charge' },
+  ]);
+  const dlA = ui.readouts.lastElementChild;
 
   const canvas = fitCanvas(ui.canvas);
   createClock(ui.transport, { frame: draw });
@@ -185,11 +220,13 @@ export function mount(ui) {
     [hbox, dlH].forEach((n) => shown(n, m === 'half'));
     [nbox, dlN].forEach((n) => shown(n, m === 'net'));
     [obox, dlO].forEach((n) => shown(n, m === 'on'));
+    [abox, dlA].forEach((n) => shown(n, m === 'assign'));
     shown(sbox, m !== 'on');
-    shown(qbox.querySelectorAll('.ctl-choice')[1], m !== 'on');
+    shown(qbox.querySelectorAll('.ctl-choice')[1], m === 'half' || m === 'net');
     clear(ctx, w, h);
     if (m === 'half') drawHalf(ctx, th, w);
     else if (m === 'net') drawNet(ctx, th, w);
+    else if (m === 'assign') drawAssign(ctx, th, w);
     else drawOn(ctx, th, w, h);
   }
 
@@ -250,6 +287,79 @@ export function mount(ui) {
     }
     y = fitLine(ctx, netText, y, w, { color: th.product });
     drawTally(ctx, th, B.tally({ left: c.net.reactants, right: c.net.products, e: null }), y + 8, w);
+  }
+
+  function drawAssign(ctx, th, w) {
+    const parsed = B.parseSpecies(formula.value, elements);
+    if (parsed.error) {
+      for (const id of ['step', 'nums', 'chk']) outA.set(id, '—');
+      outA.set('read', parsed.error);
+      text(ctx, parsed.error, w / 2, 60, { color: th.danger, size: 14, weight: 600, align: 'center' });
+      return;
+    }
+    const sp = parsed.species;
+    const r = B.assignSteps(sp);
+    const order = Object.keys(B.atomsOf(sp));
+    const total = r.steps.length + (r.problem ? 1 : 0);
+    step = Math.min(step, total);
+    const shownSteps = r.steps.slice(0, step);
+    const known = new Map(shownSteps.map((st) => [st.el, stepOn(st)]));
+    const finalOn = new Map(r.steps.map((st) => [st.el, stepOn(st)])); // slot widths stay put as steps reveal
+    const line1 = (st) => (st.sum && st.sum.known.length ? `${st.el}: ${sumText(st, order)}, so x = ${frac(st.sum)}` : `${st.el} ${stepOn(st)}: ${st.rule}`);
+    outA.set('read', species(sp));
+    outA.set('step', step === 0 ? 'Press “Next step” to apply the first rule.' : step > r.steps.length ? 'No rule fixes the rest: split the compound into its ions' : line1(r.steps[step - 1]));
+    const done = !r.problem && step >= r.steps.length;
+    outA.set('nums', done ? order.map((el) => `${el} ${known.get(el)}`).join(', ') : '—');
+    const last = r.steps.at(-1);
+    outA.set('chk', done && last.sum.known.length ? `${sumText(last, order).replace(/(\d*)x/, (_, n) => `${n}(${frac(last.sum)})`)} ✓` : '—');
+
+    // The formula, with each element's oxidation number above it once found.
+    const size = w < 620 ? 34 : 44;
+    const tokens = [];
+    const body = sp.replace(/\^.*$/, '');
+    const re = /([A-Z][a-z]?)(\d*)|(\()|(\))(\d*)/g;
+    let mt;
+    while ((mt = re.exec(body))) {
+      if (mt[1]) tokens.push({ el: mt[1], str: mt[1] }, ...(mt[2] ? [{ str: species(mt[2]), sub: true }] : []));
+      else if (mt[3]) tokens.push({ str: '(' });
+      else tokens.push({ str: ')' }, ...(mt[5] ? [{ str: species(mt[5]), sub: true }] : []));
+    }
+    const chargeStr = species(sp).slice(species(body).length);
+    if (chargeStr) tokens.push({ str: chargeStr, sub: true });
+    // An element's slot is wide enough for its oxidation number too, so labels never touch.
+    const widthOf = (t) => {
+      ctx.font = font(t.sub ? size * 0.9 : size, 650);
+      const tw = ctx.measureText(t.str).width;
+      if (!t.el) return tw;
+      ctx.font = font(size * 0.5, 700);
+      return Math.max(tw, ctx.measureText(finalOn.get(t.el) ?? '?').width + 10);
+    };
+    const totalW = tokens.reduce((a, t) => a + widthOf(t), 0);
+    let x = (w - totalW) / 2;
+    const y = 110;
+    for (const t of tokens) {
+      const tw = widthOf(t);
+      text(ctx, t.str, x + tw / 2, y, { size: t.sub ? size * 0.9 : size, weight: 650, align: 'center' });
+      if (t.el) {
+        const v = known.get(t.el);
+        text(ctx, v ?? '?', x + tw / 2, y - size * 0.95, { size: size * 0.5, weight: 700, align: 'center', color: v ? th.accent : th.muted });
+      }
+      x += tw;
+    }
+    let yy = y + size + 10;
+    text(ctx, 'Rules, in order: F −1 · Group 1 +1 · Group 2 +2 · H +1', w / 2, yy, { color: th.muted, size: w < 620 ? 10 : 12, align: 'center' });
+    text(ctx, 'O −2 · Cl, Br, I −1 · the last element from the sum', w / 2, yy + 17, { color: th.muted, size: w < 620 ? 10 : 12, align: 'center' });
+    yy += 50;
+    shownSteps.forEach((st, i) => {
+      yy = fitLine(ctx, `${i + 1}. ${line1(st)}`, yy, w, { size: 15, weight: 500 });
+      if (st.sum && st.sum.den !== 1) yy = fitLine(ctx, `an average over the ${st.sum.count} ${st.el} atoms`, yy - 6, w, { size: 12, weight: 500, color: th.muted });
+      if (st.sum && st.el === 'H' && st.value === -1) yy = fitLine(ctx, 'H is −1 here: a metal hydride', yy - 6, w, { size: 12, weight: 500, color: th.muted });
+      if (st.sum && st.el === 'O' && st.value === -1) yy = fitLine(ctx, 'O is −1 here: a peroxide', yy - 6, w, { size: 12, weight: 500, color: th.muted });
+    });
+    if (r.problem && step > r.steps.length) {
+      const say = [`No rule fixes ${r.problem.join(' and ')}.`, 'Split the compound into its ions,', 'then enter each ion on its own:', 'for example CuSO₄ is Cu²⁺ and SO₄²⁻.'];
+      say.forEach((str, i) => text(ctx, str, w / 2, yy + 22 * i, { size: 14, weight: 600, color: th.danger, align: 'center' }));
+    }
   }
 
   function drawOn(ctx, th, w) {

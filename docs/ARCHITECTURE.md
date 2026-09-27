@@ -186,8 +186,11 @@ could mislead.
   cancelled. Two halves combine through `netEquation()` in `redox.js`; two
   reductions or two oxidations are refused. Oxidation numbers apply F, Group 1,
   Group 2, H +1, O −2, Cl/Br/I −1 in that order until one element is left,
-  which the species' charge sets. `tally()` gives the atom and charge check
-  shown in the readouts; the tilting balance is picture only.
+  which the species' charge sets; `assignSteps()` returns those steps for the
+  single-species mode (a fraction for an average; two unfixed elements ask
+  for the ions to be split, since the polyatomic-ion table is not transcribed).
+  `parseSpecies()` reads typed formulas. `tally()` gives the atom and charge
+  check shown in the readouts; the tilting balance is picture only.
 - **Redox reaction predictor** (`chem/spontaneity.js`): a fixed list of 27
   reagents (metals, solutions, halogens), each entered as the entities the
   student lists; "acidified" adds H⁺ with no anion, and water is always
