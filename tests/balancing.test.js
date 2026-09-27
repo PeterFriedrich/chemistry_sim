@@ -160,3 +160,17 @@ test('test_balancing_parse_species_notations', async () => {
   assert.match(B.parseSpecies('H2(SO4', elements).error, /brackets/);
   assert.match(B.parseSpecies('h2o', elements).error, /not a formula/);
 });
+
+test('test_balancing_oxidation_number_algebra_lines', () => {
+  const lines = (sp) => B.algebra(B.assignSteps(sp).steps.at(-1), Object.keys(B.atomsOf(sp))).map((l) => l.eq);
+  assert.deepEqual(lines('H2SO4'), ['let x = the oxidation number of S', '2(+1) + x + 4(−2) = 0', '2 + x − 8 = 0', 'x − 6 = 0', 'x = +6']);
+  assert.deepEqual(lines('NO3^-'), ['let x = the oxidation number of N', 'x + 3(−2) = −1', 'x − 6 = −1', 'x = −1 + 6', 'x = +5']);
+  assert.deepEqual(lines('K2Cr2O7'), ['let x = the oxidation number of Cr', '2(+1) + 2x + 7(−2) = 0', '2 + 2x − 14 = 0', '2x − 12 = 0', '2x = +12', 'x = +6']);
+  assert.deepEqual(lines('Fe3O4'), ['let x = the oxidation number of Fe', '3x + 4(−2) = 0', '3x − 8 = 0', '3x = +8', 'x = +8/3']);
+  assert.deepEqual(lines('S8'), ['let x = the oxidation number of S', '8x = 0', 'x = 0']);
+  // The last line always states the value assignSteps found.
+  for (const sp of ['H2O', 'CO3^2-', 'NH4^+', 'NaH', 'H2O2', 'OF2', 'C2H5OH', 'MnO4^-', 'Fe^3+']) {
+    const st = B.assignSteps(sp).steps.at(-1);
+    assert.equal(lines(sp).at(-1), `x = ${st.value === 0 ? '0' : `${st.value > 0 ? '+' : '−'}${Math.abs(st.value)}`}`, sp);
+  }
+});

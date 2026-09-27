@@ -300,17 +300,22 @@ export function mount(ui) {
     const sp = parsed.species;
     const r = B.assignSteps(sp);
     const order = Object.keys(B.atomsOf(sp));
-    const total = r.steps.length + (r.problem ? 1 : 0);
-    step = Math.min(step, total);
-    const shownSteps = r.steps.slice(0, step);
-    const known = new Map(shownSteps.map((st) => [st.el, stepOn(st)]));
-    const finalOn = new Map(r.steps.map((st) => [st.el, stepOn(st)])); // slot widths stay put as steps reveal
-    const line1 = (st) => (st.sum && st.sum.known.length ? `${st.el}: ${sumText(st, order)}, so x = ${frac(st.sum)}` : `${st.el} ${stepOn(st)}: ${st.rule}`);
-    outA.set('read', species(sp));
-    outA.set('step', step === 0 ? 'Press “Next step” to apply the first rule.' : step > r.steps.length ? 'No rule fixes the rest: split the compound into its ions' : line1(r.steps[step - 1]));
-    const done = !r.problem && step >= r.steps.length;
-    outA.set('nums', done ? order.map((el) => `${el} ${known.get(el)}`).join(', ') : '—');
+    // What "Next step" reveals: each rule, then each line of algebra for the last element.
     const last = r.steps.at(-1);
+    const ruleSteps = r.problem ? r.steps : r.steps.slice(0, -1);
+    const alg = r.problem ? [] : B.algebra(last, order);
+    const items = [...ruleSteps.map((st) => ({ st })), ...(r.problem ? [{ problem: true }] : alg.map((l) => ({ l })))];
+    step = Math.min(step, items.length);
+    const shownItems = items.slice(0, step);
+    const done = !r.problem && step === items.length;
+    const known = new Map(shownItems.filter((it) => it.st).map((it) => [it.st.el, stepOn(it.st)]));
+    if (done) known.set(last.el, stepOn(last));
+    const finalOn = new Map(r.steps.map((st) => [st.el, stepOn(st)])); // slot widths stay put as steps reveal
+    const ruleText = (st) => `${st.el} ${stepOn(st)}: ${st.rule}`;
+    const latest = shownItems.at(-1);
+    outA.set('read', species(sp));
+    outA.set('step', !latest ? 'Press “Next step” to apply the first rule.' : latest.st ? ruleText(latest.st) : latest.problem ? 'No rule fixes the rest: split the compound into its ions' : `${latest.l.eq}   (${latest.l.why})`);
+    outA.set('nums', done ? order.map((el) => `${el} ${known.get(el)}`).join(', ') : '—');
     outA.set('chk', done && last.sum.known.length ? `${sumText(last, order).replace(/(\d*)x/, (_, n) => `${n}(${frac(last.sum)})`)} ✓` : '—');
 
     // The formula, with each element's oxidation number above it once found.
@@ -350,13 +355,40 @@ export function mount(ui) {
     text(ctx, 'Rules, in order: F −1 · Group 1 +1 · Group 2 +2 · H +1', w / 2, yy, { color: th.muted, size: w < 620 ? 10 : 12, align: 'center' });
     text(ctx, 'O −2 · Cl, Br, I −1 · the last element from the sum', w / 2, yy + 17, { color: th.muted, size: w < 620 ? 10 : 12, align: 'center' });
     yy += 50;
-    shownSteps.forEach((st, i) => {
-      yy = fitLine(ctx, `${i + 1}. ${line1(st)}`, yy, w, { size: 15, weight: 500 });
-      if (st.sum && st.sum.den !== 1) yy = fitLine(ctx, `an average over the ${st.sum.count} ${st.el} atoms`, yy - 6, w, { size: 12, weight: 500, color: th.muted });
-      if (st.sum && st.el === 'H' && st.value === -1) yy = fitLine(ctx, 'H is −1 here: a metal hydride', yy - 6, w, { size: 12, weight: 500, color: th.muted });
-      if (st.sum && st.el === 'O' && st.value === -1) yy = fitLine(ctx, 'O is −1 here: a peroxide', yy - 6, w, { size: 12, weight: 500, color: th.muted });
+    const narrow = w < 620;
+    shownItems.filter((it) => it.st).forEach((it, i) => {
+      yy = fitLine(ctx, `${i + 1}. ${ruleText(it.st)}`, yy, w, { size: narrow ? 14 : 15, weight: 500 });
     });
-    if (r.problem && step > r.steps.length) {
+    // The algebra, lined up on its "=" signs, with the reason beside (or under) each line.
+    const algShown = shownItems.filter((it) => it.l).map((it) => it.l);
+    if (algShown.length) {
+      const size = narrow ? 15 : 17;
+      ctx.font = font(size, 600);
+      const parts = algShown.map((l) => (l.eq.startsWith('let') ? [l.eq, null] : l.eq.split(' = ')));
+      const lw = Math.max(...parts.map(([L, R]) => (R === null ? 0 : ctx.measureText(`${L} `).width)));
+      const rw = Math.max(...parts.map(([L, R]) => (R === null ? 0 : ctx.measureText(`= ${R}`).width)));
+      ctx.font = font(12, 500);
+      const ww = Math.max(...algShown.map((l) => ctx.measureText(l.why).width));
+      const beside = lw + rw + 24 + ww < w - 24;
+      const x0 = (w - (beside ? lw + rw + 24 + ww : lw + rw)) / 2;
+      yy += 4;
+      algShown.forEach((l, i) => {
+        const [L, R] = parts[i];
+        const col = i === algShown.length - 1 && done ? th.accent : th.ink;
+        if (R === null) text(ctx, L, x0, yy, { size: size - 3, weight: 500, color: th.muted });
+        else {
+          text(ctx, `${L} `, x0 + lw, yy, { size, weight: 600, align: 'right', color: col });
+          text(ctx, `= ${R}`, x0 + lw, yy, { size, weight: 600, color: col });
+          if (beside) text(ctx, l.why, x0 + lw + rw + 24, yy, { size: 12, color: th.muted });
+          else text(ctx, l.why, w / 2, yy + size - 2, { size: 11, color: th.muted, align: 'center' });
+        }
+        yy += R === null || beside ? size + 12 : size + 22;
+      });
+      if (done && last.sum.den !== 1) yy = fitLine(ctx, `an average over the ${last.sum.count} ${last.el} atoms`, yy, w, { size: 12, weight: 500, color: th.muted });
+      if (done && last.el === 'H' && last.value === -1) yy = fitLine(ctx, 'H is −1 here: a metal hydride', yy, w, { size: 12, weight: 500, color: th.muted });
+      if (done && last.el === 'O' && last.value === -1) yy = fitLine(ctx, 'O is −1 here: a peroxide', yy, w, { size: 12, weight: 500, color: th.muted });
+    }
+    if (r.problem && step === items.length) {
       const say = [`No rule fixes ${r.problem.join(' and ')}.`, 'Split the compound into its ions,', 'then enter each ion on its own:', 'for example CuSO₄ is Cu²⁺ and SO₄²⁻.'];
       say.forEach((str, i) => text(ctx, str, w / 2, yy + 22 * i, { size: 14, weight: 600, color: th.danger, align: 'center' }));
     }
