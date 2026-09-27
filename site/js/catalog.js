@@ -49,7 +49,7 @@ export const sims = [
     course: 'c30',
     unit: 'A',
     title: 'Burning a Fuel Under a Can',
-    summary: 'Burn a measured mass of fuel under a can of water. From the temperature rise find the experimental molar enthalpy of combustion, then compare it with ΔcH° from the booklet’s formation enthalpies to get the efficiency.',
+    summary: 'Burn a measured mass of fuel under a can of water. From the temperature rise find the experimental molar enthalpy of combustion, then compare it with ΔcH° from the booklet’s formation enthalpies to get the efficiency. Or solve a given-values question: efficiency, fuel mass or Δt for any heated object.',
     concepts: ['nΔcH = −mcΔt', 'n = m/M', 'efficiency'],
   },
   {
