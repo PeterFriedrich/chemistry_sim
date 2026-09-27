@@ -78,16 +78,22 @@ export function tally({ left, right, e }) {
   return { rows, charge: { left: L.q, right: R.q }, balanced };
 }
 
-const add = (list, n, sp) => (n > 0 ? [...list, [n, sp]] : list);
+// Add n of a species to a side, merging with any already there (a typed
+// H2O2 → H2O keeps its water, and the method may add more).
+const add = (list, n, sp) => {
+  if (n <= 0) return list;
+  return list.some(([, s]) => s === sp) ? list.map(([m, s]) => [s === sp ? m + n : m, s]) : [...list, [n, sp]];
+};
 const count = (list, el) => list.reduce((t, [n, sp]) => t + n * (atomsOf(sp)[el] ?? 0), 0);
 const q = (list) => list.reduce((t, [n, sp]) => t + n * chargeOf(sp), 0);
 const snap = (id, left, right, e = null) => ({ id, left, right, e });
 
 // Step 1 of both methods: the element other than O and H (O itself when there
-// is none, as in H2O2 → O2), balanced by the lowest whole numbers a·from → b·to.
+// is none, as in H2O2 → O2; or the skeleton's own `key`), balanced by the
+// lowest whole numbers a·from → b·to.
 function keyAtoms(sk) {
   const from = atomsOf(sk.from);
-  const key = Object.keys(from).find((el) => el !== 'O' && el !== 'H') ?? 'O';
+  const key = sk.key ?? Object.keys(from).find((el) => el !== 'O' && el !== 'H') ?? 'O';
   const g = gcd(from[key], atomsOf(sk.to)[key]);
   return { key, a: atomsOf(sk.to)[key] / g, b: from[key] / g };
 }
@@ -186,6 +192,71 @@ export function balanceByOxidationNumbers(sk1, sk2, medium) {
   steps.push(snap('oxygen', ...wh.water), snap('hydrogen', ...wh.hydrogen), snap('check', ...wh.hydrogen));
   if (medium === 'basic' && wh.dH !== 0) steps.push(...basic(...wh.hydrogen, wh.dH, null));
   return { halves, red, ox, electrons, kRed, kOx, steps, final: steps.at(-1), problem: null };
+}
+
+// A typed skeleton equation, "BrO3- + I- -> Br- + I2": sides split at →, ->
+// or =, species at " + " (spaces needed, since charges use + too). Leading
+// coefficients are ignored. Returns { left, right } or { error }.
+// Water, H+ and OH− in the states the method writes them, so a typed H2O and an added one merge.
+const CANON = { H2O: WATER, 'H^+': HPLUS, 'OH^-': OH };
+export function parseEquation(input, elements) {
+  const sides = input.split(/→|->|=/);
+  if (sides.length !== 2) return { error: 'Write one arrow between the two sides, e.g. BrO3- + I- -> Br- + I2.' };
+  const out = [];
+  for (const side of sides) {
+    const list = [];
+    for (const raw of side.split(/\s\+\s/)) {
+      const t = raw.trim().replace(/^\d+\s*(?=[A-Z[(])/, '');
+      if (!t) return { error: 'Each side needs at least one species, separated by " + ".' };
+      const p = parseSpecies(t, elements);
+      if (p.error) return p;
+      const sp = CANON[p.species] ?? p.species;
+      if (!list.includes(sp)) list.push(sp);
+    }
+    out.push(list);
+  }
+  return { left: out[0], right: out[1] };
+}
+
+// Pair each reactant with the product holding the same changing element:
+// elements other than O and H first, then O and H (H2O2 → O2). A candidate
+// the method adds anyway (H2O, H+, H3O+, OH−) is tried last, so H2O2 pairs
+// with O2 before H2O. Left-over H2O, H+ and OH− are dropped: the method adds
+// them. Anything else left over has no partner, so it is refused.
+const ADDED = [WATER, HPLUS, 'H3O^+', OH];
+export function pairHalves(left, right) {
+  const L = new Set(left);
+  const R = new Set(right);
+  const pairs = [];
+  const els = [...new Set([...left, ...right].flatMap((s) => Object.keys(atomsOf(s))))];
+  const order = [...els.filter((e) => e !== 'O' && e !== 'H'), ...els.filter((e) => e === 'O' || e === 'H')];
+  const changes = (el, rs, ps) => rs.flatMap((r) => ps.filter((p) => oxidationNumbers(r)[el] !== oxidationNumbers(p)[el]).map((p) => [r, p]));
+  for (const el of order) {
+    const has = (set) => [...set].filter((sp) => el in atomsOf(sp));
+    const plain = (list) => list.filter((sp) => !ADDED.includes(sp));
+    const rs = has(L);
+    const ps = has(R);
+    let found = null;
+    for (const [r, p] of [[plain(rs), plain(ps)], [rs, ps]]) {
+      const c = changes(el, r, p);
+      if (c.length === 1 && r.length === 1 && p.length === 1) {
+        found = c[0];
+        break;
+      }
+    }
+    if (found) {
+      pairs.push({ from: found[0], to: found[1], key: el });
+      L.delete(found[0]);
+      R.delete(found[1]);
+    } else if (el !== 'O' && el !== 'H' && changes(el, rs, ps).length) {
+      return { error: `${el} is in more than one species on a side, so the sim cannot tell which change to follow. Use one species per changing element (a disproportionation needs the half-reaction method).` };
+    }
+  }
+  const leftover = [...L, ...R].filter((sp) => !ADDED.includes(sp));
+  if (!pairs.length) return { error: 'No oxidation number changes: this is not a redox reaction.' };
+  if (leftover.length) return { error: `${leftover.join(', ')}: no oxidation number change to pair ${leftover.length === 1 ? 'it' : 'them'} with. Leave out spectator ions.` };
+  if (pairs.length !== 2) return { error: 'Need exactly one element oxidized and one reduced.' };
+  return { pairs, dropped: [...L, ...R] };
 }
 
 // The Chemistry 30 rules in full, as a student's reference list. Each step

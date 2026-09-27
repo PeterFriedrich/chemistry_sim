@@ -229,3 +229,35 @@ test('test_balancing_each_step_names_its_chem30_rule', () => {
   assert.deepEqual(ids('H2O2'), [['H', 'H', null], ['O', 'sum', 'O']]); // the peroxide exception
   assert.deepEqual(ids('CaCO3'), [['Ca', 'group2', null], ['O', 'O', null], ['C', 'sum', null]]);
 });
+
+test('test_balancing_typed_skeleton_equation_by_oxidation_numbers', async () => {
+  const { elements } = await import('../site/js/chem/elements-data.js');
+  const bag = (list) => Object.fromEntries(list.map(([n, s]) => [s, n]));
+  const solve = (x, m = 'acidic') => {
+    const e = B.parseEquation(x, elements);
+    if (e.error) return e;
+    const p = B.pairHalves(e.left, e.right);
+    if (p.error) return p;
+    const r = B.balanceByOxidationNumbers(p.pairs[0], p.pairs[1], m);
+    assert.ok(B.tally(r.final).balanced, x);
+    return [bag(r.final.left), bag(r.final.right)];
+  };
+  // The owner's example: Br +5 → −1 gains 6; 2 I⁻ → I₂ loses 2; ×1 and ×3.
+  assert.deepEqual(solve('BrO3- + I- -> Br- + I2'), [{ 'BrO3^-': 1, 'I^-': 6, 'H^+(aq)': 6 }, { 'Br^-': 1, I2: 3, 'H2O(l)': 3 }]);
+  // Typed H+ and H2O are dropped or merged; H2O2 pairs with O2 before H2O.
+  assert.deepEqual(solve('MnO4- + H2O2 + H+ -> Mn2+ + O2 + H2O'), [{ 'MnO4^-': 2, H2O2: 5, 'H^+(aq)': 6 }, { 'Mn^2+': 2, O2: 5, 'H2O(l)': 8 }]);
+  assert.deepEqual(solve('2 I- + H2O2 + 2 H+ -> I2 + 2 H2O'), [{ H2O2: 1, 'I^-': 2, 'H^+(aq)': 2 }, { 'H2O(l)': 2, I2: 1 }]);
+  assert.deepEqual(solve('MnO4- + SO3 2- -> MnO2 + SO4 2-', 'basic'), [{ 'MnO4^-': 2, 'SO3^2-': 3, 'H2O(l)': 1 }, { MnO2: 2, 'SO4^2-': 3, 'OH^-(aq)': 2 }]);
+  // The owner's example as typed: 2 MnO4− + 5 C2O4²⁻ + 16 H+ → 2 Mn2+ + 10 CO2 + 8 H2O.
+  assert.deepEqual(solve('[MnO4]- + [C2O4]2- -> CO2 + Mn 2+'), [{ 'MnO4^-': 2, 'C2O4^2-': 5, 'H^+(aq)': 16 }, { CO2: 10, 'Mn^2+': 2, 'H2O(l)': 8 }]);
+  // With CO instead of CO2, C goes +3 → +2: both are reduced, so it is refused.
+  const co = B.parseEquation('[MnO4]- + [C2O4]2- -> CO + Mn 2+', elements);
+  const cp = B.pairHalves(co.left, co.right);
+  assert.equal(B.balanceByOxidationNumbers(cp.pairs[0], cp.pairs[1], 'acidic').problem, 'both reduced');
+  // Basic, with hydroxides in the skeleton.
+  assert.deepEqual(solve('CrO4 2- + Fe(OH)2 -> Cr(OH)3 + Fe(OH)3', 'basic'), [{ 'CrO4^2-': 1, 'Fe(OH)2': 3, 'H2O(l)': 4 }, { 'Cr(OH)3': 1, 'Fe(OH)3': 3, 'OH^-(aq)': 2 }]);
+  assert.match(solve('Ag+ + Cl- -> AgCl').error, /not a redox reaction/);
+  assert.match(solve('K+ + MnO4- + Fe2+ -> Mn2+ + Fe3+').error, /spectator/);
+  assert.match(solve('Cl2 -> Cl- + ClO3-').error, /disproportionation/);
+  assert.match(solve('BrO3- + I-').error, /arrow/);
+});

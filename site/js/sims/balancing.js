@@ -78,6 +78,22 @@ const sumText = (st, order) => {
   });
   return `${terms.join(' + ')} = ${on(st.sum.charge)}`;
 };
+const EQUATIONS = [
+  ['[MnO4]- + [C2O4]2- -> CO2 + Mn 2+', 'acidic'],
+  ['BrO3- + I- -> Br- + I2', 'acidic'],
+  ['MnO4- + Fe2+ -> Mn2+ + Fe3+', 'acidic'],
+  ['Cr2O7 2- + C2H5OH -> Cr3+ + CH3COOH', 'acidic'],
+  ['Cu + NO3- -> Cu2+ + NO', 'acidic'],
+  ['Zn + NO3- -> Zn2+ + NH4+', 'acidic'],
+  ['MnO4- + H2O2 -> Mn2+ + O2', 'acidic'],
+  ['ClO3- + I- -> Cl- + I2', 'acidic'],
+  ['MnO4- + SO3 2- -> MnO2 + SO4 2-', 'basic'],
+  ['CrO4 2- + Fe(OH)2 -> Cr(OH)3 + Fe(OH)3', 'basic'],
+];
+const noState = (st) => {
+  const strip = (list) => list.map(([n, s]) => [n, s.replace(/\((aq|l|s|g)\)$/, '')]);
+  return { ...st, left: strip(st.left), right: strip(st.right) };
+};
 const EXAMPLES = ['H2O', 'NO3^-', 'H2SO4', 'S8', 'CO3^2-', 'K2Cr2O7', 'MnO4^-', 'NH4^+', 'H2O2', 'NaH', 'OF2', 'C2H5OH', 'Fe3O4', 'Fe^3+'];
 const check = (t) =>
   [...t.rows.map((r) => `${r.el} ${r.left}${r.left === r.right ? ' = ' : ' ≠ '}${r.right}`), `charge ${on(t.charge.left)}${t.charge.left === t.charge.right ? ' = ' : ' ≠ '}${on(t.charge.right)}`].join(', ');
@@ -117,6 +133,18 @@ export function mount(ui) {
     step = 0;
   });
   formula.addEventListener('input', () => (step = 0));
+  const ebox = section(ui.controls, 'Skeleton equation');
+  const erow = el('div', { class: 'ctl ctl-choice' }, ebox);
+  el('label', { for: 'ctl-equation', text: 'Equation (no H₂O, H⁺ or OH⁻ needed)' }, erow);
+  const equation = el('input', { id: 'ctl-equation', type: 'text', value: EQUATIONS[0][0], autocomplete: 'off', spellcheck: 'false' }, erow);
+  el('div', { class: 'ctl-unit', text: 'Species separated by " + ", sides by -> ; charges as MnO4-, [C2O4]2- or Mn 2+' }, erow);
+  const eqEx = choice(ebox, { label: 'Or pick an example', options: EQUATIONS.map(([x, m]) => ({ value: x, label: `${x}${m === 'basic' ? '  (basic)' : ''}` })), value: EQUATIONS[0][0] });
+  eqEx.onChange((v) => {
+    equation.value = v;
+    medium.value = EQUATIONS.find(([x]) => x === v)[1];
+    step = 0;
+  });
+  equation.addEventListener('input', () => (step = 0));
   const obox = section(ui.controls, 'Reaction');
   const rx = choice(obox, {
     label: 'Balanced equation',
@@ -252,7 +280,8 @@ export function mount(ui) {
     const th = theme();
     const m = mode.value;
     [hbox, dlH].forEach((n) => shown(n, m === 'half'));
-    shown(nbox, m === 'net' || m === 'onbal');
+    shown(nbox, m === 'net');
+    shown(ebox, m === 'onbal');
     shown(dlN, m === 'net');
     shown(dlB, m === 'onbal');
     [obox, dlO].forEach((n) => shown(n, m === 'on'));
@@ -282,9 +311,16 @@ export function mount(ui) {
   }
 
   function drawOnBalance(ctx, th, w) {
-    const sk1 = B.skeletons.find((s) => s.id === n1.value);
-    const sk2 = B.skeletons.find((s) => s.id === n2.value);
-    const r = B.balanceByOxidationNumbers(sk1, sk2, medium.value);
+    const fail = (msg) => {
+      for (const id of ['step', 'eq', 'e', 'chk']) outB.set(id, '—');
+      outB.set('chg', msg);
+      text(ctx, msg.length > 70 && w < 620 ? `${msg.slice(0, 60)}…` : msg, w / 2, 40, { size: 14, weight: 650, align: 'center', color: th.danger });
+    };
+    const parsed = B.parseEquation(equation.value, elements);
+    if (parsed.error) return fail(parsed.error);
+    const paired = B.pairHalves(parsed.left, parsed.right);
+    if (paired.error) return fail(paired.error);
+    const r = B.balanceByOxidationNumbers(paired.pairs[0], paired.pairs[1], medium.value);
     if (r.problem) {
       const why = r.problem === 'no change' ? 'One of these has no change in oxidation number.' : `Both are ${r.problem.replace('both ', '')}: ${r.halves.map((h) => `${h.key} ${on(h.from)} → ${on(h.to)}`).join(', ')}.`;
       for (const id of ['step', 'eq', 'e', 'chk']) outB.set(id, '—');
@@ -301,14 +337,18 @@ export function mount(ui) {
       return `${h.key}: ${on(h.from)} → ${on(h.to)}, ${what} ${Math.abs(h.to - h.from)} e⁻ per ${h.key} × ${h.atoms} ${h.key} = ${h.e} e⁻`;
     };
     const t = B.tally(st);
+    // Species in the order the question typed them; added H₂O, H⁺, OH⁻ last.
+    const rank = (typed) => (sp) => (typed.includes(sp) ? typed.indexOf(sp) : typed.length);
+    const typedOrder = (list, typed) => [...list].sort(([, a], [, b]) => rank(typed)(a) - rank(typed)(b));
+    const shownSt = noState({ ...st, left: typedOrder(st.left, parsed.left), right: typedOrder(st.right, parsed.right) });
     outB.set('step', ON_STEPS[st.id]);
-    outB.set('eq', eq(st));
+    outB.set('eq', eq(shownSt));
     outB.set('chg', step >= at('electrons') ? `${change(r.red)} (reduced); ${change(r.ox)} (oxidized)` : '—');
     outB.set('e', step >= at('multiply') ? `${r.red.e} × ${r.kRed} = ${r.ox.e} × ${r.kOx} = ${r.electrons} e⁻` : '—');
     outB.set('chk', step >= at('oxygen') ? check(t) : '—');
 
     fitLine(ctx, ON_STEPS[st.id], 22, w, { color: th.muted, size: 13, weight: 650 });
-    let y = fitLine(ctx, eq(st), 54, w, { color: t.balanced ? th.product : th.ink });
+    let y = fitLine(ctx, eq(shownSt), 54, w, { color: t.balanced ? th.product : th.ink });
     if (step >= at('electrons')) {
       y = fitLine(ctx, change(r.red), y, w, { size: 14, weight: 600, color: th.seriesB });
       y = fitLine(ctx, change(r.ox), y, w, { size: 14, weight: 600, color: th.seriesA });
