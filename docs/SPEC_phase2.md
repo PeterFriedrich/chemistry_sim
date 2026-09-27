@@ -1,4 +1,4 @@
-# Phase 2 proposals: Chemistry 30 sims (§1–§4 approved and built; §5 proposed)
+# Phase 2 proposals: Chemistry 30 sims (all approved and built)
 
 The phase 1 sims cover one or two topics per Chemistry 30 unit. Three topics that come up often on the diploma exam have no sim yet. Each proposal is one sim, built on its own branch, and has to meet every criterion in SPEC_phase1.md §4–§5. **Nothing here is approved.** The owner approves, edits or drops each proposal and answers its open questions. Each approval then becomes a DECISIONS row, and each open question that gets answered becomes another.
 
@@ -192,7 +192,9 @@ Code change: `candidates()` moves from `chem/electrolysis.js` into `chem/redox.j
 
 ---
 
-## 5. `balancing`: redox equations the table does not print (Unit B) — PROPOSED 2026-09-27, not approved
+## 5. `balancing`: redox equations the table does not print (Unit B) — APPROVED and built 2026-09-27
+
+Approved by the owner ("just take these") with every recommendation: (a) presets only; (b) one step at a time plus "Show all"; (c) oxidation numbers identify only, no oxidation-number balancing; (d) basic solution included; (e) one sim, three modes. Added in the build: Cu(s) → Cu²⁺ as an eleventh skeleton, so Cu with NO₃⁻ can be combined.
 
 **Why.** `spontaneity`, `voltaic` and `electrolysis` only write net ionic equations from half-reactions the booklet already prints. Unit B also asks students to:
 - balance a half-reaction the table does not have, in acidic or basic solution;

@@ -14,11 +14,10 @@ symptom before acting on it.
 
 - [ ] **Approve or edit the Chemistry 20 rows of the phase 1 sim list** (SPEC_phase1.md §3). The Chemistry 30 rows were approved 2026-09-25 (DECISIONS row). Record the Chemistry 20 approval as another DECISIONS row.
 - [ ] **Supply the Chemistry 20 gas values** (R, STP/SATP definitions and molar volumes) and their source — the Data Booklet prints none of them (DATA_SHEET.md §1.5). Blocks `gaslaws`.
-- [ ] **Approve, edit or drop the `balancing` proposal** (SPEC_phase2.md §5, Unit B: half-reaction method, net ionic equations, oxidation numbers) and answer (a)–(e); textbook questions welcome for the presets. Each answer becomes a DECISIONS row.
 
 ### Before tutoring with it
 
-- [ ] **Owner walkthrough of every sim against hand calculations.** SPEC_phase1.md §5 criterion 5: default settings for each sim, compute the readouts by hand with the booklet, confirm they match. Done when each sim has a ✓ (or a bug filed) here. `calorimetry`: ☐ `hess`: ☐ `voltaic`: ☐ `electrolysis`: ☐ `titration`: ☐ `lechatelier`: ☐ `organic`: ☐ `bronsted`: ☐ `fuel`: ☐ `activation`: ☐ `spontaneity`: ☐
+- [ ] **Owner walkthrough of every sim against hand calculations.** SPEC_phase1.md §5 criterion 5: default settings for each sim, compute the readouts by hand with the booklet, confirm they match. Done when each sim has a ✓ (or a bug filed) here. `calorimetry`: ☐ `hess`: ☐ `voltaic`: ☐ `electrolysis`: ☐ `titration`: ☐ `lechatelier`: ☐ `organic`: ☐ `bronsted`: ☐ `fuel`: ☐ `activation`: ☐ `spontaneity`: ☐ `balancing`: ☐
 - [ ] **Map sims to program-of-studies outcomes.** Units are matched by title only; check specific outcome codes against the Alberta Education programs of study before showing them on a page.
 
 ### Phase 1 simulations (one per bullet; propose each first — CLAUDE.md)
