@@ -334,7 +334,7 @@ export function mount(ui) {
     const at = (id) => r.steps.findIndex((x) => x.id === id);
     const change = (h) => {
       const what = h.kind === 'reduced' ? 'gains' : 'loses';
-      return `${h.key}: ${on(h.from)} → ${on(h.to)}, ${what} ${Math.abs(h.to - h.from)} e⁻ per ${h.key} × ${h.atoms} ${h.key} = ${h.e} e⁻`;
+      return `${h.key}: ${frac(h.fromFrac)} → ${frac(h.toFrac)}, ${what} ${frac(h.per).replace(/^\+/, '')} e⁻ per ${h.key} × ${h.atoms} ${h.key} = ${h.e} e⁻`;
     };
     const t = B.tally(st);
     // Species in the order the question typed them; added H₂O, H⁺, OH⁻ last.

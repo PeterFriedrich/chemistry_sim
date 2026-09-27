@@ -131,7 +131,7 @@ test('test_balancing_assign_single_species_owner_examples', () => {
   const st = a('H2SO4').steps;
   assert.deepEqual(st.map((x) => [x.el, x.rule]), [['H', 'H is +1'], ['O', 'O is −2'], ['S', 'the sum equals the charge']]);
   assert.deepEqual(st[2].sum, { charge: 0, known: [[2, 'H', 1], [4, 'O', -2]], count: 1, num: 6, den: 1 });
-  // The priority order gives the exceptions without special cases.
+  // The priority order gives most exceptions; complex hydrides need the explicit H rule.
   assert.equal(a('NaH').numbers.H, -1);
   assert.equal(a('H2O2').numbers.O, -1);
   assert.equal(a('OF2').numbers.O, 2);
@@ -260,4 +260,26 @@ test('test_balancing_typed_skeleton_equation_by_oxidation_numbers', async () => 
   assert.match(solve('K+ + MnO4- + Fe2+ -> Mn2+ + Fe3+').error, /spectator/);
   assert.match(solve('Cl2 -> Cl- + ClO3-').error, /disproportionation/);
   assert.match(solve('BrO3- + I-').error, /arrow/);
+});
+
+test('test_balancing_audit_fixes_hydrides_ambiguous_charges_unfixable_species_fractions', async () => {
+  const { elements } = await import('../site/js/chem/elements-data.js');
+  // Complex metal hydrides: H −1, so Al and B are +3.
+  assert.deepEqual(B.assignSteps('LiAlH4').numbers, { Li: 1, Al: 3, H: -1 });
+  assert.deepEqual(B.assignSteps('NaBH4').numbers, { Na: 1, B: 3, H: -1 });
+  assert.deepEqual(B.assignSteps('CaH2').numbers, { Ca: 2, H: -1 });
+  assert.deepEqual(B.assignSteps('KHCO3').numbers, { K: 1, H: 1, C: 4, O: -2 });
+  // Two digits straight into a sign are ambiguous; one digit is not.
+  for (const x of ['SO42-', 'CO32-', 'Cr2O72-', 'PO43-']) assert.match(B.parseSpecies(x, elements).error, /ambiguous/, x);
+  for (const [x, sp] of [['NO3-', 'NO3^-'], ['Fe3+', 'Fe^3+'], ['SO4 2-', 'SO4^2-'], ['[SO4]2-', 'SO4^2-'], ['C6H12O6', 'C6H12O6']]) assert.equal(B.parseSpecies(x, elements).species, sp, x);
+  // A molecular equation with a compound no rule fixes is refused, not thrown.
+  const mol = B.parseEquation('Cu + HNO3 -> Cu(NO3)2 + NO + H2O', elements);
+  assert.match(B.pairHalves(mol.left, mol.right).error, /net ionic/);
+  // Fe3O4 (+8/3): integer electrons and small coefficients.
+  const fe = B.parseEquation('Fe3O4 + MnO4- -> Fe3+ + Mn2+', elements);
+  const p = B.pairHalves(fe.left, fe.right);
+  const r = B.balanceByOxidationNumbers(p.pairs[0], p.pairs[1], 'acidic');
+  assert.deepEqual([r.ox.e, r.ox.per, r.ox.fromFrac, r.electrons, r.kRed, r.kOx], [1, { num: 1, den: 3 }, { num: 8, den: 3 }, 5, 1, 5]);
+  assert.ok(B.tally(r.final).balanced);
+  assert.ok([...r.final.left, ...r.final.right].every(([n]) => Number.isInteger(n) && n < 100));
 });

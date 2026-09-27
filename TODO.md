@@ -37,7 +37,6 @@ symptom before acting on it.
 
 ### From the 2026-09-27 Unit B audit (docs/FINDINGS_unitB.md)
 
-- [ ] **Fix the 4 FAILs in `balancing`**: page freeze on a typed species with two unfixed elements (and propose making `lib/clock.js` survive a throwing frame); H −1 in LiAlH₄/NaBH₄; refuse ambiguous `SO42-`-style charges; integer electrons for fractional oxidation numbers.
 - [ ] **Owner: `spontaneity` with acidified MnO₄⁻ and Cl⁻**: keep the table's answer with a note that says Cl⁻ is oxidized in the lab, or leave the pair out (as `electrolysis` left chlorides out).
 - [ ] Transcribe the booklet's solubility table (p. 6) and derive `spontaneity`'s precipitate list from it (Ag₂SO₄ is unchecked today).
 - [ ] `balancing` tidy-ups: catalog summary; per-mode legend; per-atom change computed in `chem/`; peroxo-anions, NH₄⁺ in base, and the "disproportionation" wording for Fe + Fe³⁺.
@@ -50,6 +49,8 @@ symptom before acting on it.
 ## Done
 
 Closed items moved out of `## Open work` live in **`docs/TODO_archive.md`** — one line each below, reasoning there.
+
+- [x] **Fix the 4 FAILs in `balancing`** — 2026-09-27 · `docs/TODO_archive.md`
 
 - [x] **Approve, edit or drop the phase 2 Chemistry 30 proposals** — all three approved and built: `bronsted` 2026-09-26, `fuel` and `activation` 2026-09-27 (SPEC_phase2.md, DECISIONS rows) · `docs/TODO_archive.md`
 

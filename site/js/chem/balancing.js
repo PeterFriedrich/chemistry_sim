@@ -171,7 +171,11 @@ export function balanceByOxidationNumbers(sk1, sk2, medium) {
     const from = oxidationNumbers(sk.from)[key];
     const to = oxidationNumbers(sk.to)[key];
     const atoms = a * atomsOf(sk.from)[key];
-    return { sk, key, a, b, from, to, atoms, e: Math.abs(to - from) * atoms, kind: to < from ? 'reduced' : 'oxidized' };
+    // Each side's total for the key element is a whole number even when the
+    // per-atom value is an average (Fe3O4, +8/3), so electrons stay integers.
+    const e = Math.abs(Math.round(to * atoms) - Math.round(from * atoms));
+    const g = gcd(e, atoms) || 1;
+    return { sk, key, a, b, from, to, fromFrac: onFraction(sk.from, key), toFrac: onFraction(sk.to, key), atoms, e, per: { num: e / g, den: atoms / g }, kind: to < from ? 'reduced' : 'oxidized' };
   });
   if (halves.some((h) => h.e === 0)) return { halves, problem: 'no change' };
   if (halves[0].kind === halves[1].kind) return { halves, problem: halves[0].kind === 'reduced' ? 'both reduced' : 'both oxidized' };
@@ -225,6 +229,10 @@ export function parseEquation(input, elements) {
 // them. Anything else left over has no partner, so it is refused.
 const ADDED = [WATER, HPLUS, 'H3O^+', OH];
 export function pairHalves(left, right) {
+  for (const sp of [...left, ...right]) {
+    const r = assignSteps(sp);
+    if (r.problem) return { error: `${sp}: no rule fixes ${r.problem.join(' and ')}. Write the equation as net ionic, with ionic compounds split into their ions.` };
+  }
   const L = new Set(left);
   const R = new Set(right);
   const pairs = [];
@@ -249,7 +257,7 @@ export function pairHalves(left, right) {
       L.delete(found[0]);
       R.delete(found[1]);
     } else if (el !== 'O' && el !== 'H' && changes(el, rs, ps).length) {
-      return { error: `${el} is in more than one species on a side, so the sim cannot tell which change to follow. Use one species per changing element (a disproportionation needs the half-reaction method).` };
+      return { error: `${el} is in more than one species on a side, so the sim cannot tell which change to follow. Use one species per changing element (a disproportionation, or its reverse, needs the half-reaction method).` };
     }
   }
   const leftover = [...L, ...R].filter((sp) => !ADDED.includes(sp));
@@ -272,6 +280,8 @@ export const RULES = [
   { id: 'halogen', text: 'Cl, Br and I are −1, unless combined with O or F', eg: 'NaCl; not ClO₃⁻' },
   { id: 'sum', text: 'The oxidation numbers add up to 0 in a compound, or to the charge of a polyatomic ion', eg: 'H₂SO₄: 0; SO₄²⁻: −2' },
 ];
+
+const HYDRIDE_PARTNERS = ['Li', 'Na', 'K', 'Rb', 'Cs', 'Be', 'Mg', 'Ca', 'Sr', 'Ba', 'Al', 'B'];
 
 // Applied in this order until one element is left; the sum sets that one.
 const PRIORITY = [
@@ -303,10 +313,13 @@ export function assignSteps(species) {
   }
   const steps = [];
   const left = new Set(els);
+  // A complex metal hydride (LiAlH4, NaBH4): H with nothing but metals (and B) is −1.
+  const hydride = 'H' in atoms && els.every((el) => el === 'H' || HYDRIDE_PARTNERS.includes(el));
   for (const [group, value, rule, id] of PRIORITY) {
     for (const el of group) {
       if (left.size > 1 && left.has(el)) {
-        steps.push({ el, value, rule, id });
+        if (el === 'H' && hydride) steps.push({ el, value: -1, rule: 'H is −1 in a metal hydride', id, also: 'H' });
+        else steps.push({ el, value, rule, id });
         left.delete(el);
       }
     }
@@ -365,6 +378,12 @@ export function algebra(st, order) {
   return lines.filter((l, i) => !i || l.eq !== lines[i - 1].eq);
 }
 
+// An element's oxidation number as { num, den } in lowest terms (+8/3 in Fe3O4).
+export function onFraction(species, el) {
+  const st = assignSteps(species).steps.find((x) => x.el === el);
+  return st.sum ? { num: st.sum.num, den: st.sum.den } : { num: st.value, den: 1 };
+}
+
 export function oxidationNumbers(species) {
   const r = assignSteps(species);
   if (r.problem) throw new Error(`Oxidation numbers of ${species} are not set by the rules`);
@@ -396,6 +415,11 @@ export function parseSpecies(input, elements) {
   }
   body = body.replace(/\s+/g, '');
   if (!body) return { error: 'Type a formula, e.g. H2SO4 or CO3^2-.' };
+  // SO42- could be SO4 with 2− or SO42 with 1−: two digits run straight into a sign.
+  if (m && !/[\^\s\]]/.test(t) && /\d{2,}$/.test(body) && /[A-Z].*[A-Z]/.test(body)) {
+    const d = body.match(/\d+$/)[0];
+    return { error: `“${input.trim()}” is ambiguous: write the charge with a caret or a space, e.g. ${body.slice(0, -d.length)}${d.slice(0, -1)}^${d.slice(-1)}${sign} or ${body.slice(0, -d.length)}${d.slice(0, -1)} ${d.slice(-1)}${sign}.` };
+  }
   if (!/^([A-Z][a-z]?\d*|\(|\)\d*)+$/.test(body)) return { error: `“${input.trim()}” is not a formula: use element symbols and numbers, e.g. H2SO4, NO3^- or [CO3]2-.` };
   let depth = 0;
   for (const c of body) {
