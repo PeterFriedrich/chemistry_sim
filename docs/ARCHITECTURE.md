@@ -191,6 +191,9 @@ could mislead.
   for the ions to be split, since the polyatomic-ion table is not transcribed).
   `algebra()` writes the student's lines for the last element (substitute,
   multiply out, collect, move across, divide), each with its reason.
+  `balanceByOxidationNumbers()` balances two skeletons by oxidation-number
+  change, sharing the atom, H₂O/H⁺ and basic steps with `balanceHalf()`; a
+  test holds it to the half-reaction method's result for every pair.
   `parseSpecies()` reads typed formulas. `tally()` gives the atom and charge
   check shown in the readouts; the tilting balance is picture only.
 - **Redox reaction predictor** (`chem/spontaneity.js`): a fixed list of 27

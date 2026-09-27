@@ -16,6 +16,8 @@ export const equations = [
 ];
 
 export const prompts = [
+  'Balance MnO₄⁻ + Fe²⁺ → Mn²⁺ + Fe³⁺ using oxidation numbers. How many electrons does each Mn gain, and each Fe lose? Why does Fe²⁺ get a 5?',
+  'Balance Cr₂O₇²⁻ + C₂H₅OH using oxidation numbers. Why is the change for Cr multiplied by 2 before you compare electrons?',
   'Assign oxidation numbers in H₂SO₄, NO₃⁻ and CO₃²⁻ by hand, then step through each. Which rule sets S, N and C?',
   'Type S8, then Fe3+. Why is every atom in an element 0, but Fe in Fe³⁺ is +3?',
   'Compare H₂O, H₂O₂ and NaH. Why is O −1 in one and H −1 in another?',
@@ -42,6 +44,17 @@ const HALF_STEPS = {
   charge: '4. Balance charge by adding e⁻',
   hydroxide: '5. Basic: add OH⁻ to both sides, one per H⁺',
   water: '6. Basic: H⁺ + OH⁻ → H₂O, then cancel water',
+};
+const ON_STEPS = {
+  skeleton: 'Skeleton equation',
+  atoms: '1. Balance the atoms whose oxidation number changes',
+  electrons: '2. Electrons = change in oxidation number × atoms',
+  multiply: '3. Multiply so electrons lost = electrons gained',
+  oxygen: '4. Balance O by adding H₂O',
+  hydrogen: '5. Balance H by adding H⁺',
+  check: '6. Check: the charge now balances by itself',
+  hydroxide: '7. Basic: add OH⁻ to both sides, one per H⁺',
+  water: '8. Basic: H⁺ + OH⁻ → H₂O, then cancel water',
 };
 const NET_STEPS = ['The two skeleton half-reactions', '1. Balance each half-reaction', '2. Multiply so electrons lost = electrons gained', '3. Add, and cancel what appears on both sides'];
 
@@ -77,6 +90,7 @@ export function mount(ui) {
       { value: 'assign', label: 'Assign oxidation numbers in one species' },
       { value: 'half', label: 'Balance a half-reaction' },
       { value: 'net', label: 'Net ionic equation from two half-reactions' },
+      { value: 'onbal', label: 'Balance using oxidation numbers' },
       { value: 'on', label: 'Oxidation numbers: what is oxidized and reduced?' },
     ],
     value: 'assign',
@@ -133,6 +147,14 @@ export function mount(ui) {
     { id: 'ne', label: 'Electrons transferred' },
   ]);
   const dlN = ui.readouts.lastElementChild;
+  const outB = readouts(ui.readouts, [
+    { id: 'step', label: 'Step' },
+    { id: 'eq', label: 'Equation' },
+    { id: 'chg', label: 'Oxidation number changes' },
+    { id: 'e', label: 'Electrons lost = gained' },
+    { id: 'chk', label: 'Check (left vs right)' },
+  ]);
+  const dlB = ui.readouts.lastElementChild;
   const outO = readouts(ui.readouts, [
     { id: 'nums', label: 'Oxidation numbers' },
     { id: 'oxd', label: 'Oxidized' },
@@ -218,14 +240,17 @@ export function mount(ui) {
     const th = theme();
     const m = mode.value;
     [hbox, dlH].forEach((n) => shown(n, m === 'half'));
-    [nbox, dlN].forEach((n) => shown(n, m === 'net'));
+    shown(nbox, m === 'net' || m === 'onbal');
+    shown(dlN, m === 'net');
+    shown(dlB, m === 'onbal');
     [obox, dlO].forEach((n) => shown(n, m === 'on'));
     [abox, dlA].forEach((n) => shown(n, m === 'assign'));
     shown(sbox, m !== 'on');
-    shown(qbox.querySelectorAll('.ctl-choice')[1], m === 'half' || m === 'net');
+    shown(qbox.querySelectorAll('.ctl-choice')[1], m === 'half' || m === 'net' || m === 'onbal');
     clear(ctx, w, h);
     if (m === 'half') drawHalf(ctx, th, w);
     else if (m === 'net') drawNet(ctx, th, w);
+    else if (m === 'onbal') drawOnBalance(ctx, th, w);
     else if (m === 'assign') drawAssign(ctx, th, w);
     else drawOn(ctx, th, w, h);
   }
@@ -242,6 +267,42 @@ export function mount(ui) {
     fitLine(ctx, HALF_STEPS[st.id], 22, w, { color: th.muted, size: 13, weight: 650 });
     const y = fitLine(ctx, eq(st), 54, w, { color: t.balanced ? th.product : th.ink });
     drawTally(ctx, th, t, y + 8, w);
+  }
+
+  function drawOnBalance(ctx, th, w) {
+    const sk1 = B.skeletons.find((s) => s.id === n1.value);
+    const sk2 = B.skeletons.find((s) => s.id === n2.value);
+    const r = B.balanceByOxidationNumbers(sk1, sk2, medium.value);
+    if (r.problem) {
+      const why = r.problem === 'no change' ? 'One of these has no change in oxidation number.' : `Both are ${r.problem.replace('both ', '')}: ${r.halves.map((h) => `${h.key} ${on(h.from)} → ${on(h.to)}`).join(', ')}.`;
+      for (const id of ['step', 'eq', 'e', 'chk']) outB.set(id, '—');
+      outB.set('chg', `${why} One element must be oxidized and another reduced.`);
+      text(ctx, why, w / 2, 40, { size: 15, weight: 650, align: 'center' });
+      text(ctx, 'One element must be oxidized and another reduced.', w / 2, 64, { color: th.muted, size: 13, align: 'center' });
+      return;
+    }
+    step = Math.min(step, r.steps.length - 1);
+    const st = r.steps[step];
+    const at = (id) => r.steps.findIndex((x) => x.id === id);
+    const change = (h) => {
+      const what = h.kind === 'reduced' ? 'gains' : 'loses';
+      return `${h.key}: ${on(h.from)} → ${on(h.to)}, ${what} ${Math.abs(h.to - h.from)} e⁻ per ${h.key} × ${h.atoms} ${h.key} = ${h.e} e⁻`;
+    };
+    const t = B.tally(st);
+    outB.set('step', ON_STEPS[st.id]);
+    outB.set('eq', eq(st));
+    outB.set('chg', step >= at('electrons') ? `${change(r.red)} (reduced); ${change(r.ox)} (oxidized)` : '—');
+    outB.set('e', step >= at('multiply') ? `${r.red.e} × ${r.kRed} = ${r.ox.e} × ${r.kOx} = ${r.electrons} e⁻` : '—');
+    outB.set('chk', step >= at('oxygen') ? check(t) : '—');
+
+    fitLine(ctx, ON_STEPS[st.id], 22, w, { color: th.muted, size: 13, weight: 650 });
+    let y = fitLine(ctx, eq(st), 54, w, { color: t.balanced ? th.product : th.ink });
+    if (step >= at('electrons')) {
+      y = fitLine(ctx, change(r.red), y, w, { size: 14, weight: 600, color: th.seriesB });
+      y = fitLine(ctx, change(r.ox), y, w, { size: 14, weight: 600, color: th.seriesA });
+    }
+    if (step >= at('multiply')) y = fitLine(ctx, `×${r.kRed} and ×${r.kOx}: ${r.electrons} e⁻ gained = ${r.electrons} e⁻ lost`, y, w, { size: 13, weight: 500, color: th.muted });
+    if (step >= at('oxygen')) drawTally(ctx, th, t, y + 6, w);
   }
 
   function drawNet(ctx, th, w) {

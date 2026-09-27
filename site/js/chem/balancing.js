@@ -26,6 +26,9 @@ export const skeletons = [
   ['C2H5OH', 'C2H5OH(aq)', 'CH3COOH(aq)'],
   ['Fe', 'Fe^2+(aq)', 'Fe^3+(aq)'],
   ['Cu', 'Cu(s)', 'Cu^2+(aq)'],
+  ['Zn', 'Zn(s)', 'Zn^2+(aq)'],
+  ['NO3-NH4', 'NO3^-(aq)', 'NH4^+(aq)'],
+  ['I', 'I^-(aq)', 'I2(s)'],
 ].map(([id, from, to]) => ({ id, from, to }));
 
 export function atomsOf(species) {
@@ -80,56 +83,59 @@ const count = (list, el) => list.reduce((t, [n, sp]) => t + n * (atomsOf(sp)[el]
 const q = (list) => list.reduce((t, [n, sp]) => t + n * chargeOf(sp), 0);
 const snap = (id, left, right, e = null) => ({ id, left, right, e });
 
+// Step 1 of both methods: the element other than O and H (O itself when there
+// is none, as in H2O2 → O2), balanced by the lowest whole numbers a·from → b·to.
+function keyAtoms(sk) {
+  const from = atomsOf(sk.from);
+  const key = Object.keys(from).find((el) => el !== 'O' && el !== 'H') ?? 'O';
+  const g = gcd(from[key], atomsOf(sk.to)[key]);
+  return { key, a: atomsOf(sk.to)[key] / g, b: from[key] / g };
+}
+
+// O with H2O, then H with H+: the lists after each, and dH (H+ on the right when > 0).
+function waterAndHydrogen(left, right) {
+  const dO = count(left, 'O') - count(right, 'O');
+  const wL = add(left, -dO, WATER);
+  const wR = add(right, dO, WATER);
+  const dH = count(wL, 'H') - count(wR, 'H');
+  return { water: [wL, wR], hydrogen: [add(wL, -dH, HPLUS), add(wR, dH, HPLUS)], dH };
+}
+
+// Basic solution: k OH− on both sides; the side with k H+ now has k H2O; cancel water.
+function basic(left, right, dH, e) {
+  const k = Math.abs(dH);
+  const hSide = dH > 0 ? 'right' : 'left';
+  const withOH = (list) => [...list, [k, OH]];
+  const waterOf = (list) => list.find(([, s]) => s === WATER)?.[0] ?? 0;
+  const strip = (list) => list.filter(([, s]) => s !== WATER && s !== HPLUS);
+  let wL = waterOf(left) + (hSide === 'left' ? k : 0);
+  let wR = waterOf(right) + (hSide === 'right' ? k : 0);
+  const c = Math.min(wL, wR);
+  wL -= c;
+  wR -= c;
+  // Water before OH− on its side, as students write it.
+  const L = add(add(strip(left), wL, WATER), hSide === 'right' ? k : 0, OH);
+  const R = add(add(strip(right), wR, WATER), hSide === 'left' ? k : 0, OH);
+  return [snap('hydroxide', withOH(left), withOH(right), e), snap('water', L, R, e)];
+}
+
 // The half-reaction method, one snapshot per step. `half` is the result in the
 // table's reduction form ({ ox, e, red }) for netEquation.
 export function balanceHalf(sk, medium) {
   const steps = [snap('skeleton', [[1, sk.from]], [[1, sk.to]])];
-  // 1. The one element other than O and H, balanced by the lowest whole numbers.
-  const key = Object.keys(atomsOf(sk.from)).find((el) => el !== 'O' && el !== 'H');
-  let a = 1;
-  let b = 1;
-  if (key) {
-    const ca = atomsOf(sk.from)[key];
-    const cb = atomsOf(sk.to)[key];
-    const g = gcd(ca, cb);
-    a = cb / g;
-    b = ca / g;
-  }
-  let left = [[a, sk.from]];
-  let right = [[b, sk.to]];
-  steps.push(snap('atoms', left, right));
-  // 2. O with H2O.
-  const dO = count(left, 'O') - count(right, 'O');
-  right = add(right, dO, WATER);
-  left = add(left, -dO, WATER);
-  steps.push(snap('oxygen', left, right));
-  // 3. H with H+.
-  const dH = count(left, 'H') - count(right, 'H');
-  right = add(right, dH, HPLUS);
-  left = add(left, -dH, HPLUS);
+  // 1. The element other than O and H.
+  const { a, b } = keyAtoms(sk);
+  steps.push(snap('atoms', [[a, sk.from]], [[b, sk.to]]));
+  // 2. O with H2O.  3. H with H+.
+  const wh = waterAndHydrogen([[a, sk.from]], [[b, sk.to]]);
+  steps.push(snap('oxygen', ...wh.water));
+  const [left, right] = wh.hydrogen;
   steps.push(snap('hydrogen', left, right));
   // 4. Charge with electrons, on the side with the higher charge.
   const dq = q(left) - q(right);
   const e = { side: dq > 0 ? 'left' : 'right', n: Math.abs(dq) };
   steps.push(snap('charge', left, right, e));
-  if (medium === 'basic' && dH !== 0) {
-    // 5. k OH− on both sides; the side with k H+ now has k H2O; cancel water.
-    const k = Math.abs(dH);
-    const hSide = dH > 0 ? 'right' : 'left';
-    const withOH = (list) => [...list, [k, OH]];
-    steps.push(snap('hydroxide', withOH(left), withOH(right), e));
-    const waterOf = (list) => list.find(([, s]) => s === WATER)?.[0] ?? 0;
-    const strip = (list) => list.filter(([, s]) => s !== WATER && s !== HPLUS);
-    let wL = waterOf(left) + (hSide === 'left' ? k : 0);
-    let wR = waterOf(right) + (hSide === 'right' ? k : 0);
-    const c = Math.min(wL, wR);
-    wL -= c;
-    wR -= c;
-    // Water before OH− on its side, as students write it.
-    left = add(add(strip(left), wL, WATER), hSide === 'right' ? k : 0, OH);
-    right = add(add(strip(right), wR, WATER), hSide === 'left' ? k : 0, OH);
-    steps.push(snap('water', left, right, e));
-  }
+  if (medium === 'basic' && wh.dH !== 0) steps.push(...basic(left, right, wh.dH, e));
   const final = steps.at(-1);
   const reduction = e.side === 'left';
   const half = reduction ? { ox: final.left, e: e.n, red: final.right } : { ox: final.right, e: e.n, red: final.left };
@@ -146,6 +152,40 @@ export function combine(sk1, sk2, medium) {
   const ox = h1.reduction ? h2 : h1;
   const net = netEquation(red.half, ox.half);
   return { h1, h2, red, ox, kRed: net.electrons / red.half.e, kOx: net.electrons / ox.half.e, net, problem: null };
+}
+
+// Balancing by oxidation numbers: the changing element's atoms first, then the
+// electrons from the change in oxidation number (change per atom × atoms),
+// each species multiplied so electrons lost = electrons gained, then O with
+// H2O and H with H+ (and OH− in basic solution). The charge then balances by
+// itself, which is the check. Same result as the half-reaction method.
+export function balanceByOxidationNumbers(sk1, sk2, medium) {
+  const halves = [sk1, sk2].map((sk) => {
+    const { key, a, b } = keyAtoms(sk);
+    const from = oxidationNumbers(sk.from)[key];
+    const to = oxidationNumbers(sk.to)[key];
+    const atoms = a * atomsOf(sk.from)[key];
+    return { sk, key, a, b, from, to, atoms, e: Math.abs(to - from) * atoms, kind: to < from ? 'reduced' : 'oxidized' };
+  });
+  if (halves.some((h) => h.e === 0)) return { halves, problem: 'no change' };
+  if (halves[0].kind === halves[1].kind) return { halves, problem: halves[0].kind === 'reduced' ? 'both reduced' : 'both oxidized' };
+  const red = halves.find((h) => h.kind === 'reduced');
+  const ox = halves.find((h) => h.kind === 'oxidized');
+  const electrons = (red.e * ox.e) / gcd(red.e, ox.e);
+  const kRed = electrons / red.e;
+  const kOx = electrons / ox.e;
+  const steps = [
+    snap('skeleton', [[1, red.sk.from], [1, ox.sk.from]], [[1, red.sk.to], [1, ox.sk.to]]),
+    snap('atoms', [[red.a, red.sk.from], [ox.a, ox.sk.from]], [[red.b, red.sk.to], [ox.b, ox.sk.to]]),
+  ];
+  steps.push({ ...steps[1], id: 'electrons' });
+  const left = [[red.a * kRed, red.sk.from], [ox.a * kOx, ox.sk.from]];
+  const right = [[red.b * kRed, red.sk.to], [ox.b * kOx, ox.sk.to]];
+  steps.push(snap('multiply', left, right));
+  const wh = waterAndHydrogen(left, right);
+  steps.push(snap('oxygen', ...wh.water), snap('hydrogen', ...wh.hydrogen), snap('check', ...wh.hydrogen));
+  if (medium === 'basic' && wh.dH !== 0) steps.push(...basic(...wh.hydrogen, wh.dH, null));
+  return { halves, red, ox, electrons, kRed, kOx, steps, final: steps.at(-1), problem: null };
 }
 
 const PRIORITY = [

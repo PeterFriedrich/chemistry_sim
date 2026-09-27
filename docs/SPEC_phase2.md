@@ -194,7 +194,7 @@ Code change: `candidates()` moves from `chem/electrolysis.js` into `chem/redox.j
 
 ## 5. `balancing`: redox equations the table does not print (Unit B) — APPROVED and built 2026-09-27
 
-Approved by the owner ("just take these") with every recommendation: (a) presets only; (b) one step at a time plus "Show all"; (c) oxidation numbers identify only, no oxidation-number balancing; (d) basic solution included; (e) one sim, three modes. Added in the build: Cu(s) → Cu²⁺ as an eleventh skeleton, so Cu with NO₃⁻ can be combined.
+Approved by the owner ("just take these") with every recommendation: (a) presets only; (b) one step at a time plus "Show all"; (c) oxidation numbers identify only, no oxidation-number balancing (amended 2026-09-27: the owner asked for oxidation-number balancing, now a mode; DECISIONS row); (d) basic solution included; (e) one sim, three modes. Added in the build: Cu(s) → Cu²⁺ as an eleventh skeleton, so Cu with NO₃⁻ can be combined.
 
 **Why.** `spontaneity`, `voltaic` and `electrolysis` only write net ionic equations from half-reactions the booklet already prints. Unit B also asks students to:
 - balance a half-reaction the table does not have, in acidic or basic solution;

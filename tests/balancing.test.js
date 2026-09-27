@@ -174,3 +174,44 @@ test('test_balancing_oxidation_number_algebra_lines', () => {
     assert.equal(lines(sp).at(-1), `x = ${st.value === 0 ? '0' : `${st.value > 0 ? '+' : '−'}${Math.abs(st.value)}`}`, sp);
   }
 });
+
+test('test_balancing_by_oxidation_numbers_worked_examples', () => {
+  const on = (a, b, m) => B.balanceByOxidationNumbers(sk(a), sk(b), m);
+  // MnO4− + Fe2+: Mn +7 → +2 gains 5, Fe +2 → +3 loses 1; ×1 and ×5.
+  const mf = on('MnO4-Mn', 'Fe', 'acidic');
+  assert.deepEqual([mf.red.from, mf.red.to, mf.red.e, mf.ox.e, mf.kRed, mf.kOx], [7, 2, 5, 1, 1, 5]);
+  assert.deepEqual([mf.final.left, mf.final.right], [
+    [[1, 'MnO4^-(aq)'], [5, 'Fe^2+(aq)'], [8, 'H^+(aq)']],
+    [[1, 'Mn^2+(aq)'], [5, 'Fe^3+(aq)'], [4, 'H2O(l)']],
+  ]);
+  // Cr2O7²⁻: 2 Cr × 3 = 6 e⁻; C2H5OH: 2 C × 2 = 4 e⁻.
+  const br = on('C2H5OH', 'Cr2O7', 'acidic');
+  assert.deepEqual([br.red.e, br.ox.e, br.kRed, br.kOx], [6, 4, 2, 3]);
+  // Zn + NO3− → Zn2+ + NH4+: N +5 → −3 gains 8; 4 Zn + NO3− + 10 H+ → 4 Zn2+ + NH4+ + 3 H2O.
+  const zn = on('Zn', 'NO3-NH4', 'acidic');
+  assert.deepEqual([zn.final.left, zn.final.right], [
+    [[1, 'NO3^-(aq)'], [4, 'Zn(s)'], [10, 'H^+(aq)']],
+    [[1, 'NH4^+(aq)'], [4, 'Zn^2+(aq)'], [3, 'H2O(l)']],
+  ]);
+  // I− → I2: two I atoms each lose 1.
+  assert.equal(on('ClO3', 'I', 'acidic').ox.e, 2);
+  assert.equal(on('NO3', 'Cr2O7', 'acidic').problem, 'both reduced');
+});
+
+test('test_balancing_oxidation_number_method_matches_half_reaction_method', () => {
+  const bag = (list) => Object.fromEntries(list.map(([n, s]) => [s, n]));
+  for (const a of B.skeletons) {
+    for (const b of B.skeletons) {
+      for (const m of ['acidic', 'basic']) {
+        const o = B.balanceByOxidationNumbers(a, b, m);
+        const c = B.combine(a, b, m);
+        assert.equal(!!o.problem, !!c.problem, `${a.id} + ${b.id}`);
+        if (o.problem) continue;
+        assert.ok(B.tally(o.final).balanced, `${a.id} + ${b.id} ${m}`);
+        assert.equal(o.electrons, c.net.electrons, `${a.id} + ${b.id} ${m}`);
+        assert.deepEqual(bag(o.final.left), bag(c.net.reactants), `${a.id} + ${b.id} ${m}`);
+        assert.deepEqual(bag(o.final.right), bag(c.net.products), `${a.id} + ${b.id} ${m}`);
+      }
+    }
+  }
+});
