@@ -85,6 +85,14 @@ export const sims = [
     concepts: ['SOA and SRA from the table', 'balancing electrons', 'E°net = E°SOA − E°SRA'],
   },
   {
+    id: 'balancing',
+    course: 'c30',
+    unit: 'B',
+    title: 'Balancing Redox Equations',
+    summary: 'Balance a half-reaction the booklet does not print, in acidic or basic solution, one step at a time; combine two into a net ionic equation; or find oxidation numbers to see what is oxidized and reduced, and whether a reaction is redox at all.',
+    concepts: ['half-reaction method', 'acidic and basic solutions', 'net ionic equations', 'oxidation numbers'],
+  },
+  {
     id: 'organic',
     course: 'c30',
     unit: 'C',

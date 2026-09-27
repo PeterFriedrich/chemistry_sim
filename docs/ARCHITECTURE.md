@@ -178,6 +178,16 @@ could mislead.
   voltage is −E°<sub>cell</sub>, with no overvoltage. Gas products are reported
   in mol only, since the booklet prints no molar volume. Bubbles, the plating
   coat and the dissolving anode are decoration.
+- **Balancing redox equations** (`chem/balancing.js`): preset skeleton
+  half-reactions (one species each side, from textbook questions, not the
+  booklet) balanced by the half-reaction method, one snapshot per step:
+  the element other than O and H by lowest whole numbers, O with H₂O, H with
+  H⁺, charge with e⁻, then in basic solution OH⁻ on both sides and water
+  cancelled. Two halves combine through `netEquation()` in `redox.js`; two
+  reductions or two oxidations are refused. Oxidation numbers apply F, Group 1,
+  Group 2, H +1, O −2, Cl/Br/I −1 in that order until one element is left,
+  which the species' charge sets. `tally()` gives the atom and charge check
+  shown in the readouts; the tilting balance is picture only.
 - **Redox reaction predictor** (`chem/spontaneity.js`): a fixed list of 27
   reagents (metals, solutions, halogens), each entered as the entities the
   student lists; "acidified" adds H⁺ with no anion, and water is always
