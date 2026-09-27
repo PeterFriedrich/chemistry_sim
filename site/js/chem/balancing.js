@@ -193,6 +193,48 @@ export function assignSteps(species) {
   return { steps, numbers, problem: null };
 }
 
+const signed = (v) => (v === 0 ? '0' : `${v > 0 ? '+' : '−'}${Math.abs(v)}`);
+const xTerm = (c) => (c === 1 ? 'x' : `${c}x`);
+// "2 + x − 8": the first term bare, the rest joined by + or −.
+const chain = (terms) => terms.map((t, i) => {
+  if (typeof t === 'string') return i ? `+ ${t}` : t;
+  if (i === 0) return t < 0 ? `−${-t}` : `${t}`;
+  return t < 0 ? `− ${-t}` : `+ ${t}`;
+}).join(' ');
+
+const shift = (K) => (K < 0 ? `add ${-K} to both sides` : `subtract ${K} from both sides`);
+
+// The algebra a student writes for the element the sum sets, one line each:
+// { eq, why }. `order` is the formula's element order; `st` the sum step.
+export function algebra(st, order) {
+  const { charge, known, count, num, den } = st.sum;
+  const q = signed(charge);
+  const lines = [{ eq: `let x = the oxidation number of ${st.el}`, why: 'the unknown' }];
+  const K = known.reduce((t, [n, , v]) => t + n * v, 0);
+  if (known.length) {
+    const sub = order.map((el) => {
+      if (el === st.el) return xTerm(count);
+      const [n, , v] = known.find(([, e]) => e === el);
+      return `${n === 1 ? '' : n}(${signed(v)})`;
+    });
+    lines.push({ eq: `${sub.join(' + ')} = ${q}`, why: 'Σ (atoms × oxidation number) = charge' });
+    const products = order.map((el) => {
+      if (el === st.el) return xTerm(count);
+      const [n, , v] = known.find(([, e]) => e === el);
+      return n * v;
+    });
+    lines.push({ eq: `${chain(products)} = ${q}`, why: 'multiply out' });
+    if (known.length > 1) lines.push({ eq: `${chain([xTerm(count), K])} = ${q}`, why: 'collect the numbers' });
+    if (charge !== 0) lines.push({ eq: `${xTerm(count)} = ${signed(charge)} ${-K < 0 ? '−' : '+'} ${Math.abs(K)}`, why: shift(K) });
+  }
+  const total = charge - K;
+  const why = !known.length ? st.rule : charge === 0 ? shift(K) : 'simplify';
+  lines.push({ eq: `${xTerm(count)} = ${signed(total)}`, why });
+  if (count > 1) lines.push({ eq: `x = ${den === 1 ? signed(num) : `${num > 0 ? '+' : '−'}${Math.abs(num)}/${den}`}`, why: `divide by ${count}` });
+  // Drop a line that repeats the one before it (one known term: nothing to collect).
+  return lines.filter((l, i) => !i || l.eq !== lines[i - 1].eq);
+}
+
 export function oxidationNumbers(species) {
   const r = assignSteps(species);
   if (r.problem) throw new Error(`Oxidation numbers of ${species} are not set by the rules`);

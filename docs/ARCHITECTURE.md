@@ -189,6 +189,8 @@ could mislead.
   which the species' charge sets; `assignSteps()` returns those steps for the
   single-species mode (a fraction for an average; two unfixed elements ask
   for the ions to be split, since the polyatomic-ion table is not transcribed).
+  `algebra()` writes the student's lines for the last element (substitute,
+  multiply out, collect, move across, divide), each with its reason.
   `parseSpecies()` reads typed formulas. `tally()` gives the atom and charge
   check shown in the readouts; the tilting balance is picture only.
 - **Redox reaction predictor** (`chem/spontaneity.js`): a fixed list of 27
