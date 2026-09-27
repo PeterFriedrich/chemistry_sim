@@ -5,6 +5,7 @@ import { section, slider, choice, readouts } from '../lib/controls.js';
 import { createClock } from '../lib/clock.js';
 import { fmt, fixed, species } from '../lib/format.js';
 import { molarMass } from '../chem/electrolysis.js';
+import { reactionEnthalpy, withWater } from '../chem/hess.js';
 
 export const equations = [
   { html: 'Q = mcΔt', what: 'heat gained by the water; m and c are the water’s' },
@@ -16,6 +17,7 @@ export const equations = [
 ];
 
 export const prompts = [
+  'Given values, ΔcH from the booklet: what mass of methane must burn to heat 500 g of water by 20.0 °C? Write the combustion equation first, then find ΔcH from ΔfH°.',
   'Given values: propane’s ΔcH is −2043.9 kJ/mol. A barbecue burns 1.00 g of propane to heat a 400 g knife (c = 0.503 J/(g·°C)) by 30.0 °C. Find the efficiency, then check.',
   'Burn 1.00 g of ethanol under 200 g of water in the open can. Read Δt, then find the experimental ΔcH and the efficiency by hand before you check.',
   'Why is the experimental ΔcH so much smaller in size than the theoretical ΔcH°? Name three places the missing heat went.',
@@ -29,6 +31,9 @@ export const legend = [
   { color: 'exo', label: 'flame' },
 ];
 
+// Coefficients as students write them: ½, 3/2, 5/2.
+const coef = (n) => (n === 1 ? '' : n === 0.5 ? '½ ' : Number.isInteger(n) ? `${n} ` : `${n * 2}/2 `);
+const side = (list) => list.map(([n, f]) => coef(n) + species(f)).join(' + ');
 const FUELS = F.fuels.map((f) => ({ value: f.id, label: `${species(f.formula)}, ${f.name}`, fuel: f }));
 const BURN = 6; // seconds of playback for the burn; animation only
 
@@ -64,7 +69,25 @@ export function mount(ui) {
     value: 'eff',
   });
   const gFuel = choice(gbox, { label: 'Fuel', options: FUELS, value: 'propane' });
+  const gSource = choice(gbox, {
+    label: 'Δ<sub>c</sub>H',
+    options: [
+      { value: 'given', label: 'Given in the question' },
+      { value: 'booklet', label: 'Not given: write the combustion equation, use ΔfH°' },
+    ],
+    value: 'given',
+  });
+  const gWater = choice(gbox, {
+    label: 'Water in the combustion equation',
+    options: [
+      { value: 'g', label: 'Vapour, H₂O(g)' },
+      { value: 'l', label: 'Liquid, H₂O(l)' },
+    ],
+    value: 'g',
+  });
+  const gWaterRow = gbox.lastElementChild;
   const gdcH = slider(gbox, { label: 'Δ<sub>c</sub>H given', min: -10000, max: -1, step: 0.1, value: -2043.9, unit: 'kJ/mol', digits: 1 });
+  const gdcHRow = gbox.lastElementChild;
   const gm = slider(gbox, { label: 'Mass of fuel burned', min: 0.01, max: 1000, step: 0.01, value: 1, unit: 'g', digits: 2 });
   const gmRow = gbox.lastElementChild;
   const obj = choice(gbox, { label: 'Object heated', options: OBJECTS, value: 'other' });
@@ -73,7 +96,8 @@ export function mount(ui) {
   const gmo = slider(gbox, { label: 'Mass of the object', min: 1, max: 100000, step: 1, value: 400, unit: 'g' });
   const gdt = slider(gbox, { label: 'Temperature change Δt', min: 0.1, max: 200, step: 0.1, value: 30, unit: '°C', digits: 1 });
   const gdtRow = gbox.lastElementChild;
-  const geff = slider(gbox, { label: 'Efficiency', min: 0.1, max: 100, step: 0.1, value: 13, unit: '%', digits: 1 });
+  // 100 % unless the question says otherwise: "all the heat goes to the water".
+  const geff = slider(gbox, { label: 'Efficiency', min: 0.1, max: 100, step: 0.1, value: 100, unit: '%', digits: 1 });
   const geffRow = gbox.lastElementChild;
   // A new fuel starts at the booklet's ΔcH° with H₂O(g), the value such questions usually quote.
   gFuel.onChange(() => (gdcH.value = Math.round(F.theoretical(gFuel.option.fuel, 'g') * 10) / 10));
@@ -109,6 +133,11 @@ export function mount(ui) {
     { id: 'eff', label: 'Efficiency' },
   ]);
   const dl1 = ui.readouts.lastElementChild;
+  const out3 = readouts(ui.readouts, [
+    { id: 'eq', label: 'Combustion equation' },
+    { id: 'dch', label: 'Δ<sub>c</sub>H = Σ nΔ<sub>f</sub>H° products − Σ nΔ<sub>f</sub>H° reactants' },
+  ]);
+  const dl3 = ui.readouts.lastElementChild;
   const out2 = readouts(ui.readouts, [
     { id: 'M', label: 'Molar mass M (fuel)' },
     { id: 'n', label: 'n (fuel)' },
@@ -120,7 +149,7 @@ export function mount(ui) {
 
   const canvas = fitCanvas(ui.canvas);
   const clock = createClock(ui.transport, { frame: draw });
-  [mode, solve, gFuel, gdcH, gm, obj, gc, gmo, gdt, geff, fuel, mf, mw, ti, app, water].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
+  [mode, solve, gFuel, gSource, gWater, gdcH, gm, obj, gc, gmo, gdt, geff, fuel, mf, mw, ti, app, water].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
   const shown = (node, on) => {
     const d = on ? '' : 'none';
     if (node.style.display !== d) node.style.display = d;
@@ -129,6 +158,7 @@ export function mount(ui) {
   function draw(clk) {
     const given = mode.value === 'given';
     [gbox, dl2].forEach((n) => shown(n, given));
+    shown(dl3, given && gSource.value === 'booklet');
     [fbox, wbox, abox, dl1].forEach((n) => shown(n, !given));
     if (given) return drawGiven();
     drawExperiment(clk);
@@ -139,11 +169,20 @@ export function mount(ui) {
     const M = molarMass(f.formula);
     const c = obj.option.c ?? gc.value;
     const name = obj.option.name;
+    const booklet = gSource.value === 'booklet';
+    shown(gWaterRow, booklet);
+    shown(gdcHRow, !booklet);
+    const rx = withWater(f.reaction, gWater.value);
+    const comb = reactionEnthalpy(rx);
+    if (booklet) {
+      out3.set('eq', `${side(rx.reactants)} → ${side(rx.products)}`);
+      out3.set('dch', `(${fixed(comb.products, 1)}) − (${fixed(comb.reactants, 1)}) = ${fixed(comb.dH, 1)} kJ/mol`);
+    }
     shown(gcRow, obj.value === 'other');
     shown(gmRow, solve.value !== 'mass');
     shown(gdtRow, solve.value !== 'dt');
     shown(geffRow, solve.value !== 'eff');
-    const q = { mFuel: gm.value, M, dcH: gdcH.value, mObj: gmo.value, c, dt: gdt.value, efficiency: geff.value / 100 };
+    const q = { mFuel: gm.value, M, dcH: booklet ? comb.dH : gdcH.value, mObj: gmo.value, c, dt: gdt.value, efficiency: geff.value / 100 };
     const r = solve.value === 'eff' ? F.efficiencyGiven(q) : solve.value === 'mass' ? F.fuelNeeded(q) : F.tempRise(q);
     const efficiency = r.efficiency ?? q.efficiency;
     const mFuel = r.mFuel ?? q.mFuel;

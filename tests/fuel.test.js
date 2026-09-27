@@ -63,3 +63,20 @@ test('test_fuel_given_values_bbq_knife_example', () => {
   const rise = F.tempRise({ ...q, efficiency: r.efficiency });
   assert.ok(Math.abs(rise.dt - 30.0) < 1e-9);
 });
+
+test('test_fuel_mass_of_methane_from_booklet_dch', () => {
+  // Heat 500 g of water by 20.0 °C burning methane, all heat to the water.
+  // Q = 500(4.19)(20.0) = 41 900 J = 41.9 kJ. CH4 + 2 O2 → CO2 + 2 H2O:
+  // H2O(g): ΔcH = −393.5 + 2(−241.8) − (−74.6) = −802.5 kJ/mol → n = 0.05221 mol, m = 0.05221 × 16.05 = 0.838 g.
+  // H2O(l): ΔcH = −890.5 kJ/mol → m = 0.755 g.
+  const ch4 = fuel('methane');
+  const M = molarMass(ch4.formula);
+  assert.equal(M.toFixed(2), '16.05');
+  for (const [w, dcH, m] of [['g', '-802.5', '0.838'], ['l', '-890.5', '0.755']]) {
+    const d = F.theoretical(ch4, w);
+    assert.equal(d.toFixed(1), dcH);
+    const r = F.fuelNeeded({ M, dcH: d, mObj: 500, c: 4.19, dt: 20.0, efficiency: 1 });
+    assert.equal(r.gained.toPrecision(3), '41.9');
+    assert.equal(r.mFuel.toPrecision(3), m);
+  }
+});
