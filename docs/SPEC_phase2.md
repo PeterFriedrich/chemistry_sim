@@ -60,7 +60,9 @@ Approved as proposed (DECISIONS row). Open questions settled by default: (a) the
 
 ---
 
-## 2. `fuel`: molar enthalpy of combustion by calorimetry (Unit A)
+## 2. `fuel`: molar enthalpy of combustion by calorimetry (Unit A) — APPROVED and built 2026-09-27
+
+Approved by the owner ("Do fuel"), taking the recommended answers: (a) H₂O(g) with a toggle; (b) fixed efficiencies, open can 40 %, insulated can 70 %; (c) solution calorimetry left out. Added in the build: the thermometer reads to 0.1 °C and the readouts work from that reading; a setting that would boil the water shows no result.
 
 **Why.** The existing `calorimetry` sim is heat exchange between two objects (Q<sub>lost</sub> = Q<sub>gained</sub>). That is the Q = mcΔt groundwork, but it is not the Chemistry 30 calorimetry question. That question is: burn a measured mass of fuel under a can of water, then find the molar enthalpy from nΔ<sub>c</sub>H = −mcΔt, and the efficiency against the Δ<sub>f</sub>H° value.
 
@@ -128,7 +130,6 @@ The canvas draws the uncatalysed curve plus a dashed catalysed curve, with the E
 
 ## Also missing, not proposed yet
 
-- Hess's law by combining given equations.
 - Redox titration (MnO₄⁻ / Fe²⁺).
 - A general spontaneity predictor for any two reagents.
 - Organic reactions (already a TODO).

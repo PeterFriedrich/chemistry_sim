@@ -113,6 +113,13 @@ could mislead.
   temperatures; water is entered in mL at 1.00 g/mL (not in the booklet). The bomb mode is Q = CΔt with C (kJ/°C) given in the question, then Δ<sub>c</sub>H = −Q ÷ n; the constant-volume result is treated as Δ<sub>c</sub>H, as Chemistry 30 does. The approach to equilibrium on screen
   is an exponential with an arbitrary rate, for animation only; readouts use
   t<sub>f</sub> from heat lost = heat gained.
+- **Fuel calorimetry** (`chem/fuel.js`): complete combustion of a booklet
+  fuel under a can of water; the can absorbs nothing, and every loss is one
+  fixed, illustrative efficiency per apparatus (open 40 %, insulated 70 %; the
+  booklet prints none). The simulated thermometer reads to 0.1 °C and every
+  readout is computed from that reading, so the efficiency readout differs from
+  the set value by the reading's rounding only. The theoretical Δ<sub>c</sub>H°
+  comes from `hess.js`, with the water as H₂O(g) by default.
 - **Enthalpy of reaction** (`chem/hess.js`): fixed, balanced preset equations
   only — no free equation entry, which would need a parser and a balancer (a
   general chemistry engine). Standard conditions throughout: Δ<sub>r</sub>H° from

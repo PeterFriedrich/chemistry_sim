@@ -45,6 +45,14 @@ export const sims = [
     concepts: ['ΔrH = ΣnΔfH°(products) − ΣnΔfH°(reactants)', 'Hess’s law', 'ΔH = nΔrH', 'adding equations'],
   },
   {
+    id: 'fuel',
+    course: 'c30',
+    unit: 'A',
+    title: 'Burning a Fuel Under a Can',
+    summary: 'Burn a measured mass of fuel under a can of water. From the temperature rise find the experimental molar enthalpy of combustion, then compare it with ΔcH° from the booklet’s formation enthalpies to get the efficiency.',
+    concepts: ['nΔcH = −mcΔt', 'n = m/M', 'efficiency'],
+  },
+  {
     id: 'voltaic',
     course: 'c30',
     unit: 'B',
