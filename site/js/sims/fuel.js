@@ -4,6 +4,7 @@ import { fitCanvas, theme, clear, line, text, roundRect } from '../lib/canvas.js
 import { section, slider, choice, readouts } from '../lib/controls.js';
 import { createClock } from '../lib/clock.js';
 import { fmt, fixed, species } from '../lib/format.js';
+import { molarMass } from '../chem/electrolysis.js';
 
 export const equations = [
   { html: 'Q = mcΔt', what: 'heat gained by the water; m and c are the water’s' },
@@ -11,9 +12,11 @@ export const equations = [
   { html: 'nΔ<sub>c</sub>H = −Q, so Δ<sub>c</sub>H = −Q/n', what: 'the fuel releases the heat the water gains (ΔcH < 0)' },
   { html: 'Δ<sub>c</sub>H° = Σ nΔ<sub>f</sub>H°<sub>products</sub> − Σ nΔ<sub>f</sub>H°<sub>reactants</sub>', what: 'the theoretical value, per mole of fuel' },
   { html: 'efficiency = Q ÷ (n × |Δ<sub>c</sub>H°|) × 100 %', what: 'the share of the fuel’s energy that reached the water' },
+  { html: 'efficiency = energy gained ÷ energy released × 100 % = mcΔt ÷ n|Δ<sub>c</sub>H| × 100 %', what: 'given values: the object heated can be anything with a given c' },
 ];
 
 export const prompts = [
+  'Given values: propane’s ΔcH is −2043.9 kJ/mol. A barbecue burns 1.00 g of propane to heat a 400 g knife (c = 0.503 J/(g·°C)) by 30.0 °C. Find the efficiency, then check.',
   'Burn 1.00 g of ethanol under 200 g of water in the open can. Read Δt, then find the experimental ΔcH and the efficiency by hand before you check.',
   'Why is the experimental ΔcH so much smaller in size than the theoretical ΔcH°? Name three places the missing heat went.',
   'Switch to the insulated can with the same fuel and masses. What changes: the experimental ΔcH, the theoretical ΔcH°, or both?',
@@ -29,7 +32,52 @@ export const legend = [
 const FUELS = F.fuels.map((f) => ({ value: f.id, label: `${species(f.formula)}, ${f.name}`, fuel: f }));
 const BURN = 6; // seconds of playback for the burn; animation only
 
+const OBJECTS = [
+  { value: 'water', name: 'water', c: specificHeat.water },
+  { value: 'copper', name: 'copper', c: specificHeat.copper },
+  { value: 'aluminium', name: 'aluminium', c: specificHeat.aluminium },
+  { value: 'iron', name: 'iron', c: specificHeat.iron },
+  { value: 'tin', name: 'tin', c: specificHeat.tin },
+].map((o) => ({ ...o, label: `${o.name[0].toUpperCase()}${o.name.slice(1)} (c = ${o.c})` }))
+  .concat({ value: 'other', name: 'object', c: null, label: 'Something else: c given in the question' });
+
 export function mount(ui) {
+  const qbox = section(ui.controls, 'Question');
+  const mode = choice(qbox, {
+    label: 'Question type',
+    options: [
+      { value: 'exp', label: 'Experiment: burn a fuel under a can' },
+      { value: 'given', label: 'Given values: efficiency, mass or Δt' },
+    ],
+    value: 'exp',
+  });
+
+  // --- given values ---
+  const gbox = section(ui.controls, 'Given in the question');
+  const solve = choice(gbox, {
+    label: 'Solve for',
+    options: [
+      { value: 'eff', label: 'Efficiency' },
+      { value: 'mass', label: 'Mass of fuel needed' },
+      { value: 'dt', label: 'Temperature change Δt' },
+    ],
+    value: 'eff',
+  });
+  const gFuel = choice(gbox, { label: 'Fuel', options: FUELS, value: 'propane' });
+  const gdcH = slider(gbox, { label: 'Δ<sub>c</sub>H given', min: -10000, max: -1, step: 0.1, value: -2043.9, unit: 'kJ/mol', digits: 1 });
+  const gm = slider(gbox, { label: 'Mass of fuel burned', min: 0.01, max: 1000, step: 0.01, value: 1, unit: 'g', digits: 2 });
+  const gmRow = gbox.lastElementChild;
+  const obj = choice(gbox, { label: 'Object heated', options: OBJECTS, value: 'other' });
+  const gc = slider(gbox, { label: 'Its specific heat capacity c', min: 0.001, max: 5, step: 0.001, value: 0.503, unit: 'J/(g·°C)', digits: 3 });
+  const gcRow = gbox.lastElementChild;
+  const gmo = slider(gbox, { label: 'Mass of the object', min: 1, max: 100000, step: 1, value: 400, unit: 'g' });
+  const gdt = slider(gbox, { label: 'Temperature change Δt', min: 0.1, max: 200, step: 0.1, value: 30, unit: '°C', digits: 1 });
+  const gdtRow = gbox.lastElementChild;
+  const geff = slider(gbox, { label: 'Efficiency', min: 0.1, max: 100, step: 0.1, value: 13, unit: '%', digits: 1 });
+  const geffRow = gbox.lastElementChild;
+  // A new fuel starts at the booklet's ΔcH° with H₂O(g), the value such questions usually quote.
+  gFuel.onChange(() => (gdcH.value = Math.round(F.theoretical(gFuel.option.fuel, 'g') * 10) / 10));
+
   const fbox = section(ui.controls, 'Fuel');
   const fuel = choice(fbox, { label: 'Fuel', options: FUELS, value: 'ethanol' });
   const mf = slider(fbox, { label: 'Mass of fuel burned', min: 0.5, max: 3, step: 0.01, value: 1, unit: 'g', digits: 2 });
@@ -60,12 +108,88 @@ export function mount(ui) {
     { id: 'theo', label: 'Δ<sub>c</sub>H°, from Δ<sub>f</sub>H°' },
     { id: 'eff', label: 'Efficiency' },
   ]);
+  const dl1 = ui.readouts.lastElementChild;
+  const out2 = readouts(ui.readouts, [
+    { id: 'M', label: 'Molar mass M (fuel)' },
+    { id: 'n', label: 'n (fuel)' },
+    { id: 'in', label: 'Energy released = n|Δ<sub>c</sub>H|' },
+    { id: 'out', label: 'Energy gained = mcΔt' },
+    { id: 'ans', label: 'Answer' },
+  ]);
+  const dl2 = ui.readouts.lastElementChild;
 
   const canvas = fitCanvas(ui.canvas);
   const clock = createClock(ui.transport, { frame: draw });
-  [fuel, mf, mw, ti, app, water].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
+  [mode, solve, gFuel, gdcH, gm, obj, gc, gmo, gdt, geff, fuel, mf, mw, ti, app, water].forEach((c) => c.onChange(() => (clock.pause(), clock.reset())));
+  const shown = (node, on) => {
+    const d = on ? '' : 'none';
+    if (node.style.display !== d) node.style.display = d;
+  };
 
   function draw(clk) {
+    const given = mode.value === 'given';
+    [gbox, dl2].forEach((n) => shown(n, given));
+    [fbox, wbox, abox, dl1].forEach((n) => shown(n, !given));
+    if (given) return drawGiven();
+    drawExperiment(clk);
+  }
+
+  function drawGiven() {
+    const f = gFuel.option.fuel;
+    const M = molarMass(f.formula);
+    const c = obj.option.c ?? gc.value;
+    const name = obj.option.name;
+    shown(gcRow, obj.value === 'other');
+    shown(gmRow, solve.value !== 'mass');
+    shown(gdtRow, solve.value !== 'dt');
+    shown(geffRow, solve.value !== 'eff');
+    const q = { mFuel: gm.value, M, dcH: gdcH.value, mObj: gmo.value, c, dt: gdt.value, efficiency: geff.value / 100 };
+    const r = solve.value === 'eff' ? F.efficiencyGiven(q) : solve.value === 'mass' ? F.fuelNeeded(q) : F.tempRise(q);
+    const efficiency = r.efficiency ?? q.efficiency;
+    const mFuel = r.mFuel ?? q.mFuel;
+    const dt = r.dt ?? q.dt;
+    const kJ = (v) => `${fmt(v, 3)} kJ`;
+
+    out2.set('M', `${fixed(M, 2)} g/mol ${species(f.formula)}`);
+    out2.set('n', solve.value === 'mass' ? `${kJ(r.released)} ÷ ${fixed(-q.dcH, 1)} kJ/mol = ${fmt(r.n, 3)} mol` : `${fixed(q.mFuel, 2)} g ÷ ${fixed(M, 2)} g/mol = ${fmt(r.n, 3)} mol`);
+    out2.set('in', solve.value === 'mass' ? `${kJ(r.gained)} ÷ ${fixed(geff.value, 1)} % = ${kJ(r.released)}` : `${fmt(r.n, 3)} mol × ${fixed(-q.dcH, 1)} kJ/mol = ${kJ(r.released)}`);
+    out2.set('out', solve.value === 'dt' ? `${fixed(geff.value, 1)} % × ${kJ(r.released)} = ${kJ(r.gained)}` : `${q.mObj} g × ${c} J/(g·°C) × ${fixed(q.dt, 1)} °C = ${kJ(r.gained)}`);
+    out2.set('ans', solve.value === 'eff' ? `efficiency = ${fmt(efficiency * 100, 3)} %`
+      : solve.value === 'mass' ? `m = n × M = ${fmt(mFuel, 3)} g of ${f.name}`
+        : `Δt = energy ÷ (mc) = ${fmt(dt, 3)} °C`);
+
+    // Energy flow: what the fuel released, and the share the object gained.
+    const { ctx, w, h } = canvas;
+    const th = theme();
+    clear(ctx, w, h);
+    const narrow = w < 620;
+    const x0 = 16;
+    const bw = w - 32;
+    const bh = Math.min(56, h * 0.14);
+    const y1 = h * 0.22;
+    const y2 = h * 0.55;
+    text(ctx, `${species(f.formula)} burning: energy released`, x0, y1 - 16, { size: narrow ? 13 : 15, weight: 650 });
+    ctx.fillStyle = th.exo;
+    ctx.fillRect(x0, y1, bw, bh);
+    text(ctx, kJ(r.released), x0 + bw - 8, y1 + bh / 2, { color: th.surface, size: 14, weight: 700, align: 'right' });
+    const e = Math.min(1, efficiency);
+    text(ctx, `gained by the ${name}`, x0, y2 - 16, { size: narrow ? 13 : 15, weight: 650 });
+    ctx.fillStyle = th.seriesA;
+    ctx.fillRect(x0, y2, Math.max(2, bw * e), bh);
+    ctx.strokeStyle = th.muted;
+    ctx.setLineDash([5, 4]);
+    ctx.strokeRect(x0, y2, bw, bh);
+    ctx.setLineDash([]);
+    const label = `${kJ(r.gained)}  (${fmt(efficiency * 100, 3)} %)`;
+    ctx.font = `700 14px ${th.font}`;
+    const inside = ctx.measureText(label).width + 16 < bw * e;
+    text(ctx, label, inside ? x0 + 8 : x0 + bw * e + 8, y2 + bh / 2, { color: inside ? th.surface : th.ink, size: 14, weight: 700 });
+    text(ctx, `lost to the surroundings: ${kJ(r.released - r.gained)}`, x0, y2 + bh + 22, { color: th.muted, size: 12 });
+    if (efficiency > 1) text(ctx, 'more than 100 %: check the given values', x0, h - 20, { color: th.danger, size: 13, weight: 650 });
+    clock.setTimeLabel('');
+  }
+
+  function drawExperiment(clk) {
     const f = fuel.option.fuel;
     const eff = F.apparatus[app.value].efficiency;
     const tf = F.finalReading(f, water.value, mf.value, mw.value, ti.value, eff);

@@ -119,7 +119,11 @@ could mislead.
   booklet prints none). The simulated thermometer reads to 0.1 °C and every
   readout is computed from that reading, so the efficiency readout differs from
   the set value by the reading's rounding only. The theoretical Δ<sub>c</sub>H°
-  comes from `hess.js`, with the water as H₂O(g) by default.
+  comes from `hess.js`, with the water as H₂O(g) by default. The given-values
+  mode takes every number from the question (ΔcH, the object's mass and c,
+  Δt or the efficiency) and solves for the efficiency, the fuel mass or Δt;
+  only M comes from the booklet. A new fuel starts its ΔcH at the booklet value
+  with H₂O(g).
 - **Activation energy** (`chem/activation.js`): the booklet prints no
   activation energies, so E<sub>a</sub> (uncatalysed and catalysed) is the
   student's input and only ΔH (from the `hess.js` presets, H₂O(l)) is booklet

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as F from '../site/js/chem/fuel.js';
 import { count } from './atoms.js';
 import { withWater } from '../site/js/chem/hess.js';
+import { molarMass } from '../site/js/chem/electrolysis.js';
 
 const fuel = (id) => F.fuels.find((f) => f.id === id);
 
@@ -41,4 +42,24 @@ test('test_fuel_efficiency_recovers_the_apparatus_value', () => {
       assert.ok(Math.abs(r.efficiency - a.efficiency) <= slack + 1e-12, `${f.id} ${key}`);
     }
   }
+});
+
+test('test_fuel_given_values_bbq_knife_example', () => {
+  // Propane ΔcH −2043.9 kJ/mol (booklet, H2O(g)); 1.00 g burns to warm a 400 g knife (c = 0.503) by 30.0 °C.
+  // M = 3(12.01) + 8(1.01) = 44.11 g/mol; released = (1.00/44.11)(2043.9) = 46.3 kJ;
+  // gained = 400(0.503)(30.0) = 6036 J = 6.04 kJ; efficiency = 13.0 %.
+  const propane = fuel('propane');
+  assert.equal(F.theoretical(propane, 'g').toFixed(1), '-2043.9');
+  const M = molarMass(propane.formula);
+  assert.equal(M.toFixed(2), '44.11');
+  const q = { mFuel: 1.0, M, dcH: -2043.9, mObj: 400, c: 0.503, dt: 30.0 };
+  const r = F.efficiencyGiven(q);
+  assert.equal(r.released.toPrecision(3), '46.3');
+  assert.equal(r.gained.toPrecision(3), '6.04');
+  assert.equal((r.efficiency * 100).toPrecision(3), '13.0');
+  // The two backwards forms invert it.
+  const back = F.fuelNeeded({ ...q, efficiency: r.efficiency });
+  assert.ok(Math.abs(back.mFuel - 1.0) < 1e-12);
+  const rise = F.tempRise({ ...q, efficiency: r.efficiency });
+  assert.ok(Math.abs(rise.dt - 30.0) < 1e-9);
 });
