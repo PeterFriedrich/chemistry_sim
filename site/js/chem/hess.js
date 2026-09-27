@@ -212,3 +212,22 @@ export const additivity = [
     solution: [[false, 1], [true, 1], [false, 3], [false, 3]],
   },
 ];
+
+// Stability relative to the elements: the more negative ΔfH°, the more stable
+// (the more energy it would take to break the compound back into its elements).
+// Most stable first.
+export function stabilityOrder(species) {
+  return [...species].sort((a, b) => formationOf(a) - formationOf(b));
+}
+
+// Mark a student's ranking (1 = most stable). A position is right when its
+// compound's ΔfH° equals the ΔfH° that belongs there, so compounds with equal
+// values may go in either order. `valid` is false unless the ranks are 1…n once each.
+export function gradeStability(species, ranks) {
+  const n = species.length;
+  const valid = [...ranks].sort((a, b) => a - b).every((r, i) => r === i + 1);
+  const order = stabilityOrder(species);
+  const byRank = species.map((s, i) => [ranks[i], s]).sort((a, b) => a[0] - b[0]).map(([, s]) => s);
+  const right = valid ? byRank.map((s, i) => formationOf(s) === formationOf(order[i])) : Array(n).fill(false);
+  return { valid, order, byRank, right, score: right.filter(Boolean).length };
+}

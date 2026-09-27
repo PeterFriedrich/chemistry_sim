@@ -148,6 +148,10 @@ could mislead.
   Δ<sub>r</sub>H per mole given in the question; every other species keeps its
   booklet value (`unknownFormation`). The given value starts at the booklet's
   Δ<sub>r</sub>H, so an untouched slider solves back to the booklet Δ<sub>f</sub>H°.
+  The stability mode ranks 3–5 compounds from the booklet's ΔfH° table,
+  most stable = most negative ΔfH° (stability relative to the elements only;
+  kinetic stability is out of scope). Random sets have distinct ΔfH° values;
+  a hand-picked set with equal values accepts either order.
   The adding-equations mode (`combine`, `mismatches`, `additivity`) uses fixed
   preset questions: a target and two to four given equations, each with the
   ΔH the question prints (not recomputed from the booklet, and printed to that
