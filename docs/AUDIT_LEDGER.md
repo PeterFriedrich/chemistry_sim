@@ -21,6 +21,32 @@ top-down, fundamental decisions first.
 
 ## Queued — briefed, not yet run
 
+Lined up 2026-09-28 for the next sessions, in this order (the owner may reorder). One per session (`project-audit`). Each entry is its own brief.
+The sims not yet audited: `bronsted`, `fuel` and `activation` (Chemistry 30), and all of Chemistry 20 Unit A: `periodic`, `naming`, `bonding` (with v2, PR #47) and `forces`.
+
+1. **Chemistry 20 Unit A data transcription vs the booklet image.** Why first: `naming`, `bonding` and `forces` all read these values, so an error here shows up in all three.
+   - Scope: `elements-data.js` ion charges and electronegativities (DATA_SHEET §1.8), and `polyatomic-data.js` (§1.12, 34 ions).
+   - Method: check each cell against the rendered booklet image, not the text extraction (S06 learning: pypdf dropped cells). The pdf.js-in-Chromium and Pillow crop method is in `session-summary/2026-09-28_S06.md` §3.
+2. **Typed-input robustness, every text box.** Why: the Unit B audit found that typed input could freeze the page.
+   - Scope: `naming`, `bonding`, `forces` and `balancing`.
+   - Method: fuzz each chem entry point (`parseFormula`, `analyse`, `forcesOf`, the naming parsers) with junk, very long input, unbalanced brackets, lowercase, (aq)/(g), hydrates and 7+ heavy atoms. Pass means it returns `{ error }` quickly: no throw and no hang. Check that the page stays responsive in Playwright.
+   - v2-specific: `isomers()` time at 6 heavy atoms with several halogens, and a condensed formula that has several C=O branches.
+3. **`bonding` + `forces` correctness vs Chemistry 20 answers.** This includes v2.
+   - Every example and pair, against the textbook's shape, bond type and polarity.
+   - Isomer counts against known values.
+   - v2 judgement calls: ClCH₂CH₂Cl, the cis/trans flag, whether unusual isomers such as CH₂=C=NH belong in the list, and the "about 120°" bent shape.
+   - The S06 open calls: HF and BF past the 1.7 ΔEN cut-off, PH₃ nonpolar, and the forces thresholds.
+   - Does the drawing match the readouts (lone pairs, bond orders) at 390 px?
+4. **`naming` correctness.**
+   - Round-trip every booklet metal with every booklet anion and polyatomic ion (formula → name → formula).
+   - Roman numerals only where the booklet lists more than one charge.
+   - Acids named both ways (IUPAC and classical); hydrates; binary molecular prefixes.
+   - The S06 judgement calls (tetroxide, MnO₂/PbO₂, Hg⁺, the common-name list), checked against the Chemistry 20 texts.
+5. **Chemistry 30 readouts vs hand calculation for the sims built after the 2026-09-26 run:** `bronsted`, `fuel` and `activation`. Use the same checklist as `FINDINGS_readouts.md`: defaults plus slider extremes, reading the live page text.
+6. **`periodic` readouts.** Valence electrons, energy levels (Z ≤ 20), Lewis symbols, ion electrons and the matching noble gas, checked for every element against the student method, including the f-block and group 3 layout.
+
+After these, the cross-cutting candidates below still stand.
+
 ## Never audited (candidates, roughly ranked)
 
 - Sign conventions: ΔH and Q signs (system vs surroundings), E°cell = E°cathode − E°anode.
