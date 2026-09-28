@@ -273,3 +273,7 @@ could mislead.
   oblique projection (wedges and dashes); the angles for the pyramidal and bent
   shapes are approximate, and the sim says so. Polarity is the vector sum of
   bond dipoles, each ΔEN long; lone pairs add no dipole of their own.
+- **Intermolecular forces** (`chem/forces.js`): a qualitative comparison with two
+  thresholds of its own (1.35× "similar" electrons, 3× a close call); it never
+  quotes a boiling point, because the booklet prints none. The drawn links are
+  a picture of which forces act, not of their strength.

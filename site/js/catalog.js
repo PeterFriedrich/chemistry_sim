@@ -45,6 +45,14 @@ export const sims = [
     concepts: ['bonding capacity', 'VSEPR shapes', 'ΔEN and bond type', 'polar and nonpolar molecules'],
   },
   {
+    id: 'forces',
+    course: 'c20',
+    unit: 'A',
+    title: 'Intermolecular Forces and Boiling Points',
+    summary: 'Pick two substances. See which intermolecular forces act between their molecules (London forces from the number of electrons, dipole–dipole forces if polar, hydrogen bonding if H is bonded to N, O or F) and predict which has the higher boiling point.',
+    concepts: ['London dispersion forces', 'dipole–dipole forces', 'hydrogen bonding', 'boiling-point trends'],
+  },
+  {
     id: 'naming',
     course: 'c20',
     unit: 'A',
