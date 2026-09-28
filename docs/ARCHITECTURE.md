@@ -267,3 +267,9 @@ could mislead.
   elements), plus a fixed list of common names. Formulas that read two ways
   (MnO₂ as oxide or peroxide) take the monatomic anion. The tiles on the
   canvas are counts, not structures.
+- **Bonding** (`chem/bonding.js`): Lewis structures by bonding capacity only,
+  so a molecule that needs a coordinate bond or an expanded octet is refused
+  rather than drawn wrong. The shape drawing uses ideal VSEPR directions in an
+  oblique projection (wedges and dashes); the angles for the pyramidal and bent
+  shapes are approximate, and the sim says so. Polarity is the vector sum of
+  bond dipoles, each ΔEN long; lone pairs add no dipole of their own.

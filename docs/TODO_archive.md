@@ -8,6 +8,8 @@ Items are verbatim as they were closed, newest-moved first in the order they app
 
 ---
 
+- [x] Chemistry 20 A: `bonding` — electronegativity difference, bond type and polarity. Built 2026-09-28 with Lewis structures and VSEPR shapes (DECISIONS row).
+
 - [x] **Fix the 4 FAILs in `balancing`** — FIXED 2026-09-27 (DECISIONS rows): page freeze on a typed species with two unfixed elements (and propose making `lib/clock.js` survive a throwing frame); H −1 in LiAlH₄/NaBH₄; refuse ambiguous `SO42-`-style charges; integer electrons for fractional oxidation numbers.
 
 - [x] **FAIL `lechatelier`: a stress pressed before the last shift settles uses the animation's transient as "before"** (Q 0.531 instead of 0.624). Owner choice: complete the shift instantly (`before = segs.at(-1).to`) or disable stresses until settled; test two stresses in a row. — FIXED 2026-09-26 with option (a): `before = segs.at(-1).to`; `test_equilibrium_second_stress_starts_from_the_new_equilibrium`.

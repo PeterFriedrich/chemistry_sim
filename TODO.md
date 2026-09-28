@@ -17,12 +17,12 @@ symptom before acting on it.
 
 ### Before tutoring with it
 
-- [ ] **Owner walkthrough of every sim against hand calculations.** SPEC_phase1.md §5 criterion 5: default settings for each sim, compute the readouts by hand with the booklet, confirm they match. Done when each sim has a ✓ (or a bug filed) here. `calorimetry`: ☐ `hess`: ☐ `voltaic`: ☐ `electrolysis`: ☐ `titration`: ☐ `lechatelier`: ☐ `organic`: ☐ `bronsted`: ☐ `fuel`: ☐ `activation`: ☐ `spontaneity`: ☐ `balancing`: ☐ `periodic`: ☐ `naming`: ☐
+- [ ] **Owner walkthrough of every sim against hand calculations.** SPEC_phase1.md §5 criterion 5: default settings for each sim, compute the readouts by hand with the booklet, confirm they match. Done when each sim has a ✓ (or a bug filed) here. `calorimetry`: ☐ `hess`: ☐ `voltaic`: ☐ `electrolysis`: ☐ `titration`: ☐ `lechatelier`: ☐ `organic`: ☐ `bronsted`: ☐ `fuel`: ☐ `activation`: ☐ `spontaneity`: ☐ `balancing`: ☐ `periodic`: ☐ `naming`: ☐ `bonding`: ☐
 - [ ] **Map sims to program-of-studies outcomes.** Units are matched by title only; check specific outcome codes against the Alberta Education programs of study before showing them on a page.
 
 ### Phase 1 simulations (one per bullet; propose each first — CLAUDE.md)
 
-- [ ] Chemistry 20 A: `bonding` — electronegativity difference, bond type and polarity. Needs the periodic table transcribed (DATA_SHEET.md §1.3).
+- [ ] Chemistry 20 A: intermolecular forces (London, dipole–dipole, hydrogen bonding) and boiling-point trends — the owner's next sim after `bonding`; builds on its polarity result. Propose first.
 - [ ] Chemistry 20 B: `gaslaws` — blocked on the gas values above.
 - [ ] Chemistry 20 C: `dilution` and `ph`.
 - [ ] Chemistry 20 D: `stoichiometry` — limiting reagent. Molar masses are in (DATA_SHEET.md §1.8, `molarMass()` in `chem/electrolysis.js`).
@@ -49,6 +49,8 @@ symptom before acting on it.
 ## Done
 
 Closed items moved out of `## Open work` live in **`docs/TODO_archive.md`** — one line each below, reasoning there.
+
+- [x] **Chemistry 20 A: `bonding` — electronegativity difference, bond type and polarity. Built 2026-09-28 with Lewis structures and VSEPR shapes (DECISIONS r** — BUILT 2026-09-28 · `docs/TODO_archive.md`
 
 - [x] **Fix the 4 FAILs in `balancing`** — 2026-09-27 · `docs/TODO_archive.md`
 
