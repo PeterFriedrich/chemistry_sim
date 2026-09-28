@@ -8,6 +8,8 @@ Items are verbatim as they were closed, newest-moved first in the order they app
 
 ---
 
+- [x] Chemistry 20 A: intermolecular forces (London, dipole–dipole, hydrogen bonding) and boiling-point trends — built 2026-09-28 as `forces` (DECISIONS row).
+
 - [x] Chemistry 20 A: `bonding` — electronegativity difference, bond type and polarity. Built 2026-09-28 with Lewis structures and VSEPR shapes (DECISIONS row).
 
 - [x] **Fix the 4 FAILs in `balancing`** — FIXED 2026-09-27 (DECISIONS rows): page freeze on a typed species with two unfixed elements (and propose making `lib/clock.js` survive a throwing frame); H −1 in LiAlH₄/NaBH₄; refuse ambiguous `SO42-`-style charges; integer electrons for fractional oxidation numbers.
