@@ -117,10 +117,19 @@ test('test_periodic_ion_charges_match_data_sheet', async () => {
   // The code's `ions` and the DATA_SHEET §1.8 column are one transcription, kept in step.
   const { readFileSync } = await import('node:fs');
   const md = readFileSync(new URL('../docs/DATA_SHEET.md', import.meta.url), 'utf8');
-  const rows = [...md.matchAll(/^\| (\d+) \| (\w+) \| [a-z]+ \| [\d.()*]+ \| (.+) \|$/gm)];
+  const rows = [...md.matchAll(/^\| (\d+) \| (\w+) \| [a-z]+ \| [\d.()*]+ \| ([^|]+) \| [^|]+ \|$/gm)];
   assert.equal(rows.length, 111);
   for (const [, z, sym, col] of rows) {
     const printed = col === '—' ? [] : col.split(', ').map((c) => (c.endsWith('+') ? 1 : -1) * parseInt(c, 10));
     assert.deepEqual(P.element(Number(z)).ions ?? [], printed, sym);
   }
+});
+
+test('test_periodic_electronegativities_match_data_sheet', async () => {
+  const { readFileSync } = await import('node:fs');
+  const md = readFileSync(new URL('../docs/DATA_SHEET.md', import.meta.url), 'utf8');
+  const rows = [...md.matchAll(/^\| (\d+) \| (\w+) \| [a-z]+ \| [\d.()*]+ \| [^|]+ \| (\S+) \|$/gm)];
+  assert.equal(rows.length, 111);
+  for (const [, z, sym, col] of rows) assert.equal(P.element(Number(z)).en ?? null, col === '—' ? null : Number(col), sym);
+  assert.equal(P.byZ.filter((e) => e.en).length, 85);
 });

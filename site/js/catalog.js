@@ -37,6 +37,14 @@ export const sims = [
     concepts: ['period = energy levels', 'valence electrons from the group', 'electrons = protons = Z', 'Lewis symbols', 'ion charges'],
   },
   {
+    id: 'bonding',
+    course: 'c20',
+    unit: 'A',
+    title: 'Lewis Structures, Shapes and Polarity',
+    summary: 'Type a molecule. Build its Lewis structure from each atom’s bonding capacity, find its VSEPR shape from the electron groups on the central atom, classify each bond by ΔEN from the booklet’s electronegativities, and see whether the bond dipoles cancel.',
+    concepts: ['bonding capacity', 'VSEPR shapes', 'ΔEN and bond type', 'polar and nonpolar molecules'],
+  },
+  {
     id: 'naming',
     course: 'c20',
     unit: 'A',
