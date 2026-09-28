@@ -35,3 +35,5 @@ Items are verbatim as they were closed, newest-moved first in the order they app
 - [x] Replace the physics colour tokens inherited in `site/css/style.css` / `lib/canvas.js` `theme()` (`--c-velocity` … `--c-total`) with a chemistry colour code once the second sim needs one (ARCHITECTURE.md §5).
 
 - **Approve, edit or drop the remaining phase 2 Chemistry 30 proposals** (`fuel`, `activation`; `bronsted` approved and built 2026-09-26) and answer their open questions — docs/SPEC_phase2.md. Closed 2026-09-27: owner approved `fuel` ("Do fuel") and `activation` ("Yeah sure") with the recommended answers; both built, each with a DECISIONS row.
+
+- [x] Chemistry 20 A: `bonding` v2 — molecules with more than one central atom, typed as condensed structural formulas (CH₃CH₂OH, CH₃CN, CH₃CH(CH₃)CH₃), drawn as flat Lewis structures with the shape named at each central atom; a molecular formula lists and draws its acyclic structural isomers (no cis/trans). Built 2026-09-28 at the owner's request (the textbook's isomer aside after multiple bonds). `forces` takes the same molecules.

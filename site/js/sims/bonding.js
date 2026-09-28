@@ -1,4 +1,5 @@
 import * as B from '../chem/bonding.js';
+import { lonePairs } from '../chem/structure.js';
 import { fitCanvas, theme, clear, text, line, arrow } from '../lib/canvas.js';
 import { section, choice, toggle, readouts, el } from '../lib/controls.js';
 import { createClock } from '../lib/clock.js';
@@ -8,6 +9,7 @@ export const equations = [
   { html: 'electron groups = bonded atoms + lone pairs on the central atom', what: 'a double or triple bond counts as one group' },
   { html: 'ΔEN = EN(higher) − EN(lower)', what: '0 nonpolar covalent · under 1.7 polar covalent · 1.7 or more ionic (booklet electronegativities)' },
   { html: 'polar molecule: bond dipoles that do not cancel', what: 'symmetrical shape, identical outer atoms, no central lone pairs → they cancel' },
+  { html: 'isomers: the same molecular formula, different structures', what: 'CH₃CH₂OH and CH₃OCH₃ are both C₂H₆O' },
 ];
 
 export const prompts = [
@@ -17,6 +19,9 @@ export const prompts = [
   'Find the ΔEN of an O–H bond by hand from the booklet, then check.',
   'PH₃ has a lone pair but comes out nonpolar here. Look at its ΔEN: why?',
   'Type CO or SO₂. Why can bonding capacity not draw them?',
+  'CH₃CN: find the triple bond from the bonding capacities. What shape is each carbon?',
+  'Type C₂H₆O. Draw both isomers by hand, then compare them here. Which one can hydrogen-bond?',
+  'Butane, C₄H₁₀, is nonpolar. Why do the C–H bond dipoles cancel even in a long chain?',
 ];
 
 export const legend = [
@@ -28,7 +33,8 @@ export const legend = [
 
 export const tallOnMobile = true;
 
-const EXAMPLES = ['H2O', 'NH3', 'CH4', 'CO2', 'HCN', 'CH2O', 'BF3', 'CCl4', 'CH3Cl', 'PCl3', 'H2S', 'PH3', 'OF2', 'HCl', 'HF', 'N2', 'O2', 'Cl2'];
+const EXAMPLES = ['H2O', 'NH3', 'CH4', 'CO2', 'HCN', 'CH2O', 'BF3', 'CCl4', 'CH3Cl', 'PCl3', 'H2S', 'PH3', 'OF2', 'HCl', 'HF', 'N2', 'O2', 'Cl2',
+  'CH3OH', 'CH3CN', 'C2H4', 'C2H2', 'CH3CH2OH', 'CH3OCH3', 'C2H6O', 'CH3NH2', 'CH3COOH', 'CH3CH2CH2CH3', 'CH3CH(CH3)CH3', 'C5H12'];
 
 const SUB = '₀₁₂₃₄₅₆₇₈₉';
 const sub = (s) => s.replace(/([A-Za-z)])(\d+)/g, (_, c, d) => c + d.replace(/\d/g, (x) => SUB[x]));
@@ -43,10 +49,15 @@ export function mount(ui) {
   const row = el('div', { class: 'ctl ctl-choice' }, box);
   el('label', { for: 'ctl-molecule', text: 'Formula' }, row);
   const input = el('input', { id: 'ctl-molecule', type: 'text', value: EXAMPLES[0], autocomplete: 'off', spellcheck: 'false' }, row);
-  el('div', { class: 'ctl-unit', text: 'One central atom, or two atoms: H2O, CH2O, HCN, N2' }, row);
+  el('div', { class: 'ctl-unit', text: 'A formula (H2O, CH2O, N2) or a condensed formula (CH3CH2OH, CH3CN); up to 6 atoms other than H and halogens' }, row);
   const ex = choice(box, { label: 'Or pick an example', options: EXAMPLES.map((x) => ({ value: x, label: sub(x) })), value: EXAMPLES[0] });
   ex.onChange((v) => (input.value = v));
   const showDipoles = toggle(box, { label: 'Show bond dipoles', checked: true });
+  const dipoleRow = box.querySelector('.ctl-toggle'); // the chain drawing has no dipole arrows
+  const isoResults = new Map();
+  const isoBox = el('div', { class: 'ctl' }, box);
+  const isoLabel = el('label', {}, isoBox);
+  const isoRow = el('div', { class: 'ctl-buttons' }, isoBox);
 
   const out = readouts(ui.readouts, [
     { id: 'mol', label: 'Molecule' },
@@ -68,20 +79,25 @@ export function mount(ui) {
     if (input.value !== last) {
       last = input.value;
       r = B.analyse(input.value);
+      isoList(r);
       if (r.error) {
         ['mol', 'groups', 'shape', 'bonds'].forEach((id) => out.set(id, '—'));
         out.set('polar', sub(r.error));
         out.set('mol', '—');
         steps.replaceChildren();
+      } else if (r.chain) {
+        const once = (list) => [...new Set(list)].join('; ');
+        out.set('mol', `${sub(r.formula)} (${sub(r.molecular)}): ${r.centres.length} central atoms`);
+        out.set('groups', once(r.centres.map((c) => `${sub(c.label)}: ${c.bonded} bonded + ${c.lone} lone pair${c.lone === 1 ? '' : 's'} = ${c.bonded + c.lone}`)));
+        out.set('shape', once(r.centres.map((c) => `${sub(c.label)}: ${c.shape.name}${c.shape.angle ? `, ${c.shape.angle}` : ''}`)));
+        out.set('bonds', bondList(r.bonds));
+        out.set('polar', `${r.polar ? 'polar' : 'nonpolar'}: ${r.reason}`);
+        steps.replaceChildren(...r.steps.map((st) => el('li', { text: sub(st) })));
       } else {
         out.set('mol', `${sub(r.formula)}: central atom ${r.central}`);
         out.set('groups', r.diatomic ? '— (two atoms: always linear)' : `${r.terminals.length} bonded + ${r.centralLone} lone pair${r.centralLone === 1 ? '' : 's'} = ${r.terminals.length + r.centralLone}`);
         out.set('shape', `${r.shape.name}${r.shape.angle ? `, ${r.shape.angle}` : ''}`);
-        const seen = new Set();
-        out.set('bonds', r.bonds.filter((b) => !seen.has(b.b + b.order) && seen.add(b.b + b.order)).map((b) => {
-          const [hi, lo] = B.deltaEN(b.a, b.b) === 0 ? [b.a, b.b] : b.toward === b.b ? [b.b, b.a] : [b.a, b.b];
-          return `${b.a}${bondSym(b.order)}${b.b}: ΔEN = ${enOf(hi)} − ${enOf(lo)} = ${b.dEN.toFixed(1)}, ${b.type}`;
-        }).join('; '));
+        out.set('bonds', bondList(r.bonds));
         out.set('polar', `${r.polar ? 'polar' : 'nonpolar'}: ${r.reason}`);
         steps.replaceChildren(...r.steps.map((st) => el('li', { text: sub(st) })));
       }
@@ -89,9 +105,28 @@ export function mount(ui) {
     const { ctx, w, h } = canvas;
     const th = theme();
     clear(ctx, w, h);
+    dipoleRow.hidden = !!(r.chain || r.isomers);
+    if (r.error && r.isomers?.length > 1) {
+      // a molecular formula: every structure it can have, side by side
+      const n = Math.min(r.isomers.length, 9);
+      const narrow = w < 560;
+      const cols = narrow ? (n <= 3 ? 1 : 2) : Math.min(n, 3);
+      const rows = Math.ceil(n / cols);
+      r.isomers.slice(0, n).forEach((iso, k) => {
+        const cell = { x: (k % cols) * (w / cols), y: 28 + Math.floor(k / cols) * ((h - 28) / rows), w: w / cols, h: (h - 28) / rows };
+        drawChain(ctx, th, cell, isoResults.get(iso.formula) ?? isoResults.set(iso.formula, B.analyse(iso.formula)).get(iso.formula), sub(iso.formula));
+      });
+      const head = `${n < r.isomers.length ? `The first ${n} of ` : ''}${r.isomers.length} isomers`;
+      text(ctx, narrow ? head : `${head}: tap one under Molecule to see its shapes and polarity`, w / 2, 16, { color: th.muted, size: 13, align: 'center', weight: 650 });
+      return;
+    }
     if (r.error) {
       text(ctx, 'Not drawn', w / 2, h / 2 - 12, { color: th.danger, size: 15, align: 'center', weight: 650 });
       text(ctx, 'See the message under Molecule.', w / 2, h / 2 + 12, { color: th.muted, size: 13, align: 'center' });
+      return;
+    }
+    if (r.chain) {
+      drawChain(ctx, th, { x: 0, y: 0, w, h }, r);
       return;
     }
     const wide = w / h > 1.1;
@@ -103,6 +138,126 @@ export function mount(ui) {
   }
 
   const enOf = (sym) => B.enOf(sym).toFixed(1);
+
+  function bondList(bonds) {
+    const seen = new Set();
+    return bonds.filter((b) => {
+      const k = [b.a, b.b].sort().join() + b.order;
+      return !seen.has(k) && seen.add(k);
+    }).map((b) => {
+      const [hi, lo] = b.dEN === 0 ? [b.a, b.b] : b.toward === b.b ? [b.b, b.a] : [b.a, b.b];
+      return `${b.a}${bondSym(b.order)}${b.b}: ΔEN = ${enOf(hi)} − ${enOf(lo)} = ${b.dEN.toFixed(1)}, ${b.type}`;
+    }).join('; ');
+  }
+
+  // "Same formula, other structures": tapping one loads it.
+  function isoList(res) {
+    const list = res.isomers ?? [];
+    isoBox.hidden = !list.length;
+    if (!list.length) return;
+    const mf = res.molecular ? sub(res.molecular) : sub(res.error.split(' ')[0]);
+    isoLabel.textContent = list.length === 1 ? `${mf}: the only structure (no rings)` : `${mf}: ${list.length} structures (isomers)`;
+    isoRow.replaceChildren(...list.map((iso) => {
+      const b = el('button', { type: 'button', class: iso.current ? 'btn btn-primary' : 'btn', text: sub(iso.formula) });
+      b.addEventListener('click', () => (input.value = iso.formula));
+      return b;
+    }));
+  }
+
+  // The Lewis structure of a chain: the main chain across, branches and
+  // outer atoms up and down, in grid units (a chain bond is 2, an outer bond 1).
+  // With a `title`, a small panel of the isomer grid: no polarity footer.
+  function drawChain(ctx, th, R, r, title) {
+    const mol = r.structure;
+    const adj = mol.atoms.map(() => []);
+    mol.edges.forEach((e) => {
+      adj[e.i].push({ w: e.j, order: e.order });
+      adj[e.j].push({ w: e.i, order: e.order });
+    });
+    const nodes = []; // { sym, x, y }
+    const links = []; // [a, b, order]
+    const pairs = []; // [node, dx, dy]
+    const place = (v, x, y, slots) => {
+      const n = nodes.push({ sym: mol.atoms[v].sym, x, y }) - 1;
+      const free = slots.slice();
+      const take = (pref) => {
+        const k = pref ? free.findIndex(([dx, dy]) => dx === pref[0] && dy === pref[1]) : 0;
+        return free.splice(k < 0 ? 0 : k, 1)[0];
+      };
+      return { n, free, take };
+    };
+    const P = r.path;
+    const index = new Map();
+    let lastUp = null;
+    P.forEach((v, k) => {
+      const slots = [];
+      if (k === 0) slots.push([-1, 0]);
+      if (k === P.length - 1) slots.push([1, 0]);
+      slots.push([0, 1], [0, -1]);
+      const at = place(v, 2 * k, 0, slots);
+      index.set(v, at.n);
+      if (k > 0) links.push([index.get(P[k - 1]), at.n, adj[v].find((a) => a.w === P[k - 1]).order]);
+      const branches = adj[v].filter((a) => !P.includes(a.w));
+      let up = lastUp === k - 1 ? false : true;
+      let placedUp = false;
+      for (const b of branches) {
+        const dir = at.take(up ? [0, 1] : [0, -1]);
+        if (dir[1] === 1) placedUp = true;
+        branch(b.w, v, at.n, 2 * k, 0, dir, b.order);
+        up = !up;
+      }
+      if (placedUp) lastUp = k;
+      mol.atoms[v].terms.forEach((t) => terminal(t, at.n, 2 * k, 0, at.take()));
+      for (let i = 0; i < lonePairs(mol.atoms[v].sym); i++) pairs.push([at.n, ...at.take()]);
+    });
+    function branch(v, from, fromNode, x0, y0, [dx, dy], order) {
+      const [x, y] = [x0 + 2 * dx, y0 + 2 * dy];
+      const at = place(v, x, y, [[dx, dy], [-1, 0], [1, 0], [-dx, -dy]].filter(([a, b]) => !(a === -dx && b === -dy)));
+      links.push([fromNode, at.n, order]);
+      adj[v].filter((a) => a.w !== from).forEach((a) => branch(a.w, v, at.n, x, y, at.take([dx, dy]), a.order));
+      mol.atoms[v].terms.forEach((t) => terminal(t, at.n, x, y, at.take([dx, dy])));
+      for (let i = 0; i < lonePairs(mol.atoms[v].sym); i++) pairs.push([at.n, ...at.take(at.free.find(([a]) => a !== 0) ?? null)]);
+    }
+    function terminal(sym, fromNode, x0, y0, [dx, dy]) {
+      const n = nodes.push({ sym, x: x0 + dx, y: y0 + dy }) - 1;
+      links.push([fromNode, n, 1]);
+      [[dx, dy], [dy, dx], [-dy, -dx]].slice(0, lonePairs(sym)).forEach(([ex, ey]) => pairs.push([n, ex, ey]));
+    }
+
+    text(ctx, title ?? 'Lewis structure', R.x + R.w / 2, R.y + 18, { color: title ? th.ink : th.muted, size: 13, align: 'center', weight: 650 });
+    const xs = nodes.map((n) => n.x);
+    const ys = nodes.map((n) => n.y);
+    const [x0, x1, y0, y1] = [Math.min(...xs) - 0.6, Math.max(...xs) + 0.6, Math.min(...ys) - 0.6, Math.max(...ys) + 0.6];
+    const u = Math.min((R.w - 24) / (x1 - x0), (R.h - (title ? 36 : 80)) / (y1 - y0), 64);
+    const cx = R.x + R.w / 2 - ((x0 + x1) / 2) * u;
+    const cy = R.y + R.h / 2 + (title ? 10 : 4) + ((y0 + y1) / 2) * u;
+    const X = (n) => cx + n.x * u;
+    const Y = (n) => cy - n.y * u;
+    const fs = Math.max(title ? 9 : 13, Math.min(26, u * 0.5));
+    for (const [a, b, order] of links) {
+      const [A, Bn] = [nodes[a], nodes[b]];
+      const [dx, dy] = [Math.sign(Bn.x - A.x), Math.sign(Bn.y - A.y)];
+      const clear = (n) => (dx ? fs * (0.25 + 0.3 * n.sym.length) : fs * 0.55);
+      for (let k = 0; k < order; k++) {
+        const o = (k - (order - 1) / 2) * fs * 0.16;
+        line(ctx, X(A) + dx * clear(A) - dy * o, Y(A) - dy * clear(A) - dx * o, X(Bn) - dx * clear(Bn) - dy * o, Y(Bn) + dy * clear(Bn) - dx * o, { color: th.ink, width: 2 });
+      }
+    }
+    for (const n of nodes) text(ctx, n.sym, X(n), Y(n), { color: th.ink, size: fs, align: 'center', weight: 700 });
+    for (const [i, dx, dy] of pairs) {
+      const n = nodes[i];
+      const g = fs * 0.2;
+      const off = dx ? fs * (0.3 + 0.32 * n.sym.length) : fs * 0.62;
+      for (const s of [-1, 1]) {
+        ctx.beginPath();
+        ctx.arc(X(n) + dx * off + dy * g * s, Y(n) - dy * off + dx * g * s, Math.max(2, fs * 0.08), 0, Math.PI * 2);
+        ctx.fillStyle = th.electron;
+        ctx.fill();
+      }
+    }
+    if (title) return;
+    text(ctx, r.polar ? 'polar: the bond dipoles do not cancel' : r.bonds.every((b) => !b.toward) ? 'nonpolar: no bond dipoles' : 'nonpolar: the bond dipoles cancel', R.x + R.w / 2, R.y + R.h - 20, { color: r.polar ? th.accent : th.muted, size: 13, align: 'center', weight: 650 });
+  }
 
   function drawLewis(ctx, th, R) {
     text(ctx, 'Lewis structure', R.x + R.w / 2, R.y + 18, { color: th.muted, size: 13, align: 'center', weight: 650 });

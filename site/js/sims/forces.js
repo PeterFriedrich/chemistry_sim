@@ -31,6 +31,7 @@ export const tallOnMobile = true;
 const PAIRS = [
   ['H2O', 'H2S'], ['HF', 'HCl'], ['NH3', 'PH3'], ['CH4', 'NH3'], ['HCl', 'F2'], ['HCl', 'Cl2'],
   ['CH4', 'SiH4'], ['HCl', 'HBr'], ['Ne', 'Ar'], ['CO2', 'H2S'], ['CH3Cl', 'Cl2'], ['H2O', 'I2'],
+  ['CH3CH2OH', 'CH3OCH3'], ['CH3CH2CH3', 'CH3CH2CH2CH3'],
 ];
 
 const SUB = '₀₁₂₃₄₅₆₇₈₉';
@@ -44,7 +45,7 @@ export function mount(ui) {
     el('label', { for: `ctl-sub-${k}`, text: `Substance ${k}` }, row);
     return el('input', { id: `ctl-sub-${k}`, type: 'text', value: PAIRS[0][i], autocomplete: 'off', spellcheck: 'false' }, row);
   });
-  el('div', { class: 'ctl-unit', text: 'Molecules bonding can draw (H2O, CH3Cl, N2) or a noble gas (Ar)' }, box);
+  el('div', { class: 'ctl-unit', text: 'Molecules bonding can draw (H2O, CH3Cl, CH3CH2OH) or a noble gas (Ar)' }, box);
   const pick = choice(box, { label: 'Or pick a pair', options: PAIRS.map(([a, b]) => ({ value: `${a}|${b}`, label: `${sub(a)} vs ${sub(b)}` })), value: PAIRS[0].join('|') });
   pick.onChange((v) => v.split('|').forEach((x, i) => (inputs[i].value = x)));
 

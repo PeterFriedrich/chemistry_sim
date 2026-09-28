@@ -49,6 +49,7 @@ symptom before acting on it.
 
 Closed items moved out of `## Open work` live in **`docs/TODO_archive.md`** — one line each below, reasoning there.
 
+- [x] **Chemistry 20 A: `bonding` v2 — molecules with more than one central atom (CH₃CH₂OH, CH₃CN) and structural isomers — built 2026-09-28 (DECISIONS row).** — BUILT 2026-09-28 · `docs/TODO_archive.md`
 - [x] **Chemistry 20 A: intermolecular forces (London, dipole–dipole, hydrogen bonding) and boiling-point trends — built 2026-09-28 as `forces` (DECISIONS row** — BUILT 2026-09-28 · `docs/TODO_archive.md`
 
 - [x] **Chemistry 20 A: `bonding` — electronegativity difference, bond type and polarity. Built 2026-09-28 with Lewis structures and VSEPR shapes (DECISIONS r** — BUILT 2026-09-28 · `docs/TODO_archive.md`

@@ -273,6 +273,12 @@ could mislead.
   oblique projection (wedges and dashes); the angles for the pyramidal and bent
   shapes are approximate, and the sim says so. Polarity is the vector sum of
   bond dipoles, each ΔEN long; lone pairs add no dipole of their own.
+  Molecules with more than one central atom go through `chem/structure.js`:
+  a condensed formula read into a tree of heavy atoms (no rings), bond orders
+  from the leaves in, the isomers of a molecular formula by enumerating trees,
+  and 3-D directions built outward from one end of the main chain in a zigzag.
+  The sim draws these as a flat Lewis structure (chain across, branches up and
+  down); only the polarity uses the 3-D directions.
 - **Intermolecular forces** (`chem/forces.js`): a qualitative comparison with two
   thresholds of its own (1.35× "similar" electrons, 3× a close call); it never
   quotes a boiling point, because the booklet prints none. The drawn links are

@@ -41,3 +41,13 @@ test('test_forces_boiling_point_comparisons', () => {
   assert.deepEqual(winner('H2O', 'HF'), { w: null, close: true });
   assert.deepEqual(winner('SiH4', 'PH3'), { w: null, close: true });
 });
+
+test('test_forces_molecules_with_more_than_one_central_atom', () => {
+  // Isomers: the same electrons, so the kind of force decides.
+  assert.deepEqual(winner('CH3CH2OH', 'CH3OCH3'), { w: 'CH3CH2OH', close: false });
+  assert.deepEqual(F.forcesOf('CH3OCH3').forces.map((f) => f.id), ['london', 'dipole', 'nohbond']);
+  assert.deepEqual(F.forcesOf('CH3CH2CH2CH3').forces.map((f) => f.id), ['london', 'nodipole', 'nohbond']);
+  assert.equal(F.forcesOf('CH3CH2OH').electrons, 26);
+  assert.equal(winner('CH3CH2CH3', 'CH3CH2CH2CH3').w, 'CH3CH2CH2CH3');
+  assert.equal(winner('CH3OH', 'CH3CH3').w, 'CH3OH');
+});

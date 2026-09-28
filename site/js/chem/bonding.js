@@ -8,19 +8,23 @@
 // capacities must add up to the central atom's. Molecules that need a
 // coordinate bond or an expanded octet (CO, SO2, PCl5) are refused.
 //
+// Molecules with more than one central atom (CH3CH2OH, CH3CN) are read as a
+// condensed structural formula by structure.js; each central atom gets its
+// own shape, and polarity is the sum of every bond dipole on the stretched-out
+// (zigzag) shape. A molecular formula (C2H6O) is drawn only when it has one
+// structure; otherwise its isomers are listed.
+//
 // Bonds: ΔEN = 0 nonpolar covalent, 0 < ΔEN < 1.7 polar covalent,
 // ΔEN ≥ 1.7 ionic (owner's choice). The bond dipole points to the more
 // electronegative atom (δ−).
 import { elements } from './elements-data.js';
-import { lewis } from './periodic.js';
 import { parseFormula, isMetal } from './naming.js';
+import { capacity, lonePairs, MAX_HEAVY, parseCondensed, isomers, canonical, condensed, mainChain, geometry, molecularFormula, branchKey, atomText } from './structure.js';
 
 export const IONIC_CUTOFF = 1.7;
 
 export const enOf = (sym) => elements[sym].en;
 
-const capacity = (sym) => lewis(elements[sym].Z)?.single ?? 0;
-const lonePairs = (sym) => lewis(elements[sym].Z)?.pairs ?? 0;
 
 // ΔEN rounded to the booklet's 1 d.p., so 3.4 − 2.2 is 1.2 and not 1.1999….
 export function deltaEN(a, b) {
@@ -45,12 +49,14 @@ const SHAPES = {
   '2-0': { name: 'linear', angle: '180°', bonds: [[-1, 0, 0], [1, 0, 0]], lone: [] },
   '3-0': { name: 'trigonal planar', angle: '120°', bonds: [[0, 1, 0], [h, -0.5, 0], [-h, -0.5, 0]], lone: [] },
   '4-0': { name: 'tetrahedral', angle: '109.5°', bonds: T, lone: [] },
+  '2-1': { name: 'V-shaped (bent)', angle: 'about 120°', bonds: [[-h, -0.5, 0], [h, -0.5, 0]], lone: [[0, 1, 0]] },
   '3-1': { name: 'trigonal pyramidal', angle: 'about 107°', bonds: T.slice(1), lone: [T[0]] },
   // Bent in the page, lone pairs above it, out of the page and into it.
   '2-2': { name: 'V-shaped (bent)', angle: 'about 105°', bonds: [[-Math.sin(b), -Math.cos(b), 0], [Math.sin(b), -Math.cos(b), 0]], lone: [[0, 0.6, 0.8], [0, 0.6, -0.8]] },
 };
 
-// { central, terminals: [{ sym, order, lone }], centralLone, shape, bonds, polar, net, steps } or { error }.
+// { central, terminals: [{ sym, order, lone }], centralLone, shape, bonds, polar, net, steps, atoms }
+// for one central atom; { chain: true, … } (see analyseChain) for more; or { error, isomers? }.
 export function analyse(input) {
   const f = parseFormula(input);
   if (f.error) return f;
@@ -66,6 +72,15 @@ export function analyse(input) {
   const inert = atoms.find((s) => capacity(s) === 0);
   if (inert) return { error: `${elements[inert].name[0].toUpperCase()}${elements[inert].name.slice(1)} has a bonding capacity of 0 (no unpaired electrons in its Lewis symbol), so it forms no bonds in Chemistry 20.` };
 
+  const heavy = atoms.filter((s) => capacity(s) >= 2);
+  if (atoms.length > 2 && heavy.length >= 2) {
+    const one = analyseOne(f, atoms);
+    return one.error ? analyseChain(f, atoms) : one;
+  }
+  return analyseOne(f, atoms);
+}
+
+function analyseOne(f, atoms) {
   const steps = [];
   const cap = (s) => `${s} ${capacity(s)}`;
   const distinct = [...new Set(atoms)];
@@ -136,6 +151,7 @@ export function analyse(input) {
 
   return {
     formula: f.body,
+    atoms,
     central,
     centralLone,
     terminals: term,
@@ -146,5 +162,112 @@ export function analyse(input) {
     polar,
     reason,
     steps,
+  };
+}
+
+const bondName = (order) => ['', 'single', 'double', 'triple'][order];
+
+// A molecule with two or more central atoms. { chain: true, formula,
+// molecular, structure, path, atoms, centres: [{ v, label, bonded, lone, shape }],
+// bonds: [{ a, b, i, j, order, dEN, type, toward, dir }], net, polar, reason,
+// steps, isomers: [{ formula, current }] }.
+function analyseChain(f, atoms) {
+  const heavy = atoms.filter((s) => capacity(s) >= 2);
+  const terms = atoms.filter((s) => capacity(s) === 1);
+  if (heavy.length > MAX_HEAVY) return { error: `This sim draws up to ${MAX_HEAVY} atoms other than H and the halogens.` };
+  const all = isomers(heavy, terms);
+  const list = (mol) => all.map((m) => ({ formula: condensed(m), current: !!mol && canonical(m) === canonical(mol) }));
+  // analyseOne only fails here on choosing a central atom, so its message no longer applies
+  const noStructure = `No structure joins these atoms using every atom's bonding capacity: it would need a coordinate bond or an expanded octet (or a ring), which is beyond Chemistry 20.`;
+  const steps = [];
+  const distinct = [...new Set(atoms)];
+  steps.push(`Bonding capacity (unpaired electrons in each Lewis symbol): ${distinct.map((s) => `${s} ${capacity(s)}`).join(', ')}.`);
+
+  let mol;
+  const read = parseCondensed(f.tokens);
+  if (read.molecular) {
+    if (!all.length) return { error: noStructure };
+    if (all.length > 1) {
+      const names = all.map((m) => condensed(m));
+      return { error: `${f.body} is a molecular formula with ${all.length} possible structures (isomers). Type one as a condensed formula, such as ${names.slice(0, 2).join(' or ')}, or pick one from the list.`, isomers: list(null) };
+    }
+    mol = all[0];
+    steps.push(`${f.body} has only one structure that uses every atom's bonding capacity: ${condensed(mol)}.`);
+  } else if (read.error) {
+    return { error: `Reading ${f.body} left to right, ${read.error}.${all.length ? ' Try one of the structures in the list.' : ''}`, isomers: list(null) };
+  } else {
+    mol = read.mol;
+    steps.push(`Read the condensed formula left to right: each C, N, O… bonds to the atom before it, H and halogens bond to the atom they follow, and a bracketed group is a branch.${read.pendants ? ' An O with no H that cannot sit in the chain is a C=O on the atom before it.' : ''}`);
+  }
+
+  const path = mainChain(mol);
+  const dirs = geometry(mol, path);
+  const bonds = [];
+  mol.atoms.forEach((atom, v) => {
+    for (const { to, dir } of dirs[v]) {
+      if (to === 'L' || (typeof to === 'number' && to < v)) continue;
+      const other = typeof to === 'number' ? mol.atoms[to].sym : atom.terms[+to.slice(1)];
+      const order = typeof to === 'number' ? mol.edges.find((e) => (e.i === v && e.j === to) || (e.j === v && e.i === to)).order : 1;
+      const dEN = deltaEN(atom.sym, other);
+      const toward = dEN === 0 ? null : elements[other].en > elements[atom.sym].en ? other : atom.sym;
+      bonds.push({ a: atom.sym, b: other, i: v, j: to, order, dEN, type: bondType(dEN), toward, dir });
+    }
+  });
+
+  const multiple = mol.edges.filter((e) => e.order > 1).map((e) => `${mol.atoms[e.i].sym}${e.order === 2 ? '=' : '≡'}${mol.atoms[e.j].sym} ${bondName(e.order)}`);
+  steps.push(`Each atom's capacity left after its H and halogens is shared with its neighbours, working in from the ends: ${multiple.length ? `${[...new Set(multiple)].join(', ')}; every other bond is single` : 'every bond is single'}.`);
+  const withLone = distinct.filter((s) => lonePairs(s) > 0);
+  if (withLone.length) steps.push(`Lone pairs stay where the Lewis symbols had them: ${withLone.map((s) => `${s} ${lonePairs(s)}`).join(', ')}.`);
+
+  const centres = [];
+  mol.atoms.forEach((atom, v) => {
+    const bonded = dirs[v].filter((d) => d.to !== 'L').length;
+    if (bonded < 2) return;
+    const lone = lonePairs(atom.sym);
+    centres.push({ v, label: atomText(atom), bonded, lone, shape: SHAPES[`${bonded}-${lone}`] });
+  });
+  const seen = new Set();
+  steps.push(`Around each central atom, bonded atoms + lone pairs = electron groups (a double or triple bond is one group): ${centres
+    .map((c) => `${c.label} ${c.bonded} + ${c.lone} = ${c.bonded + c.lone} → ${c.shape.name}`)
+    .filter((t) => !seen.has(t) && seen.add(t))
+    .join('; ')}.`);
+
+  const net = [0, 0, 0];
+  for (const bd of bonds) {
+    if (!bd.toward) continue;
+    const s = bd.toward === bd.b ? 1 : -1;
+    bd.dir.forEach((x, k) => (net[k] += s * bd.dEN * x));
+  }
+  const size = Math.hypot(...net);
+  const polar = size > 1e-6;
+  const hydrocarbon = atoms.every((s) => s === 'C' || s === 'H');
+  let reason;
+  if (bonds.every((bd) => bd.dEN === 0)) reason = 'every bond is nonpolar (ΔEN = 0), so there are no dipoles to add';
+  else if (hydrocarbon) reason = 'a hydrocarbon: the C–H bond dipoles cancel around every carbon, so they cancel in the whole molecule';
+  else if (polar) reason = `the polar bonds (${[...new Set(bonds.filter((bd) => bd.toward && !(/^[CH]$/.test(bd.a) && /^[CH]$/.test(bd.b))).map((bd) => [bd.a, bd.b].sort((x, y) => (x === 'C' ? -1 : y === 'C' ? 1 : x < y ? -1 : 1)).join('–')))].join(', ')}) are not arranged symmetrically, so their dipoles do not cancel`;
+  else reason = 'the bond dipoles cancel on the stretched-out (zigzag) shape';
+  // A C=C with two different groups on each carbon has cis and trans forms.
+  const cisTrans = mol.edges.some((e) => {
+    if (e.order !== 2 || mol.atoms[e.i].sym !== 'C' || mol.atoms[e.j].sym !== 'C') return false;
+    const sides = (v, w) => dirs[v].filter((d) => d.to !== w && d.to !== 'L').map((d) => (typeof d.to === 'number' ? branchKey(mol, d.to, v) : mol.atoms[v].terms[+d.to.slice(1)]));
+    return [sides(e.i, e.j), sides(e.j, e.i)].every((g) => g.length === 2 && g[0] !== g[1]);
+  });
+  if (cisTrans && !hydrocarbon) reason += '. This C=C has cis and trans forms, which this sim does not tell apart, and their polarity can differ';
+  steps.push(`Polarity: add the ΔEN bond dipoles on the stretched-out (zigzag) shape → ${polar ? 'polar' : 'nonpolar'}.`);
+
+  return {
+    chain: true,
+    formula: read.molecular ? condensed(mol) : f.body,
+    molecular: molecularFormula(mol),
+    structure: mol,
+    path,
+    atoms,
+    centres,
+    bonds,
+    net: polar ? net.map((x) => x / size) : null,
+    polar,
+    reason,
+    steps,
+    isomers: list(mol),
   };
 }
