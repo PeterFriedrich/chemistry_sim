@@ -1,13 +1,16 @@
 import * as P from '../chem/periodic.js';
 import { fitCanvas, theme, clear, text, roundRect } from '../lib/canvas.js';
-import { section, choice, toggle, readouts } from '../lib/controls.js';
+import { section, choice, toggle, readouts, el } from '../lib/controls.js';
 import { createClock } from '../lib/clock.js';
+import { superscript } from '../lib/format.js';
 
 export const equations = [
   { html: 'period = number of occupied energy levels', what: 'the row: period 3 atoms have electrons in levels 1, 2 and 3' },
   { html: 'valence electrons = group number (groups 1–2)', what: 'the column, for the main groups' },
   { html: 'valence electrons = group − 10 (groups 13–18)', what: 'helium is the exception: group 18, but 2 valence electrons' },
   { html: 'total electrons = protons = atomic number Z', what: 'for a neutral atom' },
+  { html: 'electrons in an ion = Z − charge', what: 'Mg²⁺: 12 − 2 = 10; Cl⁻: 17 − (−1) = 18' },
+  { html: 'nonmetal ion charge = −(8 − valence electrons)', what: 'groups 15–17: the booklet prints no charge for these' },
 ];
 
 export const prompts = [
@@ -16,6 +19,8 @@ export const prompts = [
   'Oxygen and sulfur are both in group 16. Predict their valence electrons and Lewis symbols, then check.',
   'Helium is in group 18 but has only 2 valence electrons. Why is it placed with the noble gases?',
   'An element has 3 energy levels and 5 valence electrons. Find it on the table before tapping it.',
+  'Turn on "Show the ion" and step across period 3 from Na to Cl, skipping Si. Which noble gas does each ion match?',
+  'Iron has two charges in the booklet. How many electrons does Fe³⁺ have, and how many does Fe²⁺ have?',
   'Turn on "valence electrons on the table". Which columns share a count, and why does the middle of the table show none?',
 ];
 
@@ -41,7 +46,7 @@ function layout(w, h) {
   const y0 = area.y + 0.6 * s;
   const cells = P.byZ.map(({ Z }) => {
     const { period, group, frow } = P.position(Z);
-    const col = group === null ? frow + 2 : group - 1;
+    const col = group === null ? frow + 3 : group - 1;
     const row = group === null ? period + 1.4 : period - 1;
     return { Z, x: x0 + col * s, y: y0 + row * s, s };
   });
@@ -60,6 +65,21 @@ export function mount(ui) {
   });
   const showValence = toggle(box, { label: 'Valence electrons on the table' });
 
+  const ionBox = section(ui.controls, 'Ion');
+  const showIon = toggle(ionBox, { label: 'Show the ion' });
+  const chargeRow = el('div', { class: 'ctl ctl-choice' }, ionBox);
+  el('label', { for: 'ion-charge', text: 'Charge' }, chargeRow);
+  const chargeSel = el('select', { id: 'ion-charge' }, chargeRow);
+  let listedFor = null;
+  const listCharges = (Z) => {
+    const list = P.ionCharges(Z);
+    chargeSel.replaceChildren(...(list.length
+      ? list.map(({ charge, from }) => el('option', { value: charge, text: `${chargeText(charge, true)}${from === 'group' ? ' (from the group)' : ''}` }))
+      : [el('option', { value: '', text: 'none' })]));
+    chargeSel.disabled = !list.length;
+    listedFor = Z;
+  };
+
   const out = readouts(ui.readouts, [
     { id: 'el', label: 'Element' },
     { id: 'z', label: 'Atomic number' },
@@ -69,6 +89,8 @@ export function mount(ui) {
     { id: 'tot', label: 'Total electrons' },
     { id: 'shells', label: 'Electrons per energy level' },
     { id: 'lewis', label: 'Lewis symbol' },
+    { id: 'ion', label: 'Ion' },
+    { id: 'ione', label: 'Electrons in the ion' },
   ]);
 
   const canvas = fitCanvas(ui.canvas);
@@ -94,22 +116,46 @@ export function mount(ui) {
     const e = P.element(Z);
     const pos = P.position(Z);
     const val = P.valence(Z);
-    const sh = P.shells(Z);
-    const lw = P.lewis(Z);
     const fam = P.family(Z);
+    if (listedFor !== Z) listCharges(Z);
+    const charge = showIon.value && chargeSel.value !== '' ? Number(chargeSel.value) : null;
+    const io = charge === null ? null : P.ion(Z, charge);
+    const sh = io ? io.shells : P.shells(Z);
+    const lw = io ? P.ionLewis(Z, charge) : P.lewis(Z);
+    const shown = io ? `${e.symbol}${chargeText(charge)}` : e.symbol;
 
     out.set('el', `${e.name}, ${e.symbol}`);
     out.set('z', `Z = ${Z}`);
     out.set('period', `${pos.period}: electrons occupy ${pos.period} energy level${pos.period > 1 ? 's' : ''}`);
     out.set('group', pos.group === null
-      ? `none: ${pos.period === 6 ? 'lanthanum–lutetium' : 'actinium–lawrencium'} row below the table`
+      ? `none: ${pos.period === 6 ? 'cerium–lutetium' : 'thorium–lawrencium'} row below the table (period ${pos.period})`
       : `${pos.group}${fam ? ` (${fam})` : ''}`);
     out.set('val', val.n === null ? `— (${val.rule})` : `${val.n}: ${val.rule}`);
     out.set('tot', `${P.totalElectrons(Z)}: a neutral atom has as many electrons as protons (Z)`);
-    out.set('shells', sh ? sh.join(', ') : `— (drawn for Z ≤ ${P.SHELL_LIMIT_Z} only)`);
+    out.set('shells', sh ? sh.join(', ') || 'none' : `— (drawn for Z ≤ ${P.SHELL_LIMIT_Z} only)`);
+    const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
     out.set('lewis', lw
-      ? `${lw.pairs} lone pair${lw.pairs === 1 ? '' : 's'}, ${lw.single} bonding electron${lw.single === 1 ? '' : 's'}`
-      : '— (main groups only)');
+      ? io
+        ? `[${e.symbol}]${chargeText(charge)}: ${lw.pairs ? plural(lw.pairs, 'lone pair') : 'no valence electrons left'}`
+        : `${plural(lw.pairs, 'lone pair')}, ${plural(lw.single, 'bonding electron')}`
+      : io && P.isMainGroup(Z) ? '— (this ion has no noble-gas electron count)' : '— (main groups only)');
+    if (!showIon.value) {
+      out.set('ion', '— (turn on "Show the ion")');
+      out.set('ione', '—');
+    } else if (!io) {
+      out.set('ion', `— (${P.noIonReason(Z)})`);
+      out.set('ione', '—');
+    } else {
+      const how = io.lost ? `loses ${plural(io.lost, 'electron')}` : `gains ${plural(io.gained, 'electron')}`;
+      const from = P.ionCharges(Z).find((c) => c.charge === charge).from === 'booklet'
+        ? 'the booklet’s ion charge'
+        : `group ${pos.group}: 8 − ${val.n} = ${io.gained}; the booklet prints —`;
+      out.set('ion', `${shown}: ${how} (${from})`);
+      const sum = charge > 0 ? `${Z} − ${charge}` : `${Z} + ${-charge}`;
+      out.set('ione', io.electrons === 0
+        ? `${sum} = 0: a bare proton`
+        : `${sum} = ${io.electrons}${io.noble ? `, the same as ${io.noble}` : ''}`);
+    }
 
     clear(ctx, w, h);
     const L = layout(w, h);
@@ -133,17 +179,18 @@ export function mount(ui) {
     for (let p = 1; p <= 7; p++) {
       text(ctx, String(p), L.x0 - s * 0.35, L.y0 + (p - 0.5) * s, { color: p === pos.period ? th.accent : th.muted, size: lab, align: 'center', weight: p === pos.period ? 700 : 500 });
     }
-    // where the two f rows belong
-    for (const p of [6, 7]) {
-      const x = L.x0 + 2 * s;
-      const y = L.y0 + (p - 1) * s;
-      ctx.save();
-      ctx.strokeStyle = th.muted;
-      ctx.setLineDash([2, 2]);
-      ctx.strokeRect(x + 1.5, y + 1.5, s - 3, s - 3);
-      ctx.restore();
-      text(ctx, '↓', x + s / 2, y + s / 2, { color: th.muted, size: lab, align: 'center' });
-    }
+    // The booklet's "lanthanide and actinide series begin" mark: after La and Ac.
+    ctx.save();
+    ctx.strokeStyle = th.ink;
+    ctx.lineWidth = Math.max(2, s * 0.1);
+    ctx.beginPath();
+    ctx.moveTo(L.x0 + 3 * s, L.y0 + 5 * s);
+    ctx.lineTo(L.x0 + 3 * s, L.y0 + 7 * s);
+    ctx.stroke();
+    ctx.restore();
+    const fy = L.y0 + 7.4 * s;
+    text(ctx, '58–71 →', L.x0 + 2.9 * s, fy + s / 2, { color: th.muted, size: lab, align: 'right' });
+    text(ctx, '90–103 →', L.x0 + 2.9 * s, fy + 1.5 * s, { color: th.muted, size: lab, align: 'right' });
 
     const symSize = s * 0.4;
     const small = s * 0.24;
@@ -208,7 +255,8 @@ export function mount(ui) {
           const a = -Math.PI / 2 + (2 * Math.PI * k) / n;
           ctx.beginPath();
           ctx.arc(bcx + r * Math.cos(a), bcy + r * Math.sin(a), Math.max(2.5, step * 0.14), 0, Math.PI * 2);
-          ctx.fillStyle = outer && val.n !== null ? th.electron : th.muted;
+          // A cation's outer level is a former inner one; only atoms and anions show valence electrons.
+          ctx.fillStyle = outer && val.n !== null && !(charge > 0) ? th.electron : th.muted;
           ctx.fill();
         }
       });
@@ -218,10 +266,27 @@ export function mount(ui) {
     const lcx = lew.x + lew.w / 2;
     const lcy = lew.y + 18 + (lew.h - 18) / 2;
     if (!lw) {
-      text(ctx, 'main groups only', lcx, lcy, { color: th.muted, size: 12, align: 'center' });
+      text(ctx, P.isMainGroup(Z) ? 'no noble-gas count' : 'main groups only', lcx, lcy, { color: th.muted, size: 12, align: 'center' });
     } else {
       const fs = Math.max(22, Math.min(56, Math.min(lew.w, lew.h) * 0.3));
       text(ctx, e.symbol, lcx, lcy, { color: th.ink, size: fs, align: 'center', weight: 650 });
+      if (io) {
+        const bx = fs * 0.62 + e.symbol.length * fs * 0.12 + fs * 0.25;
+        const by = fs * 0.85;
+        ctx.save();
+        ctx.strokeStyle = th.ink;
+        ctx.lineWidth = Math.max(1.5, fs * 0.04);
+        for (const sgn of [-1, 1]) {
+          ctx.beginPath();
+          ctx.moveTo(lcx + sgn * (bx - fs * 0.12), lcy - by);
+          ctx.lineTo(lcx + sgn * bx, lcy - by);
+          ctx.lineTo(lcx + sgn * bx, lcy + by);
+          ctx.lineTo(lcx + sgn * (bx - fs * 0.12), lcy + by);
+          ctx.stroke();
+        }
+        ctx.restore();
+        text(ctx, `${Math.abs(charge) === 1 ? '' : Math.abs(charge)}${charge > 0 ? '+' : '−'}`, lcx + bx + 4, lcy - by + fs * 0.1, { color: th.ink, size: fs * 0.45, weight: 650 });
+      }
       // One dot per side first (top, right, bottom, left), then pairs.
       const sides = [0, 0, 0, 0];
       for (let k = 0; k < lw.single + lw.pairs; k++) sides[k] = k < lw.pairs ? 2 : 1;
@@ -242,4 +307,13 @@ export function mount(ui) {
       });
     }
   }
+}
+
+// 2 → ²⁺, −1 → ⁻ (a charge of 1 is written without the digit on a formula),
+// or with `plain`, 2+ and 1− as the booklet prints them.
+function chargeText(charge, plain = false) {
+  const n = Math.abs(charge);
+  const sign = charge > 0 ? '+' : '−';
+  if (plain) return `${n}${sign}`;
+  return `${n === 1 ? '' : superscript(n)}${charge > 0 ? '⁺' : '⁻'}`;
 }

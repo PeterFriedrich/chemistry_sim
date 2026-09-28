@@ -37,10 +37,13 @@ test('test_periodic_hydrogen_helium_and_unassigned_blocks', () => {
   assert.equal(P.valence(Z('Fe')).n, null);
   assert.equal(P.lewis(Z('Fe')), null);
 
-  // La–Lu and Ac–Lr are the two separate rows; the table resumes at Hf / Rf in group 4.
-  assert.deepEqual(P.position(57), { period: 6, group: null, block: 'f', frow: 0 });
-  assert.deepEqual(P.position(71), { period: 6, group: null, block: 'f', frow: 14 });
-  assert.deepEqual(P.position(103), { period: 7, group: null, block: 'f', frow: 14 });
+  // La and Ac are in group 3; Ce–Lu and Th–Lr are the two separate rows, as on
+  // the booklet's fold-out; the table resumes at Hf / Rf in group 4.
+  assert.deepEqual(P.position(57), { period: 6, group: 3, block: 'd', frow: null });
+  assert.deepEqual(P.position(89), { period: 7, group: 3, block: 'd', frow: null });
+  assert.deepEqual(P.position(58), { period: 6, group: null, block: 'f', frow: 0 });
+  assert.deepEqual(P.position(71), { period: 6, group: null, block: 'f', frow: 13 });
+  assert.deepEqual(P.position(103), { period: 7, group: null, block: 'f', frow: 13 });
   assert.equal(P.position(72).group, 4);
   assert.equal(P.position(111).group, 11);
 });
@@ -64,4 +67,60 @@ test('test_periodic_every_element_places_consistently', () => {
     const l = P.lewis(e.Z);
     if (l) assert.equal(2 * l.pairs + l.single, P.valence(e.Z).n, e.symbol);
   });
+});
+
+test('test_periodic_ion_charges_booklet_and_group_rule', () => {
+  const ch = (sym) => P.ionCharges(Z(sym)).map((c) => `${c.charge}:${c.from}`);
+  // The booklet's column, in its printed order.
+  assert.deepEqual(ch('Na'), ['1:booklet']);
+  assert.deepEqual(ch('Fe'), ['3:booklet', '2:booklet']);
+  assert.deepEqual(ch('Pb'), ['2:booklet', '4:booklet']);
+  assert.deepEqual(ch('H'), ['1:booklet', '-1:booklet']);
+  // The booklet prints "—" for these; the charge is −(8 − valence electrons).
+  assert.deepEqual(ch('N'), ['-3:group']);
+  assert.deepEqual(ch('O'), ['-2:group']);
+  assert.deepEqual(ch('Cl'), ['-1:group']);
+  assert.deepEqual(ch('At'), ['-1:group']);
+  for (const sym of ['He', 'Ne', 'Ar', 'B', 'C', 'Si']) assert.deepEqual(ch(sym), [], sym);
+  assert.match(P.noIonReason(Z('Ne')), /noble gas/);
+});
+
+test('test_periodic_ion_electrons_and_noble_gas_count', () => {
+  // Mg → Mg²⁺: 12 − 2 = 10 electrons, 2, 8, like neon; Lewis symbol with no dots.
+  const mg = P.ion(Z('Mg'), 2);
+  assert.deepEqual(mg, { electrons: 10, lost: 2, gained: 0, noble: 'neon', shells: [2, 8] });
+  assert.deepEqual(P.ionLewis(Z('Mg'), 2), { pairs: 0, single: 0 });
+  // Cl → Cl⁻: 17 + 1 = 18 electrons, 2, 8, 8, like argon; 4 pairs.
+  const cl = P.ion(Z('Cl'), -1);
+  assert.deepEqual(cl, { electrons: 18, lost: 0, gained: 1, noble: 'argon', shells: [2, 8, 8] });
+  assert.deepEqual(P.ionLewis(Z('Cl'), -1), { pairs: 4, single: 0 });
+  assert.deepEqual(P.ion(Z('N'), -3).shells, [2, 8]);
+  // H⁻ is like helium; H⁺ has no electrons at all.
+  assert.equal(P.ion(1, -1).noble, 'helium');
+  assert.deepEqual(P.ionLewis(1, -1), { pairs: 1, single: 0 });
+  assert.equal(P.ion(1, 1).electrons, 0);
+  // Pb²⁺ (80 electrons) has no noble-gas count and no Lewis symbol; Fe³⁺ is not main group.
+  assert.equal(P.ion(Z('Pb'), 2).noble, null);
+  assert.equal(P.ionLewis(Z('Pb'), 2), null);
+  assert.equal(P.ion(Z('Fe'), 3).electrons, 23);
+  assert.equal(P.ionLewis(Z('Fe'), 3), null);
+  // Every main-group ion the table offers for Z ≤ 20 has a noble-gas count.
+  for (const e of P.byZ.slice(0, 20)) {
+    for (const { charge } of P.ionCharges(e.Z)) {
+      if (e.Z === 1 && charge === 1) continue;
+      assert.ok(P.ion(e.Z, charge).noble, `${e.symbol} ${charge}`);
+    }
+  }
+});
+
+test('test_periodic_ion_charges_match_data_sheet', async () => {
+  // The code's `ions` and the DATA_SHEET §1.8 column are one transcription, kept in step.
+  const { readFileSync } = await import('node:fs');
+  const md = readFileSync(new URL('../docs/DATA_SHEET.md', import.meta.url), 'utf8');
+  const rows = [...md.matchAll(/^\| (\d+) \| (\w+) \| [a-z]+ \| [\d.()*]+ \| (.+) \|$/gm)];
+  assert.equal(rows.length, 111);
+  for (const [, z, sym, col] of rows) {
+    const printed = col === '—' ? [] : col.split(', ').map((c) => (c.endsWith('+') ? 1 : -1) * parseInt(c, 10));
+    assert.deepEqual(P.element(Number(z)).ions ?? [], printed, sym);
+  }
 });

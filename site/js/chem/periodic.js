@@ -3,9 +3,10 @@
 // atomic number Z (from the booklet's periodic table, `elements-data.js`);
 // the booklet prints no electron arrangements.
 //
-// Groups are numbered 1–18, as on the booklet's fold-out. Lanthanum–lutetium
-// and actinium–lawrencium sit in the two separate rows below the table, as the
-// booklet prints them, and have no group number.
+// Groups are numbered 1–18, as on the booklet's fold-out. Lanthanum and
+// actinium are in group 3; cerium–lutetium and thorium–lawrencium sit in the two
+// separate rows below the table, as the booklet prints them, and have no group
+// number.
 //
 // Valence electrons are given for the main groups only (1, 2, 13–18): the
 // transition and f-block elements are not assigned a count in Chemistry 20.
@@ -30,8 +31,8 @@ export function position(Z) {
   if (period === 1) group = Z === 1 ? 1 : 18;
   else if (period <= 3) group = i < 2 ? i + 1 : i + 11;
   else if (period <= 5) group = i + 1;
-  else if (i < 2) group = i + 1;
-  else if (i <= 16) return { period, group: null, block: 'f', frow: i - 2 };
+  else if (i < 3) group = i + 1;
+  else if (i <= 16) return { period, group: null, block: 'f', frow: i - 3 };
   else group = i - 13;
   const block = group <= 2 || Z === 2 ? 's' : group >= 13 ? 'p' : 'd';
   return { period, group, block, frow: null };
@@ -87,4 +88,51 @@ export function lewis(Z) {
   if (n === null) return null;
   if (Z === 2) return { pairs: 1, single: 0 };
   return n <= 4 ? { pairs: 0, single: n } : { pairs: n - 4, single: 8 - n };
+}
+
+// Ion charges a student would give, each { charge, from }. Metals and hydrogen
+// take the booklet's "most stable ion charges" in its printed order. The
+// booklet prints none for the nonmetals of groups 15–17; they gain electrons
+// up to the next noble gas, charge = −(8 − valence electrons).
+export function ionCharges(Z) {
+  const e = element(Z);
+  if (e.ions) return e.ions.map((charge) => ({ charge, from: 'booklet' }));
+  const { group } = position(Z);
+  if (group >= 15 && group <= 17) return [{ charge: -(18 - group), from: 'group' }];
+  return [];
+}
+
+// Why an element has no ion charge to offer.
+export function noIonReason(Z) {
+  const { group } = position(Z);
+  if (group === 18) return 'noble gas: its valence level is already full, so it does not form ions';
+  if (isMainGroup(Z)) return 'the booklet prints no ion charge: it does not usually form a simple ion';
+  return 'the booklet prints no ion charge';
+}
+
+const NOBLE = { 2: 'helium', 10: 'neon', 18: 'argon', 36: 'krypton', 54: 'xenon', 86: 'radon' };
+
+// The ion of element Z with this charge: its electrons, how many were lost or
+// gained, and the noble gas with the same number of electrons, if any.
+export function ion(Z, charge) {
+  const electrons = Z - charge;
+  return {
+    electrons,
+    lost: Math.max(0, charge),
+    gained: Math.max(0, -charge),
+    noble: NOBLE[electrons] ?? null,
+    shells: Z > SHELL_LIMIT_Z ? null : shells(electrons),
+  };
+}
+
+// Lewis symbol of a main-group ion with a noble-gas count: a cation that lost
+// all its valence electrons shows none, an anion shows 4 pairs (H⁻, 1 pair).
+// null when the ion has no noble-gas count (Pb²⁺, Sn²⁺) or is not main group.
+export function ionLewis(Z, charge) {
+  if (!isMainGroup(Z)) return null;
+  const { electrons, noble } = ion(Z, charge);
+  if (electrons === 0) return { pairs: 0, single: 0 }; // H⁺, a bare proton
+  if (!noble) return null;
+  if (charge > 0) return { pairs: 0, single: 0 };
+  return { pairs: electrons === 2 ? 1 : 4, single: 0 };
 }

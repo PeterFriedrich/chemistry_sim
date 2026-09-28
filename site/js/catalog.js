@@ -33,8 +33,16 @@ export const sims = [
     course: 'c20',
     unit: 'A',
     title: 'The Periodic Table: Period, Group and Electrons',
-    summary: 'Tap an element on the booklet’s periodic table. Read its period and group, then its valence electrons (group number, or group − 10) and total electrons (Z), drawn as an energy-level diagram and a Lewis symbol.',
-    concepts: ['period = energy levels', 'valence electrons from the group', 'electrons = protons = Z', 'Lewis symbols'],
+    summary: 'Tap an element on the booklet’s periodic table. Read its period and group, then its valence electrons (group number, or group − 10) and total electrons (Z), drawn as an energy-level diagram and a Lewis symbol. Turn on the ion: the booklet’s charge (or 8 − valence for a nonmetal), electrons = Z − charge, and the noble gas it matches.',
+    concepts: ['period = energy levels', 'valence electrons from the group', 'electrons = protons = Z', 'Lewis symbols', 'ion charges'],
+  },
+  {
+    id: 'naming',
+    course: 'c20',
+    unit: 'A',
+    title: 'Names and Formulas',
+    summary: 'Type a formula or a name and get the other, step by step: ionic compounds with the booklet’s ion charges and polyatomic ions (Roman numerals, brackets, hydrates), molecular compounds with prefixes, acids by their IUPAC and classical names, elements, and common names.',
+    concepts: ['ionic charge balance', 'Roman numerals', 'polyatomic ions', 'prefixes', 'acid names'],
   },
   {
     id: 'calorimetry',

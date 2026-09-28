@@ -44,8 +44,8 @@ V in **L**; c (amount concentration) in mol/L; [ ] = amount concentration.
 
 | Page | Table | Transcribed? |
 |---|---|---|
-| inside cover | Common polyatomic ions | not yet |
-| fold-out | Periodic table: atomic molar mass (g/mol, 2 d.p.), electronegativity, most stable ion charges, state at 101.325 kPa and 298.15 K | molar masses only — **§1.8** |
+| PDF p. 2, above the periodic table | Common polyatomic ions | **yes — §1.12** |
+| fold-out | Periodic table: atomic molar mass (g/mol, 2 d.p.), electronegativity, most stable ion charges, state at 101.325 kPa and 298.15 K | molar masses and ion charges — **§1.8** |
 | 4–5 | Standard molar enthalpies of formation at 298.15 K (kJ/mol) | **yes — §1.6** |
 | 6 | Solubility of some common ionic compounds in water at 298.15 K; flame colours | not yet |
 | 7 | Selected standard electrode potentials (1.0 mol/L, 298.15 K, 101.325 kPa) | **yes — §1.7** |
@@ -254,126 +254,136 @@ the mass number of the most stable isotope. Lead is printed as 207.2 with the
 booklet's note that its isotopic mix prevents more precision. Code:
 `site/js/chem/elements-data.js`.
 
-Layout (used by `periodic`, read 2026-09-27 from the PDF's text): groups are
-numbered 1–18 and periods 1–7. Lanthanum–lutetium (57–71) and
-actinium–lawrencium (89–103) are the two separate rows below the table,
-lanthanum and actinium first in their rows; the table itself runs to
-roentgenium (111). Electronegativities, ion charges and states
-are **not** transcribed yet.
+Layout (used by `periodic`, read 2026-09-27 from the PDF rendered as an
+image): groups are numbered 1–18 and periods 1–7. Lanthanum (57) and actinium
+(89) sit in group 3; the two separate rows below the table are cerium–lutetium
+(58–71) and thorium–lawrencium (90–103), marked "lanthanide and actinide series
+begin" after La and Ac. The table itself runs to roentgenium (111).
 
-| Z | Symbol | Name | M (g/mol) |
-|---|---|---|---|
-| 1 | H | hydrogen | 1.01 |
-| 2 | He | helium | 4.00 |
-| 3 | Li | lithium | 6.94 |
-| 4 | Be | beryllium | 9.01 |
-| 5 | B | boron | 10.81 |
-| 6 | C | carbon | 12.01 |
-| 7 | N | nitrogen | 14.01 |
-| 8 | O | oxygen | 16.00 |
-| 9 | F | fluorine | 19.00 |
-| 10 | Ne | neon | 20.18 |
-| 11 | Na | sodium | 22.99 |
-| 12 | Mg | magnesium | 24.31 |
-| 13 | Al | aluminium | 26.98 |
-| 14 | Si | silicon | 28.09 |
-| 15 | P | phosphorus | 30.97 |
-| 16 | S | sulfur | 32.07 |
-| 17 | Cl | chlorine | 35.45 |
-| 18 | Ar | argon | 39.95 |
-| 19 | K | potassium | 39.10 |
-| 20 | Ca | calcium | 40.08 |
-| 21 | Sc | scandium | 44.96 |
-| 22 | Ti | titanium | 47.87 |
-| 23 | V | vanadium | 50.94 |
-| 24 | Cr | chromium | 52.00 |
-| 25 | Mn | manganese | 54.94 |
-| 26 | Fe | iron | 55.85 |
-| 27 | Co | cobalt | 58.93 |
-| 28 | Ni | nickel | 58.69 |
-| 29 | Cu | copper | 63.55 |
-| 30 | Zn | zinc | 65.41 |
-| 31 | Ga | gallium | 69.72 |
-| 32 | Ge | germanium | 72.64 |
-| 33 | As | arsenic | 74.92 |
-| 34 | Se | selenium | 78.96 |
-| 35 | Br | bromine | 79.90 |
-| 36 | Kr | krypton | 83.80 |
-| 37 | Rb | rubidium | 85.47 |
-| 38 | Sr | strontium | 87.62 |
-| 39 | Y | yttrium | 88.91 |
-| 40 | Zr | zirconium | 91.22 |
-| 41 | Nb | niobium | 92.91 |
-| 42 | Mo | molybdenum | 95.94 |
-| 43 | Tc | technetium | (98) |
-| 44 | Ru | ruthenium | 101.07 |
-| 45 | Rh | rhodium | 102.91 |
-| 46 | Pd | palladium | 106.42 |
-| 47 | Ag | silver | 107.87 |
-| 48 | Cd | cadmium | 112.41 |
-| 49 | In | indium | 114.82 |
-| 50 | Sn | tin | 118.71 |
-| 51 | Sb | antimony | 121.76 |
-| 52 | Te | tellurium | 127.60 |
-| 53 | I | iodine | 126.90 |
-| 54 | Xe | xenon | 131.29 |
-| 55 | Cs | cesium | 132.91 |
-| 56 | Ba | barium | 137.33 |
-| 57 | La | lanthanum | 138.91 |
-| 58 | Ce | cerium | 140.12 |
-| 59 | Pr | praseodymium | 140.91 |
-| 60 | Nd | neodymium | 144.24 |
-| 61 | Pm | promethium | (145) |
-| 62 | Sm | samarium | 150.36 |
-| 63 | Eu | europium | 151.96 |
-| 64 | Gd | gadolinium | 157.25 |
-| 65 | Tb | terbium | 158.93 |
-| 66 | Dy | dysprosium | 162.50 |
-| 67 | Ho | holmium | 164.93 |
-| 68 | Er | erbium | 167.26 |
-| 69 | Tm | thulium | 168.93 |
-| 70 | Yb | ytterbium | 173.04 |
-| 71 | Lu | lutetium | 174.97 |
-| 72 | Hf | hafnium | 178.49 |
-| 73 | Ta | tantalum | 180.95 |
-| 74 | W | tungsten | 183.84 |
-| 75 | Re | rhenium | 186.21 |
-| 76 | Os | osmium | 190.23 |
-| 77 | Ir | iridium | 192.22 |
-| 78 | Pt | platinum | 195.08 |
-| 79 | Au | gold | 196.97 |
-| 80 | Hg | mercury | 200.59 |
-| 81 | Tl | thallium | 204.38 |
-| 82 | Pb | lead | 207.2 |
-| 83 | Bi | bismuth | 208.98 |
-| 84 | Po | polonium | (209) |
-| 85 | At | astatine | (210) |
-| 86 | Rn | radon | (222) |
-| 87 | Fr | francium | (223) |
-| 88 | Ra | radium | (226) |
-| 89 | Ac | actinium | (227) |
-| 90 | Th | thorium | 232.04 |
-| 91 | Pa | protactinium | 231.04 |
-| 92 | U | uranium | 238.03 |
-| 93 | Np | neptunium | (237) |
-| 94 | Pu | plutonium | (244) |
-| 95 | Am | americium | (243) |
-| 96 | Cm | curium | (247) |
-| 97 | Bk | berkelium | (247) |
-| 98 | Cf | californium | (251) |
-| 99 | Es | einsteinium | (252) |
-| 100 | Fm | fermium | (257) |
-| 101 | Md | mendelevium | (258) |
-| 102 | No | nobelium | (259) |
-| 103 | Lr | lawrencium | (262) |
-| 104 | Rf | rutherfordium | (261) |
-| 105 | Db | dubnium | (262) |
-| 106 | Sg | seaborgium | (266) |
-| 107 | Bh | bohrium | (264) |
-| 108 | Hs | hassium | (277) |
-| 109 | Mt | meitnerium | (268) |
-| 110 | Ds | darmstadtium | (271) |
-| 111 | Rg | roentgenium | (272) |
+**Most stable ion charges** (the "Ion charges" column below; code: `ions` in
+`elements-data.js`), read from the rendered image, because text extraction
+garbled Li, Pt, Pb, Bi, Ac and Rf. Listed in the booklet's printed order; the
+sims default to the first one listed, as students are taught to. The booklet prints **no charge** ("—", or a blank cell) for B, C, Si, the
+nonmetals of groups 15–17 (N, O, F, P, S, Cl, As, Se, Br, Te, I, At), the noble
+gases, and Db–Rg. Only hydrogen has a negative charge printed (1+, 1−). The
+charges a student gives for N³⁻, O²⁻, Cl⁻ and similar come from the group
+(8 − valence electrons), not from the booklet.
+
+Electronegativities and states are **not** transcribed yet.
+
+| Z | Symbol | Name | M (g/mol) | Ion charges |
+|---|---|---|---|---|
+| 1 | H | hydrogen | 1.01 | 1+, 1− |
+| 2 | He | helium | 4.00 | — |
+| 3 | Li | lithium | 6.94 | 1+ |
+| 4 | Be | beryllium | 9.01 | 2+ |
+| 5 | B | boron | 10.81 | — |
+| 6 | C | carbon | 12.01 | — |
+| 7 | N | nitrogen | 14.01 | — |
+| 8 | O | oxygen | 16.00 | — |
+| 9 | F | fluorine | 19.00 | — |
+| 10 | Ne | neon | 20.18 | — |
+| 11 | Na | sodium | 22.99 | 1+ |
+| 12 | Mg | magnesium | 24.31 | 2+ |
+| 13 | Al | aluminium | 26.98 | 3+ |
+| 14 | Si | silicon | 28.09 | — |
+| 15 | P | phosphorus | 30.97 | — |
+| 16 | S | sulfur | 32.07 | — |
+| 17 | Cl | chlorine | 35.45 | — |
+| 18 | Ar | argon | 39.95 | — |
+| 19 | K | potassium | 39.10 | 1+ |
+| 20 | Ca | calcium | 40.08 | 2+ |
+| 21 | Sc | scandium | 44.96 | 3+ |
+| 22 | Ti | titanium | 47.87 | 4+, 3+ |
+| 23 | V | vanadium | 50.94 | 5+, 4+ |
+| 24 | Cr | chromium | 52.00 | 3+, 2+ |
+| 25 | Mn | manganese | 54.94 | 2+, 4+ |
+| 26 | Fe | iron | 55.85 | 3+, 2+ |
+| 27 | Co | cobalt | 58.93 | 2+, 3+ |
+| 28 | Ni | nickel | 58.69 | 2+, 3+ |
+| 29 | Cu | copper | 63.55 | 2+, 1+ |
+| 30 | Zn | zinc | 65.41 | 2+ |
+| 31 | Ga | gallium | 69.72 | 3+ |
+| 32 | Ge | germanium | 72.64 | 4+ |
+| 33 | As | arsenic | 74.92 | — |
+| 34 | Se | selenium | 78.96 | — |
+| 35 | Br | bromine | 79.90 | — |
+| 36 | Kr | krypton | 83.80 | — |
+| 37 | Rb | rubidium | 85.47 | 1+ |
+| 38 | Sr | strontium | 87.62 | 2+ |
+| 39 | Y | yttrium | 88.91 | 3+ |
+| 40 | Zr | zirconium | 91.22 | 4+ |
+| 41 | Nb | niobium | 92.91 | 5+, 3+ |
+| 42 | Mo | molybdenum | 95.94 | 6+ |
+| 43 | Tc | technetium | (98) | 7+ |
+| 44 | Ru | ruthenium | 101.07 | 3+ |
+| 45 | Rh | rhodium | 102.91 | 3+ |
+| 46 | Pd | palladium | 106.42 | 2+, 3+ |
+| 47 | Ag | silver | 107.87 | 1+ |
+| 48 | Cd | cadmium | 112.41 | 2+ |
+| 49 | In | indium | 114.82 | 3+ |
+| 50 | Sn | tin | 118.71 | 4+, 2+ |
+| 51 | Sb | antimony | 121.76 | 3+, 5+ |
+| 52 | Te | tellurium | 127.60 | — |
+| 53 | I | iodine | 126.90 | — |
+| 54 | Xe | xenon | 131.29 | — |
+| 55 | Cs | cesium | 132.91 | 1+ |
+| 56 | Ba | barium | 137.33 | 2+ |
+| 57 | La | lanthanum | 138.91 | 3+ |
+| 58 | Ce | cerium | 140.12 | 3+ |
+| 59 | Pr | praseodymium | 140.91 | 3+ |
+| 60 | Nd | neodymium | 144.24 | 3+ |
+| 61 | Pm | promethium | (145) | 3+ |
+| 62 | Sm | samarium | 150.36 | 3+, 2+ |
+| 63 | Eu | europium | 151.96 | 3+, 2+ |
+| 64 | Gd | gadolinium | 157.25 | 3+ |
+| 65 | Tb | terbium | 158.93 | 3+ |
+| 66 | Dy | dysprosium | 162.50 | 3+ |
+| 67 | Ho | holmium | 164.93 | 3+ |
+| 68 | Er | erbium | 167.26 | 3+ |
+| 69 | Tm | thulium | 168.93 | 3+ |
+| 70 | Yb | ytterbium | 173.04 | 3+, 2+ |
+| 71 | Lu | lutetium | 174.97 | 3+ |
+| 72 | Hf | hafnium | 178.49 | 4+ |
+| 73 | Ta | tantalum | 180.95 | 5+ |
+| 74 | W | tungsten | 183.84 | 6+ |
+| 75 | Re | rhenium | 186.21 | 7+ |
+| 76 | Os | osmium | 190.23 | 4+ |
+| 77 | Ir | iridium | 192.22 | 4+ |
+| 78 | Pt | platinum | 195.08 | 4+, 2+ |
+| 79 | Au | gold | 196.97 | 3+, 1+ |
+| 80 | Hg | mercury | 200.59 | 2+, 1+ |
+| 81 | Tl | thallium | 204.38 | 1+, 3+ |
+| 82 | Pb | lead | 207.2 | 2+, 4+ |
+| 83 | Bi | bismuth | 208.98 | 3+, 5+ |
+| 84 | Po | polonium | (209) | 2+, 4+ |
+| 85 | At | astatine | (210) | — |
+| 86 | Rn | radon | (222) | — |
+| 87 | Fr | francium | (223) | 1+ |
+| 88 | Ra | radium | (226) | 2+ |
+| 89 | Ac | actinium | (227) | 3+ |
+| 90 | Th | thorium | 232.04 | 4+ |
+| 91 | Pa | protactinium | 231.04 | 5+, 4+ |
+| 92 | U | uranium | 238.03 | 6+, 4+ |
+| 93 | Np | neptunium | (237) | 5+ |
+| 94 | Pu | plutonium | (244) | 4+, 6+ |
+| 95 | Am | americium | (243) | 3+, 4+ |
+| 96 | Cm | curium | (247) | 3+ |
+| 97 | Bk | berkelium | (247) | 3+, 4+ |
+| 98 | Cf | californium | (251) | 3+ |
+| 99 | Es | einsteinium | (252) | 3+ |
+| 100 | Fm | fermium | (257) | 3+ |
+| 101 | Md | mendelevium | (258) | 2+, 3+ |
+| 102 | No | nobelium | (259) | 2+, 3+ |
+| 103 | Lr | lawrencium | (262) | 3+ |
+| 104 | Rf | rutherfordium | (261) | 4+ |
+| 105 | Db | dubnium | (262) | — |
+| 106 | Sg | seaborgium | (266) | — |
+| 107 | Bh | bohrium | (264) | — |
+| 108 | Hs | hassium | (277) | — |
+| 109 | Mt | meitnerium | (268) | — |
+| 110 | Ds | darmstadtium | (271) | — |
+| 111 | Rg | roentgenium | (272) | — |
 
 ### 1.9 Relative strengths of acids and bases at 298.15 K (pp. 8–9)
 
@@ -467,6 +477,51 @@ Code: `site/js/chem/ion-colour-data.js`.
 | manganese(II), Mn²⁺ | pale pink | colourless |
 | nickel(II), Ni²⁺ | blue-green | pale blue-green |
 | permanganate, MnO₄⁻ | deep purple | purple-pink |
+
+### 1.12 Table of Common Polyatomic Ions (PDF p. 2)
+
+Transcribed 2026-09-27 from the PDF rendered as an image, in the booklet's
+order (three columns, read down). 34 ions; ammonium is the only cation. Code:
+`site/js/chem/polyatomic-data.js`. The booklet gives hypochlorite two ways; the
+sims write OCl⁻ and accept ClO⁻. Ions students may know by analogy but the
+booklet does not list (bromate, iodite and so on) are not included.
+
+| Name | Formula |
+|---|---|
+| acetate (ethanoate) | CH₃COO⁻ |
+| ammonium | NH₄⁺ |
+| benzoate | C₆H₅COO⁻ |
+| borate | BO₃³⁻ |
+| carbide | C₂²⁻ |
+| carbonate | CO₃²⁻ |
+| hydrogen carbonate | HCO₃⁻ |
+| perchlorate | ClO₄⁻ |
+| chlorate | ClO₃⁻ |
+| chlorite | ClO₂⁻ |
+| hypochlorite | OCl⁻ or ClO⁻ |
+| chromate | CrO₄²⁻ |
+| dichromate | Cr₂O₇²⁻ |
+| cyanide | CN⁻ |
+| hydroxide | OH⁻ |
+| iodate | IO₃⁻ |
+| nitrate | NO₃⁻ |
+| nitrite | NO₂⁻ |
+| oxalate | OOCCOO²⁻ |
+| hydrogen oxalate | HOOCCOO⁻ |
+| permanganate | MnO₄⁻ |
+| peroxide | O₂²⁻ |
+| persulfide | S₂²⁻ |
+| phosphate | PO₄³⁻ |
+| hydrogen phosphate | HPO₄²⁻ |
+| dihydrogen phosphate | H₂PO₄⁻ |
+| silicate | SiO₃²⁻ |
+| sulfate | SO₄²⁻ |
+| hydrogen sulfate | HSO₄⁻ |
+| sulfite | SO₃²⁻ |
+| hydrogen sulfite | HSO₃⁻ |
+| hydrogen sulfide | HS⁻ |
+| thiocyanate | SCN⁻ |
+| thiosulfate | S₂O₃²⁻ |
 
 ## 2. Chemistry 20: values not in the booklet
 
