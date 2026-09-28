@@ -488,6 +488,10 @@ order (three columns, read down). 34 ions; ammonium is the only cation. Code:
 `site/js/chem/polyatomic-data.js`. The booklet gives hypochlorite two ways; the
 sims write OCl⁻ and accept ClO⁻. Ions students may know by analogy but the
 booklet does not list (bromate, iodite and so on) are not included.
+The PDF's text layer types the four chlorine oxyanions as "CIO" (capital i),
+which renders the same as ClO in the booklet's font. The formulas below are ClO,
+chlorine. Don't re-transcribe them from extracted text (audit 2026-09-28,
+docs/FINDINGS_unitA_data.md).
 
 | Name | Formula |
 |---|---|

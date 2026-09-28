@@ -40,6 +40,10 @@ symptom before acting on it.
 - [ ] Transcribe the booklet's solubility table (p. 6) and derive `spontaneity`'s precipitate list from it (Ag₂SO₄ is unchecked today).
 - [ ] `balancing` tidy-ups: catalog summary; per-mode legend; per-atom change computed in `chem/`; peroxo-anions, NH₄⁺ in base, and the "disproportionation" wording for Fe + Fe³⁺.
 
+### From the 2026-09-28 Unit A data audit (docs/FINDINGS_unitA_data.md)
+
+- [ ] Extend the DATA_SHEET guards: compare §1.8's mass column with `M`/`isotope` (today only spot-checked), and §1.12's "or ClO⁻" with `alt`. Build Pb's expected value from `M`, not a literal (the audit's own script missed a seeded Pb error that way). Optionally print Pb as `207.2*` in §1.8.
+
 ### Tidy-ups from the setup
 
 - [ ] **`fmt()` hides significant figures in round numbers ≥ 10<sup>sig</sup>**: `fmt(1000, 3)` prints "1000", not "1.00 × 10³" (toPrecision's e-notation is converted back on purpose). Changing it alters readouts in every sim (e.g. calorimetry's joules), so propose first. `lechatelier`'s chromate preset was chosen to avoid it. It already shows at `electrolysis` defaults ("1800 s", "1800 C") and in `hess` at n = 1 mol (propane "−2220 kJ"); full list in docs/FINDINGS_readouts.md.
