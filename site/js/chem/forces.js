@@ -37,7 +37,7 @@ export function forcesOf(input) {
   } else {
     mol = analyse(input);
     if (mol.error) return mol;
-    atoms = [mol.central, ...mol.terminals.map((t) => t.sym)];
+    atoms = mol.atoms;
     polar = mol.polar;
     hbond = mol.bonds.some((b) => (b.b === 'H' && DONORS.includes(b.a)) || (b.a === 'H' && DONORS.includes(b.b)));
   }
