@@ -28,7 +28,7 @@ Phase 1 covers every unit of both courses with at least one simulation.
 | Chemistry 20 | A Diversity of Matter and Chemical Bonding | Names ↔ formulas: ionic, molecular, acids, elements (`naming`, **approved and built 2026-09-27**: DECISIONS row) | ion charges; polyatomic ion table (§1.12) |
 | Chemistry 20 | A Diversity of Matter and Chemical Bonding | Intermolecular forces and boiling-point predictions (`forces`, **approved and built 2026-09-28**: DECISIONS row) | electronegativity (via `bonding`) |
 | Chemistry 20 | A Diversity of Matter and Chemical Bonding | Lewis structure, VSEPR shape, ΔEN bond type and molecular polarity (`bonding`, **approved and built 2026-09-28**: DECISIONS row; v2 adds molecules with more than one central atom and structural isomers, same day) | periodic table (electronegativity, §1.8) |
-| Chemistry 20 | B Forms of Matter: Gases | Gas laws in a piston: P, V, T, n (`gaslaws`) | **R and molar volumes are not in the booklet** (DATA_SHEET.md §1.5) — blocked on the owner's source |
+| Chemistry 20 | B Forms of Matter: Gases | Gas laws in a piston: P, V, T, n (`gaslaws`) | R, STP and SATP from the 2003 booklet (DATA_SHEET.md §2); molar volumes derived as RT/P |
 | Chemistry 20 | C Matter as Solutions, Acids, and Bases | Dilution and concentration, c₁V₁ = c₂V₂ (`dilution`); pH and [H₃O⁺] of strong acids and bases (`ph`) | K<sub>w</sub> |
 | Chemistry 20 | D Quantitative Relationships in Chemical Changes | Stoichiometry and limiting reagent, with a particle view (`stoichiometry`) | periodic table (molar masses) |
 | Chemistry 30 | A Thermochemical Changes | Simple calorimetry (`calorimetry`, **built — seed sim**); Hess's law / enthalpy diagram from Δ<sub>f</sub>H° (`hess`) | specific heats; Δ<sub>f</sub>H° table |

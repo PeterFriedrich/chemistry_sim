@@ -22,3 +22,13 @@ test('test_water_density_is_the_textbook_assumption', () => {
   // Not in the Data Booklet; 1 mL of water is taken as 1.00 g (docs/DECISIONS.md).
   assert.equal(C.WATER_DENSITY, 1.0);
 });
+
+test('test_gas_constants_match_2003_booklet', () => {
+  // Not in the current booklet; from the 2003 booklet, p. 3 (docs/DATA_SHEET.md §2).
+  assert.equal(C.R, 8.314);
+  assert.deepEqual(C.STP, { T: 273.15, P: 101.325 });
+  assert.deepEqual(C.SATP, { T: 298.15, P: 100.0 });
+  // Molar volumes are derived, V = RT/P, and must give the textbook values.
+  assert.equal(((C.R * C.STP.T) / C.STP.P).toFixed(1), '22.4');
+  assert.equal(((C.R * C.SATP.T) / C.SATP.P).toFixed(1), '24.8');
+});

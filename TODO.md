@@ -13,7 +13,6 @@ symptom before acting on it.
 ### Needs the owner
 
 - [ ] **Approve or edit the Chemistry 20 rows of the phase 1 sim list** (SPEC_phase1.md §3). The Chemistry 30 rows were approved 2026-09-25 (DECISIONS row). Record the Chemistry 20 approval as another DECISIONS row.
-- [ ] **Supply the Chemistry 20 gas values** (R, STP/SATP definitions and molar volumes) and their source — the Data Booklet prints none of them (DATA_SHEET.md §1.5). Blocks `gaslaws`.
 
 ### Before tutoring with it
 
@@ -22,7 +21,7 @@ symptom before acting on it.
 
 ### Phase 1 simulations (one per bullet; propose each first — CLAUDE.md)
 
-- [ ] Chemistry 20 B: `gaslaws` — blocked on the gas values above.
+- [ ] Chemistry 20 B: `gaslaws` — gas values are in (DATA_SHEET.md §2, `R`/`STP`/`SATP` in `constants.js`); propose first.
 - [ ] Chemistry 20 C: `dilution` and `ph`.
 - [ ] Chemistry 20 D: `stoichiometry` — limiting reagent. Molar masses are in (DATA_SHEET.md §1.8, `molarMass()` in `chem/electrolysis.js`).
 - [ ] Chemistry 30 C: `organic` beyond phase 1 — rings and benzene, carboxylic acids, esters, diols, branched substituents (isopropyl), cis/trans; and organic reactions (addition, substitution, elimination, esterification, polymerization). Propose first.
@@ -52,6 +51,8 @@ symptom before acting on it.
 ## Done
 
 Closed items moved out of `## Open work` live in **`docs/TODO_archive.md`** — one line each below, reasoning there.
+
+- [x] **Supply the Chemistry 20 gas values** — CLOSED 2026-10-02 · `docs/TODO_archive.md`
 
 - [x] **Chemistry 20 A: `bonding` v2 — molecules with more than one central atom (CH₃CH₂OH, CH₃CN) and structural isomers — built 2026-09-28 (DECISIONS row).** — BUILT 2026-09-28 · `docs/TODO_archive.md`
 - [x] **Chemistry 20 A: intermolecular forces (London, dipole–dipole, hydrogen bonding) and boiling-point trends — built 2026-09-28 as `forces` (DECISIONS row** — BUILT 2026-09-28 · `docs/TODO_archive.md`
