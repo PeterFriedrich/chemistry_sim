@@ -26,6 +26,8 @@ test('test_water_density_is_the_textbook_assumption', () => {
 test('test_gas_constants_match_2003_booklet', () => {
   // Not in the current booklet; from the 2003 booklet, p. 3 (docs/DATA_SHEET.md §2).
   assert.equal(C.R, 8.314);
+  assert.equal(C.ATM, 101.325);
+  assert.equal(C.AIR_MOLAR_MASS, 29.18);
   assert.deepEqual(C.STP, { T: 273.15, P: 101.325 });
   assert.deepEqual(C.SATP, { T: 298.15, P: 100.0 });
   // Molar volumes are derived, V = RT/P, and must give the textbook values.

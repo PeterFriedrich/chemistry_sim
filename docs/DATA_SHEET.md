@@ -533,7 +533,7 @@ Source (owner, 2026-10-02): the **2003 Chemistry 30 Data Booklet** ("revised
 https://www.mathpro.ca/wp-content/uploads/2022/09/chem30_databooklet.pdf
 (md5 `f9a9b3b481019a09682fc4879a7639df`, 275 262 bytes; third-party copy, Crown
 copyright, not committed). Read from the text layer and the rendered page; the
-two agree. Code: `R`, `STP`, `SATP` in `constants.js`.
+two agree. Code: `R`, `ATM`, `STP`, `SATP`, `AIR_MOLAR_MASS` in `constants.js`.
 
 | Quantity | Value |
 |---|---|
@@ -542,8 +542,8 @@ two agree. Code: `R`, `STP`, `SATP` in `constants.js`.
 | STP | 273.15 K and 101.325 kPa (1 atm) |
 | SATP | 298.15 K and 100.000 kPa |
 
-Also on that page, not used yet: N<sub>A</sub> = 6.02 × 10²³ particles/mol;
-m<sub>air</sub> = 29.18 g for 1.00 mol of dry air; c<sub>wood</sub> 1.26,
+Also on that page: m<sub>air</sub> = 29.18 g for 1.00 mol of dry air (used by
+`gaslaws`). Not used yet: N<sub>A</sub> = 6.02 × 10²³ particles/mol; c<sub>wood</sub> 1.26,
 c<sub>glass</sub> 0.84, c<sub>Styrofoam</sub> 0.30 J/(g·°C). Its K<sub>w</sub>
 (1.00 × 10⁻¹⁴) and F match §1.1 except for K<sub>w</sub>'s extra sig fig;
 §1.1 (the current booklet) wins wherever both print a value.

@@ -283,3 +283,12 @@ could mislead.
   thresholds of its own (1.35× "similar" electrons, 3× a close call); it never
   quotes a boiling point, because the booklet prints none. The drawn links are
   a picture of which forces act, not of their strength.
+- **Gases** (`chem/gases.js`): ideal gases only; a real gas's condensation is a
+  caption, not an animation, because neither booklet prints a threshold.
+  Typed values carry the sig figs they are written with, trailing zeros
+  included; °C → K follows the addition rule (27 °C → 300 K, 3 sig figs), and
+  a kelvin answer goes back to °C the same way (358 K → 85 °C). STP and SATP
+  are definitions and never limit an answer. The particles are decoration:
+  speed ∝ √T, spacing follows V, and wall hits are drawn, but no readout reads
+  them. The lab mode ignores the water vapour in the collected gas, as the
+  review questions do.

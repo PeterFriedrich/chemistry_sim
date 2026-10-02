@@ -24,5 +24,7 @@ export const WATER_DENSITY = 1.0; // g/mL
 // Not printed in the current booklet: the gas constant and standard conditions
 // from the 2003 booklet, p. 3 (DATA_SHEET.md §2, DECISIONS). T in K, P in kPa.
 export const R = 8.314; // (L·kPa)/(K·mol)
-export const STP = { T: 273.15, P: 101.325 };
+export const ATM = 101.325; // kPa in 1 atm, from the booklet's STP line
+export const STP = { T: 273.15, P: ATM };
 export const SATP = { T: 298.15, P: 100.0 };
+export const AIR_MOLAR_MASS = 29.18; // g/mol, "mass of 1.00 mol of dry air"

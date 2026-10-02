@@ -16,14 +16,13 @@ symptom before acting on it.
 
 ### Before tutoring with it
 
-- [ ] **Owner walkthrough of every sim against hand calculations.** SPEC_phase1.md §5 criterion 5: default settings for each sim, compute the readouts by hand with the booklet, confirm they match. Done when each sim has a ✓ (or a bug filed) here. `calorimetry`: ☐ `hess`: ☐ `voltaic`: ☐ `electrolysis`: ☐ `titration`: ☐ `lechatelier`: ☐ `organic`: ☐ `bronsted`: ☐ `fuel`: ☐ `activation`: ☐ `spontaneity`: ☐ `balancing`: ☐ `periodic`: ☐ `naming`: ☐ `bonding`: ☐ `forces`: ☐
+- [ ] **Owner walkthrough of every sim against hand calculations.** SPEC_phase1.md §5 criterion 5: default settings for each sim, compute the readouts by hand with the booklet, confirm they match. Done when each sim has a ✓ (or a bug filed) here. `calorimetry`: ☐ `hess`: ☐ `voltaic`: ☐ `electrolysis`: ☐ `titration`: ☐ `lechatelier`: ☐ `organic`: ☐ `bronsted`: ☐ `fuel`: ☐ `activation`: ☐ `spontaneity`: ☐ `balancing`: ☐ `periodic`: ☐ `naming`: ☐ `bonding`: ☐ `forces`: ☐ `gaslaws`: ☐
 - [ ] **Map sims to program-of-studies outcomes.** Units are matched by title only; check specific outcome codes against the Alberta Education programs of study before showing them on a page.
 
 ### Phase 1 simulations (one per bullet; propose each first — CLAUDE.md)
 
-- [ ] Chemistry 20 B: `gaslaws` — proposed in docs/SPEC_chem20.md §1; owner to approve and answer (a)–(d). Gas values are in (DATA_SHEET.md §2).
 - [ ] Chemistry 20 C: `dilution` and `ph`.
-- [ ] Chemistry 20 D: `stoichiometry` — limiting reagent. Molar masses are in (DATA_SHEET.md §1.8, `molarMass()` in `chem/electrolysis.js`).
+- [ ] Chemistry 20 D: `stoichiometry` — limiting reagent, plus a gas-volume mode for combining volumes (Avogadro: volume ratio = mole ratio at the same T and P; review package pp. 2–4, owner 2026-10-02). Molar masses are in (DATA_SHEET.md §1.8, `molarMass()` in `chem/electrolysis.js`).
 - [ ] Chemistry 30 C: `organic` beyond phase 1 — rings and benzene, carboxylic acids, esters, diols, branched substituents (isopropyl), cis/trans; and organic reactions (addition, substitution, elimination, esterification, polymerization). Propose first.
 - [ ] Chemistry 30 B: `spontaneity` "build the table from observations" mode — pick 3–4 metals and their ion solutions, a grid of which pairs react, then rank the OAs (SPEC_phase2.md §4 (e), deferred 2026-09-27). Offer to the owner; reuses `predict()`.
 - [ ] Chemistry 30 D: polyprotic titrations (CO₃²⁻ with HCl, H₃PO₄ with NaOH: two or more equivalence points) — deferred from `titration` by the owner, 2026-09-25. Propose first.
@@ -51,6 +50,8 @@ symptom before acting on it.
 ## Done
 
 Closed items moved out of `## Open work` live in **`docs/TODO_archive.md`** — one line each below, reasoning there.
+
+- [x] **Chemistry 20 B: `gaslaws` — built 2026-10-02 (SPEC_chem20.md §1, DECISIONS row): gas laws, PV = nRT and molar volume, lab analysis; KMT as particles a** — BUILT 2026-10-02 · `docs/TODO_archive.md`
 
 - [x] **Supply the Chemistry 20 gas values** — CLOSED 2026-10-02 · `docs/TODO_archive.md`
 
