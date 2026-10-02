@@ -21,7 +21,7 @@ symptom before acting on it.
 
 ### Phase 1 simulations (one per bullet; propose each first — CLAUDE.md)
 
-- [ ] Chemistry 20 B: `gaslaws` — gas values are in (DATA_SHEET.md §2, `R`/`STP`/`SATP` in `constants.js`); propose first.
+- [ ] Chemistry 20 B: `gaslaws` — proposed in docs/SPEC_chem20.md §1; owner to approve and answer (a)–(d). Gas values are in (DATA_SHEET.md §2).
 - [ ] Chemistry 20 C: `dilution` and `ph`.
 - [ ] Chemistry 20 D: `stoichiometry` — limiting reagent. Molar masses are in (DATA_SHEET.md §1.8, `molarMass()` in `chem/electrolysis.js`).
 - [ ] Chemistry 30 C: `organic` beyond phase 1 — rings and benzene, carboxylic acids, esters, diols, branched substituents (isopropyl), cis/trans; and organic reactions (addition, substitution, elimination, esterification, polymerization). Propose first.
