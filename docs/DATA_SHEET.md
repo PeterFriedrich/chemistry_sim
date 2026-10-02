@@ -71,13 +71,9 @@ V in **L**; c (amount concentration) in mol/L; [ ] = amount concentration.
   the value the question gives.
 - **No density of water.** `calorimetry`'s one-object mode takes water in mL at
   the textbook 1.00 g/mL (`WATER_DENSITY` in `constants.js`, DECISIONS row).
-- **No gas constant R, no molar volume at STP or SATP, no STP/SATP
-  definitions, no Avogadro constant.** Chemistry 20 Unit B (gases) needs these.
-  Before a gas sim is built, the owner supplies the values their Chemistry 20
-  resource uses (commonly R = 8.314 kPa·L/(mol·K); STP 0 °C and 101.325 kPa,
-  22.4 L/mol; SATP 25 °C and 100 kPa, 24.8 L/mol — **unconfirmed**, listed only
-  so the question is concrete). Record them in §2 with their source and add a
-  DECISIONS row, as physics_sim did for its Physics 20 sheet.
+- **No gas constant R, no STP/SATP definitions, no Avogadro constant, no
+  molar volumes.** Chemistry 20 Unit B (gases) takes R, STP and SATP from the
+  2003 booklet instead (§2, DECISIONS row).
 - No equations: unlike the physics sheets, the booklet prints no formulas
   (Q = mcΔt, ΔH = nΔ<sub>r</sub>H, pH = −log[H₃O⁺], n = It/F …). Sims print them
   under "Key equations" in the form the course uses.
@@ -532,5 +528,30 @@ docs/FINDINGS_unitA_data.md).
 
 ## 2. Chemistry 20: values not in the booklet
 
-Empty until the owner supplies a source (§1.5). Nothing in `constants.js` may
-come from this section until it has one.
+Source (owner, 2026-10-02): the **2003 Chemistry 30 Data Booklet** ("revised
+2003", Alberta Learning, 16 pages), p. 3 "Miscellaneous", fetched 2026-10-02 from
+https://www.mathpro.ca/wp-content/uploads/2022/09/chem30_databooklet.pdf
+(md5 `f9a9b3b481019a09682fc4879a7639df`, 275 262 bytes; third-party copy, Crown
+copyright, not committed). Read from the text layer and the rendered page; the
+two agree. Code: `R`, `STP`, `SATP` in `constants.js`.
+
+| Quantity | Value |
+|---|---|
+| Gas constant R | 8.314 (L·kPa)/(K·mol), or 8.314 J/(K·mol) |
+| Ideal gas law | PV = nRT |
+| STP | 273.15 K and 101.325 kPa (1 atm) |
+| SATP | 298.15 K and 100.000 kPa |
+
+Also on that page, not used yet: N<sub>A</sub> = 6.02 × 10²³ particles/mol;
+m<sub>air</sub> = 29.18 g for 1.00 mol of dry air; c<sub>wood</sub> 1.26,
+c<sub>glass</sub> 0.84, c<sub>Styrofoam</sub> 0.30 J/(g·°C). Its K<sub>w</sub>
+(1.00 × 10⁻¹⁴) and F match §1.1 except for K<sub>w</sub>'s extra sig fig;
+§1.1 (the current booklet) wins wherever both print a value.
+
+**Molar volumes are not printed in either booklet.** They are derived as
+V = RT/P (owner, 2026-10-02): 22.4 L/mol at STP and 24.8 L/mol at SATP, which
+are also the textbook values.
+
+The 2003 booklet also prints melting and boiling points and ΔH<sub>fusion</sub>,
+ΔH<sub>vaporization</sub> (pp. 4–5), which the current booklet does not (§1.5).
+Not transcribed; transcribe them the first time a sim needs them.

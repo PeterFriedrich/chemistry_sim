@@ -8,6 +8,8 @@ Items are verbatim as they were closed, newest-moved first in the order they app
 
 ---
 
+- [x] **Supply the Chemistry 20 gas values** (R, STP/SATP definitions and molar volumes) and their source — the Data Booklet prints none of them (DATA_SHEET.md §1.5). Blocks `gaslaws`. Closed 2026-10-02: the owner supplied the 2003 Chemistry 30 Data Booklet; R, STP and SATP recorded in DATA_SHEET.md §2 and `constants.js`, molar volumes derived as RT/P (DECISIONS row).
+
 - [x] Chemistry 20 A: intermolecular forces (London, dipole–dipole, hydrogen bonding) and boiling-point trends — built 2026-09-28 as `forces` (DECISIONS row).
 
 - [x] Chemistry 20 A: `bonding` — electronegativity difference, bond type and polarity. Built 2026-09-28 with Lewis structures and VSEPR shapes (DECISIONS row).

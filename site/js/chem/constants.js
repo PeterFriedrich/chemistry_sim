@@ -20,3 +20,9 @@ export const KELVIN_OFFSET = 273.15; // "25.00 °C is equivalent to 298.15 K"
 // Not printed in the booklet: the textbook assumption that 1 mL of water has a
 // mass of 1.00 g, used to turn "48 mL of water" into m for Q = mcΔt (DECISIONS).
 export const WATER_DENSITY = 1.0; // g/mL
+
+// Not printed in the current booklet: the gas constant and standard conditions
+// from the 2003 booklet, p. 3 (DATA_SHEET.md §2, DECISIONS). T in K, P in kPa.
+export const R = 8.314; // (L·kPa)/(K·mol)
+export const STP = { T: 273.15, P: 101.325 };
+export const SATP = { T: 298.15, P: 100.0 };
