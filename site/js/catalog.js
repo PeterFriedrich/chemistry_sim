@@ -61,6 +61,14 @@ export const sims = [
     concepts: ['ionic charge balance', 'Roman numerals', 'polyatomic ions', 'prefixes', 'acid names'],
   },
   {
+    id: 'gaslaws',
+    course: 'c20',
+    unit: 'B',
+    title: 'Gas Laws, PV = nRT and Kinetic Molecular Theory',
+    summary: 'One sample of gas goes from state 1 to state 2 by Boyle’s, Charles’s, Gay-Lussac’s or the combined gas law, with the particles and a graph showing why. Or solve PV = nRT and molar-volume questions at STP and SATP, or analyse a gas collected over water for an experimental molar mass or R.',
+    concepts: ['P₁V₁/T₁ = P₂V₂/T₂', 'kelvin temperatures', 'PV = nRT', 'molar volume at STP and SATP', 'kinetic molecular theory'],
+  },
+  {
     id: 'calorimetry',
     course: 'c30',
     unit: 'A',

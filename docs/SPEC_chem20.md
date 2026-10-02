@@ -1,13 +1,20 @@
 # Chemistry 20 proposals
 
 Each proposal is one sim, built on its own branch, and has to meet every
-criterion in SPEC_phase1.md §4–§5. **Nothing here is approved.** The owner
+criterion in SPEC_phase1.md §4–§5. The owner
 approves, edits or drops each proposal and answers its open questions; each
 approval becomes a DECISIONS row, and so does each answered question.
 
 ---
 
-## 1. `gaslaws`: gas laws, the ideal gas law and kinetic molecular theory (Unit B) — PROPOSED 2026-10-02
+## 1. `gaslaws`: gas laws, the ideal gas law and kinetic molecular theory (Unit B) — APPROVED and built 2026-10-02
+
+Approved by the owner ("do the proposal. keep lab data. addition rule fine.
+combining volumes, into stoich i guess? captions only"): (a) all three modes;
+(b) the addition rule for temperatures; (c) combining volumes moves to
+`stoichiometry`; (d) real vs ideal gases as captions only. As built, a kelvin
+answer goes back to °C by the same rule, so Q10 shows 358 K = 85 °C and Q18
+shows 269 K = −4 °C (with V taken as 1.000 L for the density).
 
 Scoped against the owner's *Gases Review Package* (10 pages, uploaded
 2026-10-02; not committed): gas laws, combining volumes, kinetic molecular
@@ -93,7 +100,7 @@ masses):
 | 12 P of CO₂ | 40 MPa | 40 MPa | ✓ |
 | 13 moles in a mixture | 1.20 mol total | 0.24 + 0.72 + 0.24 | ✓ |
 | 14–17 molar volume | 53.3 L, 2.31 mmol, 7.26 L, 3.23 kg | same | ✓ |
-| 18 T from density | 269 K → 270 K, **−3.7 °C** | 270 K, −3.48 °C | key disagrees in the °C |
+| 18 T from density | 269 K → 270 K, **−3.8 °C** | 270 K, −3.48 °C | key disagrees in the °C |
 
 Where the key disagrees, the tests hold the booklet method, and the
 disagreement is listed for the owner.
