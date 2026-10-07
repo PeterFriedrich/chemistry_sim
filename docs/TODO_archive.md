@@ -8,6 +8,8 @@ Items are verbatim as they were closed, newest-moved first in the order they app
 
 ---
 
+- [x] Chemistry 20 C: `dissociation` — built 2026-10-07 (SPEC_chem20.md §2, DECISIONS row): ions in water, equations, [ion] = count × c, electrolytes, solubility flags.
+
 - [x] Chemistry 20 B: `gaslaws` — built 2026-10-02 (SPEC_chem20.md §1, DECISIONS row): gas laws, PV = nRT and molar volume, lab analysis; KMT as particles and captions.
 
 - [x] **Supply the Chemistry 20 gas values** (R, STP/SATP definitions and molar volumes) and their source — the Data Booklet prints none of them (DATA_SHEET.md §1.5). Blocks `gaslaws`. Closed 2026-10-02: the owner supplied the 2003 Chemistry 30 Data Booklet; R, STP and SATP recorded in DATA_SHEET.md §2 and `constants.js`, molar volumes derived as RT/P (DECISIONS row).

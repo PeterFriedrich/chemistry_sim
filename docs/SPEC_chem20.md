@@ -127,7 +127,13 @@ disagreement is listed for the owner.
 
 ---
 
-## 2. `dissociation`: ions in water (Unit C) — PROPOSED 2026-10-07
+## 2. `dissociation`: ions in water (Unit C) — APPROVED and built 2026-10-07
+
+Approved by the owner ("Yeah sure all sounds good") with the recommendations:
+(a) the solubility table is transcribed (DATA_SHEET.md §1.13) and slightly
+soluble compounds are flagged; asking for 0.1 mol/L or more of one is refused;
+(b) weak acids and bases are drawn qualitatively, with about 1 in 4 molecules
+ionized and labelled illustrative, and no [H₃O⁺]; (c) it is its own sim.
 
 The owner asked for "a nice visual for dissociation, like ions in water".
 Nothing built shows this; `titration` only names "complete ionization".
