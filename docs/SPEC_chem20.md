@@ -124,3 +124,73 @@ disagreement is listed for the owner.
   whichever your students are taught.
 - (c) Combining volumes goes in `stoichiometry`, not here?
 - (d) Real vs ideal as captions only, with no condensation animation?
+
+---
+
+## 2. `dissociation`: ions in water (Unit C) — PROPOSED 2026-10-07
+
+The owner asked for "a nice visual for dissociation, like ions in water".
+Nothing built shows this; `titration` only names "complete ionization".
+
+**Teaches.**
+- Ionic compounds dissociate into ions; molecular compounds dissolve as whole
+  molecules; acids ionize (strong acids completely, weak acids partly).
+- Writing dissociation and ionization equations with states, e.g.
+  Na₂SO₄(s) → 2 Na⁺(aq) + SO₄²⁻(aq), HCl(g) + H₂O(l) → H₃O⁺(aq) + Cl⁻(aq).
+- Hydration: water molecules turn their δ− oxygen toward cations and their δ+
+  hydrogens toward anions (polarity, from `bonding`).
+- Ion concentration from the solute's: [ion] = (ions per formula unit) × c,
+  and back again. With a mass and a volume first: n = m/M, c = n/V.
+- Electrolytes and conductivity: strong, weak, non-electrolyte.
+
+**Controls.**
+- The solute: typed formula or name (read by `naming`, so charges and
+  polyatomic ions come from the booklet), plus a list of common ones: NaCl,
+  CaCl₂, Na₂SO₄, Al₂(SO₄)₃, NH₄NO₃, CuSO₄·5H₂O, NaOH, sucrose, ethanol,
+  HCl, CH₃COOH, NH₃.
+- Given: the solute concentration, an ion concentration, or a mass of solute
+  and a volume of solution. Values are typed as the question writes them,
+  with sig figs counted from the text as in `gaslaws`.
+- Play drops a crystal into water and pulls ions off it, one at a time.
+
+**Readouts.**
+- The type of substance and why (metal + nonmetal, polyatomic ion, acid in
+  water, molecular).
+- The dissociation or ionization equation, with states.
+- [each ion] in mol/L, from the coefficient × c, with the sig figs of the
+  given value.
+- Electrolyte: strong, weak or none, with a conductivity bulb lit to match
+  (bright, dim, off; qualitative, no number).
+
+**Canvas.**
+- A beaker: a crystal lattice at the bottom, ions leaving it, each wrapped in
+  a few oriented water molecules. A sugar crystal sheds whole molecules.
+- The particle counts follow the formula (2 Na⁺ for each SO₄²⁻), and the
+  number drawn follows the concentration. The motion is decoration
+  (ARCHITECTURE.md §4).
+- A zoomed "one formula unit" panel matching the equation, coefficient for
+  coefficient.
+
+**Worked examples (tests).**
+- 0.25 mol/L Na₂SO₄ → [Na⁺] = 0.50 mol/L, [SO₄²⁻] = 0.25 mol/L.
+- [Cl⁻] = 0.300 mol/L from CaCl₂ → c(CaCl₂) = 0.150 mol/L.
+- 5.85 g NaCl in 250 mL → 0.100 mol NaCl → 0.400 mol/L of each ion.
+- CuSO₄·5H₂O(s) → Cu²⁺(aq) + SO₄²⁻(aq) + 5 H₂O(l).
+- Sucrose: C₁₂H₂₂O₁₁(s) → C₁₂H₂₂O₁₁(aq), no ions.
+
+**Booklet data.** Ion charges and polyatomic ions (`naming`, §1.8, §1.12),
+molar masses (§1.8), the acid table for strong vs weak (§1.9). No new
+constants.
+
+**Open questions for the owner.**
+- (a) **Low-solubility compounds** (AgCl, CaCO₃). Transcribe the booklet's
+  solubility table (p. 6, already a TODO) and flag them as "slightly soluble:
+  very few ions", or leave them out? Recommendation: transcribe it, since
+  `spontaneity`'s precipitate list needs it too.
+- (b) **Weak acids and bases.** Chemistry 20 treats them qualitatively, so the
+  sim would draw a few ions among many molecules and give no [H₃O⁺]. The
+  fraction drawn is illustrative only. Or leave acids out until `ph`?
+  Recommendation: include them qualitatively, because "strong vs weak" is the
+  conductivity contrast students are asked about.
+- (c) **Its own sim, or a mode of `dilution`?** Recommendation: its own sim.
+  `dilution` can link to it for the ion-concentration step.

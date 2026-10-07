@@ -22,6 +22,7 @@ symptom before acting on it.
 ### Phase 1 simulations (one per bullet; propose each first — CLAUDE.md)
 
 - [ ] Chemistry 20 C: `dilution` and `ph`.
+- [ ] Chemistry 20 C: `dissociation` — ions in water, dissociation equations, [ion] = coefficient × c, electrolytes. Proposed in docs/SPEC_chem20.md §2; owner to answer (a)–(c).
 - [ ] Chemistry 20 D: `stoichiometry` — limiting reagent, plus a gas-volume mode for combining volumes (Avogadro: volume ratio = mole ratio at the same T and P; review package pp. 2–4, owner 2026-10-02). Molar masses are in (DATA_SHEET.md §1.8, `molarMass()` in `chem/electrolysis.js`).
 - [ ] Chemistry 30 C: `organic` beyond phase 1 — rings and benzene, carboxylic acids, esters, diols, branched substituents (isopropyl), cis/trans; and organic reactions (addition, substitution, elimination, esterification, polymerization). Propose first.
 - [ ] Chemistry 30 B: `spontaneity` "build the table from observations" mode — pick 3–4 metals and their ion solutions, a grid of which pairs react, then rank the OAs (SPEC_phase2.md §4 (e), deferred 2026-09-27). Offer to the owner; reuses `predict()`.
