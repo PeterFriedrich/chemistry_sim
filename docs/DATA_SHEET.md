@@ -47,7 +47,7 @@ V in **L**; c (amount concentration) in mol/L; [ ] = amount concentration.
 | PDF p. 2, above the periodic table | Common polyatomic ions | **yes — §1.12** |
 | fold-out | Periodic table: atomic molar mass (g/mol, 2 d.p.), electronegativity, most stable ion charges, state at 101.325 kPa and 298.15 K | molar masses, ion charges and electronegativities — **§1.8** |
 | 4–5 | Standard molar enthalpies of formation at 298.15 K (kJ/mol) | **yes — §1.6** |
-| 6 | Solubility of some common ionic compounds in water at 298.15 K; flame colours | not yet |
+| 6 | Solubility of some common ionic compounds in water at 298.15 K; flame colours | solubility **yes — §1.13**; flame colours not yet |
 | 7 | Selected standard electrode potentials (1.0 mol/L, 298.15 K, 101.325 kPa) | **yes — §1.7** |
 | 8–9 | Relative strengths of acids and bases at 298.15 K, with K<sub>a</sub> | **yes — §1.9** |
 | 10 | Acid–base indicators at 298.15 K (pH ranges and colours) | **yes — §1.10** |
@@ -61,8 +61,9 @@ V in **L**; c (amount concentration) in mol/L; [ ] = amount concentration.
   1 000 times greater than the K<sub>a</sub>)." Also allowed for weak bases.
 - The solubility table "is only a guideline that is established using the
   K<sub>sp</sub> values. A concentration of 0.1 mol/L corresponds to
-  approximately 10 g/L to 30 g/L depending on molar mass." Check the table's
-  high/low threshold wording in the PDF before a sim relies on it.
+  approximately 10 g/L to 30 g/L depending on molar mass." The rows read
+  "Solubility greater than or equal to 0.1 mol/L (very soluble)" and
+  "Solubility less than 0.1 mol/L (slightly soluble)" (checked 2026-10-07).
 
 ### 1.5 Not printed
 
@@ -525,6 +526,28 @@ docs/FINDINGS_unitA_data.md).
 | hydrogen sulfide | HS⁻ |
 | thiocyanate | SCN⁻ |
 | thiosulfate | S₂O₃²⁻ |
+
+### 1.13 Solubility of some common ionic compounds in water at 298.15 K (p. 6)
+
+Transcribed 2026-10-07 from the PDF rendered as an image (PDF page 8); the
+text layer has the same entries, in a jumbled order. Code:
+`site/js/chem/solubility-data.js`. Ions are written as the code writes them.
+"Group 1" is Li⁺, Na⁺, K⁺, Rb⁺, Cs⁺ and Fr⁺. "high" is the booklet's
+"greater than or equal to 0.1 mol/L (very soluble)", "low" its "less than
+0.1 mol/L (slightly soluble)". Each column lists what most compounds do and
+the exceptions the booklet prints, as cations or whole compounds. The booklet
+notes that Hg₂²⁺ is a polyatomic ion of mercury. `naming` writes mercury(I) as
+Hg⁺, so the lookup reads Hg⁺ as Hg₂²⁺.
+
+| Column ions | Most | Exceptions |
+|---|---|---|
+| `Group 1`, `NH4^+`, `NO3^-`, `ClO3^-`, `ClO4^-`, `CH3COO^-` | high | `RbClO4`, `CsClO4`, `AgCH3COO`, `Hg2(CH3COO)2` |
+| `F^-` | high | `Li^+`, `Mg^2+`, `Ca^2+`, `Sr^2+`, `Ba^2+`, `Fe^2+`, `Hg2^2+`, `Pb^2+` |
+| `Cl^-`, `Br^-`, `I^-` | high | `Cu^+`, `Ag^+`, `Hg2^2+`, `Pb^2+`, `Tl^+` |
+| `SO4^2-` | high | `Ca^2+`, `Sr^2+`, `Ba^2+`, `Ag^+`, `Hg2^2+`, `Pb^2+`, `Ra^2+` |
+| `CO3^2-`, `PO4^3-`, `SO3^2-` | low | `Group 1`, `NH4^+` |
+| `IO3^-`, `OOCCOO^2-` | low | `Group 1`, `NH4^+`, `Co(IO3)2`, `Fe2(OOCCOO)3` |
+| `OH^-` | low | `Group 1`, `NH4^+` |
 
 ## 2. Chemistry 20: values not in the booklet
 
