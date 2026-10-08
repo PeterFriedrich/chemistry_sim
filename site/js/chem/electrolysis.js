@@ -50,6 +50,9 @@ export function electronMoles(Q) {
 // booklet's atomic molar masses (an ion's electrons are not counted).
 export function molarMass(species) {
   const body = species.replace(/\((s|l|g|aq)\)$/, '').replace(/\^.*$/, '');
+  // A hydrate adds its waters: CuSO4·5H2O.
+  const dot = /^(.*)·(\d*)(.+)$/.exec(body);
+  if (dot) return molarMass(dot[1]) + (dot[2] ? Number(dot[2]) : 1) * molarMass(dot[3]);
   const stack = [0];
   const re = /([A-Z][a-z]?|\(|\))(\d*)/g;
   let m;

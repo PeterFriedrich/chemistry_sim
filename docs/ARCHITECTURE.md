@@ -292,3 +292,11 @@ could mislead.
   speed ∝ √T, spacing follows V, and wall hits are drawn, but no readout reads
   them. The lab mode ignores the water vapour in the collected gas, as the
   review questions do.
+- **Dissociation** (`chem/dissociation.js`): ionic compounds dissociate
+  completely; the booklet's solubility table only flags the slightly soluble
+  ones, which cannot be made at 0.1 mol/L or more. Acids ionize by the
+  booklet's acid table, the first proton only (H₂SO₄ → HSO₄⁻), so a strong
+  acid's [H₃O⁺] equals c. Weak acids and bases get no concentrations, and the
+  "1 in 4 ionized" drawn is illustrative. A molecular solute's polarity comes
+  from `bonding`. Mercury(I) is Hg⁺ in `naming` and Hg₂²⁺ in the solubility
+  table; the lookup maps one to the other.

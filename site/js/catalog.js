@@ -69,6 +69,14 @@ export const sims = [
     concepts: ['P₁V₁/T₁ = P₂V₂/T₂', 'kelvin temperatures', 'PV = nRT', 'molar volume at STP and SATP', 'kinetic molecular theory'],
   },
   {
+    id: 'dissociation',
+    course: 'c20',
+    unit: 'C',
+    title: 'Dissociation: Ions in Water',
+    summary: 'Drop a solute into water and watch it break up: an ionic compound into its ions, each wrapped in water molecules turned the right way; a molecular compound into whole molecules; an acid ionizing with water. Write the equation, find each ion’s concentration from the solute’s, and see which solutions conduct.',
+    concepts: ['dissociation equations', '[ion] = coefficient × c', 'electrolytes and conductivity', 'strong and weak acids', 'solubility table'],
+  },
+  {
     id: 'calorimetry',
     course: 'c30',
     unit: 'A',
